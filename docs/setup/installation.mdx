@@ -1,47 +1,71 @@
 ---
 title: Installation
-description: Install and configure CanvasMC server
+description: Install and configure your server
 ---
 
 import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
 
 ## Requirements
 
-- Java 22 or newer
-- Minimum 4GB RAM
-- Stable internet connection
-- Basic command line knowledge
+To run CanvasMC, you'll need:
+
+- [Java 22](https://adoptium.net/en-GB/temurin/releases/?version=22) or newer
+- At least 4GB of RAM (recommended)
+- A stable internet connection
 
 ## Installation
 
-The process of installing CanvasMC is pretty straightforward. Follow these steps carefully to get your server up and running smoothly.
+CanvasMC follows a similar installation process to other PaperMC-based server software, making it familiar for experienced server administrators.
 
-### Download Server
+### Download the Server
 
-1. Get the latest CanvasMC jar file from [canvasmc.io/downloads](https://canvasmc.io/downloads)
-2. Create a new directory for your server files
-3. Move the downloaded jar file to your server directory
-4. **Optional**: Rename the jar file to `canvas.jar` for easier reference
+<Steps>
+  <Step>
+    Visit [canvasmc.io/downloads](https://canvasmc.io/downloads) to get the newest version of CanvasMC.
+  </Step>
+  
+  <Step>
+    Make a new folder to keep your server files organized and easily accessible.
+  </Step>
+
+  <Step>
+    Move the downloaded CanvasMC jar file into your server directory.
+  </Step>
+</Steps>
 
 ### Initial Setup
 
-1. Open terminal or command prompt in your server directory
-2. Start the server with the following command:
-   ```bash
-   java -jar canvas.jar nogui
-   ```
-   The server will crash on first run - this is expected behavior as it generates necessary files.
-3. Accept EULA:
-   - Server creates `eula.txt` file ([End User License Agreement](https://en.wikipedia.org/wiki/End-user_license_agreement))
-   - Open the file and change `eula` to `true`
-     ```bash title="eula.txt"
-     #By changing the setting below to TRUE you are indicating your agreement to our EULA (https://aka.ms/MinecraftEULA).
-     #Mon Jan 27 14:03:24 CET 2025
-     eula=false # [!code --]
-     eula=true # [!code ++]
-     ```
-4. Start the server once again and congrats! You have successfully installed CanvasMC.
+<Steps>
+  <Step>
+    Open a terminal or command prompt in your server directory and run:
+    ```bash title="console"
+    java -jar canvas.jar nogui # [!code word:canvas.jar] replace the jar file with the one you downloaded
+    ```
+    <Callout type="info">
+      The server will exit after first launch - this is expected as it generates required configuration files.
+    </Callout>
+    
+    <Callout type="info">
+      We recommend using optimized JVM flags from [flags.sh](https://flags.sh).
+    </Callout>
+  </Step>
+
+  <Step>
+    The first launch creates an `eula.txt` file. Open it and change `eula=false` to `eula=true`:
+    ```bash title="eula.txt"
+    # By changing the setting below to TRUE, you agree to our EULA (https://aka.ms/MinecraftEULA).
+    # Thu Jan 1 00:00:00 UTC 1970
+    eula=false # [!code --]
+    eula=true # [!code ++]
+    ```
+  </Step>
+
+  <Step>
+    Run the server command again to start CanvasMC. Once it fully loads, your installation is complete!
+  </Step>
+</Steps>
 
 ## Configuration
 
-The server automatically generates default configuration files on first run. These files contain various server settings that you can customize. See our detailed [configuration guide](./config) for all available customization options and recommended settings.
+CanvasMC generates default configuration files during the first launch. These files allow you to customize various aspects of your server. For detailed information about available options and recommended settings, check our [configuration guide](./config).
