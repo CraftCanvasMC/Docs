@@ -1,0 +1,21 @@
+{
+    "pages": [
+        "index",
+        "---Setup---",
+        "setup/installation",
+        "setup/plugins",
+        "setup/config",
+        "setup/security",
+        "---Optimizations---",
+        "optimizations/multithreaded-dimension-ticking",
+        "optimizations/chunk-generation",
+        "optimizations/commands",
+        "optimizations/entities",
+        "---Development---",
+        "development/contributing",
+        "---Links---",
+        "[GitHub](https://github.com/craftcanvasmc)",
+        "[Discord](https://discord.gg/canvasmc)",
+        "[Ko-fi](https://ko-fi.com/dueris)"
+    ]
+}

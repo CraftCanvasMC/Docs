@@ -1,0 +1,37 @@
+{
+  "name": "docs.canvasmc.io",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --turbo",
+    "start": "next start",
+    "format": "prettier --write .",
+    "postinstall": "fumadocs-mdx"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "fumadocs-core": "14.7.7",
+    "fumadocs-mdx": "11.3.1",
+    "fumadocs-ui": "14.7.7",
+    "next": "15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.1",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "22.10.9",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8",
+    "eslint-config-next": "15.1.4",
+    "postcss": "^8.5.1",
+    "prettier-plugin-organize-attributes": "^1.0.0",
+    "prettier-plugin-style-order": "^0.2.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "tailwindcss": "3",
+    "typescript": "^5.7.3"
+  }
+}
