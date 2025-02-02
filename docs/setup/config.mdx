@@ -5,216 +5,98 @@ description: Customize and optimize the performance of your server.
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-## Configuration Options
+CanvasMC offers a robust set of configurable options that let you fine-tune server performance and behavior. The configuration parameters are organized into logical sections for easy reference.
 
-CanvasMC offers a robust set of configurable options that let you fine-tune server performance and behavior. To help you quickly locate the settings you need, the configuration parameters have been organized into clear sections.
-
----
+<Callout type='info' title='Optimization Notice'>
+  The default configuration settings are optimized for a balance between performance and stability. Adjust these
+  parameters as needed to best fit your server's hardware and workload.
+</Callout>
 
 ## General Settings
 
-These settings control the basic threading and tick processes:
-
-- **runPlayerListTickOnIndependentLevel**  
-  Runs player list ticks on independent level threads.
-
-- **timeResyncInterval**  
-  Number of ticks between time resynchronization events per world.
-
-- **levelThreadPriority**  
-  Thread priority for level threads (acceptable values: 1–10).
-
-- **useLevelThreadsAsChunkSourceMain**  
-  Directs the ServerChunkCache tasks to the level thread rather than the main thread.
-
-- **emptySleepPerWorlds**  
-  Enables per-world “empty server” sleep logic (introduced in Minecraft 1.21.4).
-
-- **enableCanvasTickCommand**  
-  Activates the `threadedtick` command for CanvasMC’s threaded context.
-
----
+| Setting                               | Description                                                           | Default |
+| ------------------------------------- | --------------------------------------------------------------------- | ------- |
+| `runPlayerListTickOnIndependentLevel` | Runs player list ticks on independent level threads                   | `true`  |
+| `timeResyncInterval`                  | Number of ticks between time resynchronization events per world       | `400`   |
+| `levelThreadPriority`                 | Thread priority for level threads                                     | `9`     |
+| `useLevelThreadsAsChunkSourceMain`    | Directs ServerChunkCache tasks to level thread instead of main thread | `true`  |
+| `emptySleepPerWorlds`                 | Enables per-world "empty server" sleep logic                          | `true`  |
+| `enableCanvasTickCommand`             | Activates the `threadedtick` command                                  | `true`  |
 
 ## Chunk Generation Options
 
-These settings affect how chunks are generated and cached:
+| Setting                                     | Description                                        | Default      |
+| ------------------------------------------- | -------------------------------------------------- | ------------ |
+| `chunkGeneration.chunkDataCacheSoftLimit`   | Soft limit for chunk data caching                  | `8192`       |
+| `chunkGeneration.chunkDataCacheLimit`       | Hard limit for chunk data caching                  | `32678`      |
+| `chunkGeneration.allowAVX512`               | Enables AVX512 instruction support when available  | `false`      |
+| `chunkGeneration.nativeAccelerationEnabled` | Activates native acceleration for chunk generation | `true`       |
+| `chunkGeneration.chunkWorkerAlgorithm`      | Algorithm for thread count determination           | `"moonrise"` |
 
-- **chunkGeneration.chunkDataCacheSoftLimit**  
-  Soft limit for chunk data caching (default: 8192).
+## Pathfinding Settings
 
-- **chunkGeneration.chunkDataCacheLimit**  
-  Hard limit for chunk data caching (default: 32678).
+| Setting                                     | Description                       | Default |
+| ------------------------------------------- | --------------------------------- | ------- |
+| `pathfinding.enableThreadedPathfinding`     | Enables asynchronous pathfinding  | `true`  |
+| `pathfinding.useThreadedWorldForScheduling` | Uses dedicated threaded scheduler | `true`  |
+| `pathfinding.maxProcessors`                 | Maximum cores for pathfinding     | `2`     |
+| `pathfinding.keepAlive`                     | Idle thread lifetime in seconds   | `60`    |
 
-- **chunkGeneration.allowAVX512**  
-  Enables AVX512 instruction support when available.
+## Entity Tracking Settings
 
-- **chunkGeneration.nativeAccelerationEnabled**  
-  Activates native acceleration to boost chunk generation performance.
+| Setting                                 | Description                        | Default |
+| --------------------------------------- | ---------------------------------- | ------- |
+| `entityTracking.enableThreadedTracking` | Shifts tracking to separate thread | `true`  |
+| `entityTracking.maxProcessors`          | Maximum cores for tracking         | `1`     |
+| `entityTracking.keepAlive`              | Idle thread lifetime in seconds    | `60`    |
 
-- **chunkGeneration.chunkWorkerAlgorithm**  
-  Sets the algorithm for thread count determination (values: MOONRISE, C2ME, ANY, ALL). Default is "moonrise".
+## Performance Settings
 
----
+| Setting                           | Description                                     | Default |
+| --------------------------------- | ----------------------------------------------- | ------- |
+| `enableAsyncSpawning`             | Activates asynchronous mob spawning             | `true`  |
+| `skipTicksAdvancements`           | Delay between inventory triggers                | `3`     |
+| `skipUselessSecondaryPoiSensor`   | Disables unnecessary POI sensor ticking         | `true`  |
+| `optimizePistonMovingBlockEntity` | Optimizes piston block entities                 | `true`  |
+| `clumpOrbs`                       | Groups XP orbs for efficiency                   | `true`  |
+| `useCompactSineLUT`               | Uses compact lookup table for trig calculations | `true`  |
 
-## Pathfinding Optimization
+## TNT Settings
 
-Optimize pathfinding operations through asynchronous processing:
+| Setting                           | Description                          | Default |
+| --------------------------------- | ------------------------------------ | ------- |
+| `tnt.enableFasterTntOptimization` | Enables TNT performance enhancements | `true`  |
+| `tnt.explosionNoBlockDamage`      | Disables block damage from TNT       | `false` |
+| `tnt.tntRandomRange`              | Random range modifier for TNT        | `-1.0`  |
 
-- **pathfinding.enableThreadedPathfinding**  
-  Enables asynchronous pathfinding by delegating computation to separate threads.
+## Summon Command Settings
 
-- **pathfinding.useThreadedWorldForScheduling**  
-  Uses a dedicated threaded scheduler for handling pathfinding tasks.
-
-- **pathfinding.maxProcessors**  
-  Maximum processor cores allocated for pathfinding computations.
-
-- **pathfinding.keepAlive**  
-  Duration (in seconds) that idle pathfinding threads remain active.
-
----
-
-## Entity Tracking Options
-
-Improve server performance by offloading entity tracking:
-
-- **entityTracking.enableThreadedTracking**  
-  Shifts entity tracking to a separate thread to relieve main thread load.
-
-- **entityTracking.maxProcessors**  
-  Sets the maximum processor cores available for tracking tasks.
-
-- **entityTracking.keepAlive**  
-  Specifies how long (in seconds) idle tracking threads remain live before termination.
-
----
-
-## Performance Enhancements
-
-Additional options to help boost overall server performance:
-
-- **enableAsyncSpawning**  
-  Activates asynchronous mob spawning with an adapted version of Pufferfish’s patch.
-
-- **skipTicksAdvancements**  
-  Delays inventory change triggers to reduce frequent advancement and recipe updates (default: 3 ticks).
-
-- **skipUselessSecondaryPoiSensor**  
-  Disables unnecessary ticking of secondary POI sensors.
-
-- **optimizePistonMovingBlockEntity**  
-  Optimizes processing for piston-related block entities.
-
-- **clumpOrbs**  
-  Efficiently groups XP orbs together to reduce processing overhead.
-
-- **useCompactSineLUT**  
-  Utilizes a compact lookup table for faster sine/cosine calculations.
-
----
-
-## TNT Optimization Options
-
-Fine-tune TNT performance parameters:
-
-- **tnt.enableFasterTntOptimization**  
-  Enables performance enhancements for TNT explosion processing.
-
-- **tnt.explosionNoBlockDamage**  
-  Configures TNT explosions to avoid block damage when enabled.
-
-- **tnt.tntRandomRange**  
-  Adjusts the random range modifier for TNT behavior (default: -1.0).
-
----
-
-## Summon Command Enhancements
-
-Manage entity summoning with better performance:
-
-- **summonCommandBatchCount**  
-  Defines the number of entities to summon per tick (default: 50).
-
-- **batchSummonCommandTasks**  
-  Groups summon tasks across several ticks to prevent server freezing.
-
----
-
-## Behavior & Movement Tweaks
-
-Mitigate unnecessary processing and improve gameplay experience:
-
-- **ignoreMovedTooQuicklyWhenLagging**  
-  Suppresses warnings about rapid movement during lag spikes.
-
-- **goalsToDisable**  
-  Accepts an array of entity AI goal class names to disable specific behaviors.
-
----
+| Setting                   | Description                      | Default |
+| ------------------------- | -------------------------------- | ------- |
+| `summonCommandBatchCount` | Entities to summon per tick      | `50`    |
+| `batchSummonCommandTasks` | Groups summon tasks across ticks | `true`  |
 
 ## Lag Compensation Settings
 
-Enhance the player experience during lag with these adjustments:
+| Setting                                       | Description                         | Default |
+| --------------------------------------------- | ----------------------------------- | ------- |
+| `lagCompensation.enabled`                     | Master switch for lag compensation  | `true`  |
+| `lagCompensation.blockEntityAcceleration`     | Speeds up block entity handling     | `false` |
+| `lagCompensation.blockBreakingAcceleration`   | Accelerates block breaking          | `true`  |
+| `lagCompensation.eatingAcceleration`          | Improves eating response time       | `true`  |
+| `lagCompensation.potionEffectAcceleration`    | Enhances potion effect speed        | `true`  |
+| `lagCompensation.fluidAcceleration`           | Optimizes fluid updates             | `true`  |
+| `lagCompensation.pickupAcceleration`          | Improves item pickup response       | `true`  |
+| `lagCompensation.portalAcceleration`          | Optimizes portal transitions        | `true`  |
+| `lagCompensation.sleepingAcceleration`        | Reduces sleep delays                | `true`  |
+| `lagCompensation.timeAcceleration`            | Adjusts time progression during lag | `true`  |
+| `lagCompensation.randomTickSpeedAcceleration` | Boosts random tick performance      | `true`  |
 
-- **lagCompensation.enabled**  
-  Master switch for lag compensation.
+## Advanced Entity Settings
 
-- **lagCompensation.blockEntityAcceleration**  
-  Speeds up block entity handling (*default: false*).
-
-- **lagCompensation.blockBreakingAcceleration**  
-  Accelerates block breaking processes.
-
-- **lagCompensation.eatingAcceleration**  
-  Improves response time during eating actions.
-
-- **lagCompensation.potionEffectAcceleration**  
-  Enhances the speed at which potion effects are applied.
-
-- **lagCompensation.fluidAcceleration**  
-  Optimizes fluid update performance.
-
-- **lagCompensation.pickupAcceleration**  
-  Improves responsiveness for item pickups.
-
-- **lagCompensation.portalAcceleration**  
-  Optimizes portal transitions for smoother gameplay.
-
-- **lagCompensation.sleepingAcceleration**  
-  Reduces delays associated with sleep processes.
-
-- **lagCompensation.timeAcceleration**  
-  Adjusts in-game time progression during lag to smooth out performance.
-
-- **lagCompensation.randomTickSpeedAcceleration**  
-  Boosts the performance of random tick events.
-
----
-
-## Advanced Entity Ticking
-
-Further refine how entities are processed:
-
-- **entityMasks**  
-  Configurable tick masks for entities. Leave empty unless advanced tuning is required.
-
-- **threadedEntityTicking**  
-  Moves entity ticking to an asynchronous scheduler, benefiting setups with players spread across multiple worlds.
-
-- **disableEntityPushing**  
-  Disables non-player entity pushing to optimize crowded environments.
-
-- **alwaysAllowWeirdMovement**  
-  Prevents unnecessary movement corrections during lag spikes.
-
----
-
-<Callout type="info" title="Optimization Notice">
-  The default configuration settings are optimized for a balance between performance and stability. Adjust these parameters as needed to best fit your server's hardware and workload.
-</Callout>
-
----
-
-## Example Configuration
-
-Below is a complete JSON example incorporating all of the settings described above:
+| Setting                    | Description                              | Default |
+| -------------------------- | ---------------------------------------- | ------- |
+| `entityMasks`              | Configurable tick masks for entities     | `[]`    |
+| `threadedEntityTicking`    | Enables async entity ticking             | `false` |
+| `disableEntityPushing`     | Disables non-player entity pushing       | `false` |
+| `alwaysAllowWeirdMovement` | Prevents movement corrections during lag | `true`  |
