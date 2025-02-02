@@ -1,4 +1,92 @@
 ---
-title: Adding plugins
-description: Learn how to add plugins to your CanvasMC server
+title: Adding Plugins
+description: Extend your server with trusted plugins
 ---
+
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## Adding Plugins
+
+Enhance your CanvasMC server by adding plugins to introduce new gameplay features, optimizations, and extended functionality. Plugins allow you to customize game mechanics and add new commands or game modes. For best practices, always test new plugins in a controlled environment before deploying them to production.
+
+<Callout type="warn">
+  **Multithreaded dimension ticking** is generally stable but may cause compatibility issues with certain plugins. Please proceed with caution.
+</Callout>
+
+## Trusted Sources
+
+For security and reliability, only install plugins from reputable sources:
+
+- [Hangar](https://hangar.example) (recommended)
+- [SpigotMC](https://www.spigotmc.org)
+- [BukkitDev](https://dev.bukkit.org)
+- Official GitHub repositories
+
+## Installing Plugins
+
+<Steps>
+  <Step>
+    **Download the Plugin**  
+    Obtain the plugin's `.jar` file from a trusted source. If the plugin is provided as a `.zip`, extract the `.jar` prior to installation.
+  </Step>
+  
+  <Step>
+    **Install the Plugin**  
+    Place the downloaded `.jar` file into the `plugins` folder located in your server's root directory.
+  </Step>
+  
+  <Step>
+    **Restart Your Server**  
+    Restart CanvasMC to load the new plugin
+    <Callout type="warn">
+      The **/reload** command is **never** recommended as it can cause various issues.
+    </Callout>
+  </Step>
+  
+  <Step>
+    **Verify Installation**  
+    Execute the `/plugins` command in-game or via the console. A green listing indicates that the plugin loaded successfully, while a red listing signals an error.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+Below are common issues you might encounter when installing plugins along with recommended solutions:
+
+<Callout type="error" title="Missing Dependencies">
+  Caused if the plugin requires other plugins to function.
+  ```log
+  [00:00:00] [Server thread/WARN] Could not load 'plugins/SomePlugin.jar' in folder 'plugins'
+  [00:00:00] [Server thread/WARN] org.bukkit.plugin.UnknownDependencyException: Unknown/missing dependency plugins: [DependencyPlugin]. Please download and install these plugins to run 'SomePlugin'.
+  ```
+  Install the required dependency plugins as specified in the plugin's documentation.
+</Callout>
+
+<Callout type="error" title="Invalid Plugin File">
+  Caused if the plugin is either:
+  1. Intended for a different modding platform (such as Forge or Fabric) and is incompatible with CanvasMC.
+  2. Corrupted or incomplete due to network issues, transferring in ASCII mode instead of binary, or downloading an error page.
+  ```log
+  [00:00:00] [Server thread/WARN] Could not load 'plugins/ExamplePlugin.jar' in folder 'plugins'
+  [00:00:00] [Server thread/WARN] org.bukkit.plugin.InvalidDescriptionException: Invalid plugin.yml
+  ```  
+  Re-download the plugin file and verify that it is compatible with your server version.
+</Callout>
+
+<Callout type="error" title="Duplicate Plugins">
+  Caused if the plugin is installed in multiple versions.
+  ```log
+  [00:00:00] [Server thread/WARN] Ambiguous plugin name `Essentials' for files 'plugins/EssentialsX-2.19.4.jar' and 'plugins/EssentialsX-2.20.0-dev.jar' in 'plugins'
+  ```
+  Remove duplicate versions by keeping only one version of each plugin. Delete older or conflicting versions, then restart your server.
+</Callout>
+
+<Callout type="error" title="Incompatible Java Version">
+  Caused if the plugin is compiled with a newer Java version than installed on the server.
+  ```log
+  [00:00:00] [Server thread/ERROR] Could not load 'plugins/ExamplePlugin.jar' in folder 'plugins'
+  [00:00:00] [Server thread/ERROR] java.lang.UnsupportedClassVersionError: ExamplePlugin has been compiled by a more recent Java Runtime (class file version 67.0), this version only recognizes class file versions up to 66.0
+  ```
+  Update your server's Java version or request a compatible build from the plugin developer.
+</Callout>
