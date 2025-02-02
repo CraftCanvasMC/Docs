@@ -22,17 +22,14 @@ CanvasMC follows a similar installation process to other PaperMC-based server so
 
 <Steps>
   <Step>
-    **Download Latest Release**
     Visit [canvasmc.io/downloads](https://canvasmc.io/downloads) to get the newest version of CanvasMC.
   </Step>
   
   <Step>
-    **Create Server Directory** 
     Make a new folder to keep your server files organized and easily accessible.
   </Step>
 
   <Step>
-    **Install Server Files**
     Move the downloaded CanvasMC jar file into your server directory.
   </Step>
 </Steps>
@@ -41,10 +38,9 @@ CanvasMC follows a similar installation process to other PaperMC-based server so
 
 <Steps>
   <Step>
-    **First Server Launch**
     Open a terminal or command prompt in your server directory and run:
-    ```bash
-    java -jar canvas.jar nogui
+    ```bash title="console"
+    java -jar canvas.jar nogui # [!code word:canvas.jar] replace the jar file with the one you downloaded
     ```
     <Callout type="info">
       The server will exit after first launch - this is expected as it generates required configuration files.
@@ -56,7 +52,6 @@ CanvasMC follows a similar installation process to other PaperMC-based server so
   </Step>
 
   <Step>
-    **Accept the EULA**
     The first launch creates an `eula.txt` file. Open it and change `eula=false` to `eula=true`:
     ```bash title="eula.txt"
     # By changing the setting below to TRUE, you agree to our EULA (https://aka.ms/MinecraftEULA).
@@ -67,7 +62,6 @@ CanvasMC follows a similar installation process to other PaperMC-based server so
   </Step>
 
   <Step>
-    **Complete Installation**
     Run the server command again to start CanvasMC. Once it fully loads, your installation is complete!
   </Step>
 </Steps>
