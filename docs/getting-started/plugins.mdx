@@ -1,17 +1,26 @@
 ---
+icon: Blocks
 title: Adding Plugins
 description: Extend your server with trusted plugins
+authors: [Ventitoja, feenko]
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
-Enhance your CanvasMC server by adding plugins to introduce new gameplay features, optimizations, and extended functionality. Plugins allow you to customize game mechanics and add new commands or game modes.
+## Introduction
+
+Plugins are a great way to extend your server with new features. They allow you to customize game mechanics and add new commands or game modes. In this guide, we will go over the basics of plugins and how to install them.
 
 <Callout type='warn'>
-  **Multithreaded dimension ticking** is generally stable but may cause compatibility issues with certain plugins. In
+  **Multithreaded dimension ticking** is stable but may cause compatibility issues with certain plugins. In
   case of incompatibility, report the issue to the plugin developer.
 </Callout>
+
+### Known Incompatibilities
+
+- WorldEdit (Use [FAWE](https://www.spigotmc.org/resources/fastasyncworldedit.13932/) instead)
+- Nova
 
 ## Trusted Sources
 
@@ -26,22 +35,22 @@ For security and reliability, only install plugins from reputable sources:
 
 <Steps>
   <Step>
-    **Download the Plugin** Obtain the plugin's `.jar` file from a trusted source. If the plugin is provided as a
+    Obtain the plugin's `.jar` file from a trusted source. If the plugin is provided as a
     `.zip`, extract the `.jar` prior to installation.
   </Step>
 
   <Step>
-    **Install the Plugin** Place the downloaded `.jar` file into the `plugins` folder located in your server's root
+    Place the downloaded `.jar` file into the `plugins` folder located in your server's root
     directory.
   </Step>
 
   <Step>
-    **Restart Your Server** Restart CanvasMC to load the new plugin
+    Restart CanvasMC to load the new plugin
     <Callout type='warn'>The **/reload** command is **never** recommended as it can cause various issues.</Callout>
   </Step>
 
   <Step>
-    **Verify Installation** Execute the `/plugins` command in-game or via the console. A green listing indicates that
+    Execute the `/plugins` command in-game or via the console. A green listing indicates that
     the plugin loaded successfully, while a red listing signals an error.
   </Step>
 </Steps>
