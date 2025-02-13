@@ -61,24 +61,24 @@ export default async function Page(props: {
         <div className='mb-6 flex flex-col gap-2'>
           {page.data.authors && (
             <p className='flex items-center gap-2'>
-            <span className='text-fd-muted-foreground'>Authors:</span>
-            {page.data.authors.map(author => (
-              <Link
-                key={author}
-                href={`https://github.com/${author}`}
-                className='flex items-center gap-1.5 font-medium underline decoration-fd-muted-foreground underline-offset-3 transition-colors duration-200 hover:decoration-fd-foreground'
-              >
-                <Image
-                  src={`https://github.com/${author}.png`}
-                  alt={`${author}'s avatar`}
-                  width={20}
-                  height={20}
-                  className='h-5 w-5 rounded-full'
-                />
-                {author}
-              </Link>
-            ))}
-          </p>
+              <span className='text-fd-muted-foreground'>Authors:</span>
+              {page.data.authors.map(author => (
+                <Link
+                  key={author}
+                  href={`https://github.com/${author}`}
+                  className='flex items-center gap-1.5 font-medium underline decoration-fd-muted-foreground underline-offset-3 transition-colors duration-200 hover:decoration-fd-foreground'
+                >
+                  <Image
+                    src={`https://github.com/${author}.png`}
+                    alt={`${author}'s avatar`}
+                    width={20}
+                    height={20}
+                    className='h-5 w-5 rounded-full'
+                  />
+                  {author}
+                </Link>
+              ))}
+            </p>
           )}
           <p className='flex items-center gap-2'>
             <span className='text-fd-muted-foreground'>Reading time:</span>
