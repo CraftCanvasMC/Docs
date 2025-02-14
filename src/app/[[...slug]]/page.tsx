@@ -36,26 +36,6 @@ export default async function Page(props: {
           style: 'clerk',
         }}
       >
-        <div className='flex items-center gap-1.5 text-fd-muted-foreground text-sm'>
-          {params.slug ? (
-            <>
-              Docs
-              {params.slug.map((segment, index) => (
-                <span key={segment} className='flex items-center gap-1.5'>
-                  <span>/</span>
-                  <span className={index === (params.slug?.length ?? 0) - 1 ? 'text-fd-foreground' : ''}>
-                    {segment
-                      .split('-')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ')}
-                  </span>
-                </span>
-              ))}
-            </>
-          ) : (
-            <span>Docs</span>
-          )}
-        </div>
         <DocsTitle>{page.data.title}</DocsTitle>
         <DocsDescription className='mb-0'>{page.data.description}</DocsDescription>
         <div className='mb-6 flex flex-col gap-2'>
