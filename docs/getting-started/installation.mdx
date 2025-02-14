@@ -40,21 +40,26 @@ CanvasMC follows a similar installation process to other PaperMC-based server so
 
 <Steps>
   <Step>
-    Open a terminal or command prompt in your server directory and run:
-    ```bash title="console"
-    java -jar canvas.jar nogui # [!code word:canvas.jar] replace the jar file with the one you downloaded
+    Create a startup script for your operating system:
+
+    ```bash title="start.bat (Windows)"
+    java -Xms2G -Xmx4G -jar canvas.jar nogui
+    pause
     ```
-    <Callout type="info">
-      The server will exit after first launch - this is expected as it generates required configuration files.
-    </Callout>
+
+    ```bash title="start.sh (Linux/macOS)"
+    #!/bin/bash
+    java -Xms2G -Xmx4G -jar canvas.jar nogui
+    ```
     
     <Callout type="info">
-      We recommend using optimized JVM flags from [flags.sh](https://flags.sh).
+      For optimal performance, get customized JVM flags from [flags.sh](https://flags.sh) based on your server specs.
     </Callout>
   </Step>
 
   <Step>
-    The first launch creates an `eula.txt` file. Open it and change `eula=false` to `eula=true`:
+    The first launch creates an `eula.txt` file. Open it and change the following line:
+
     ```bash title="eula.txt"
     # By changing the setting below to TRUE, you agree to our EULA (https://aka.ms/MinecraftEULA).
     # Thu Jan 1 00:00:00 UTC 1970
@@ -64,7 +69,7 @@ CanvasMC follows a similar installation process to other PaperMC-based server so
   </Step>
 
   <Step>
-    Run the server command again to start CanvasMC. Once it fully loads, your installation is complete!
+    Run the server again using the startup script you created. Once it fully loads, your installation is complete!
   </Step>
 </Steps>
 
