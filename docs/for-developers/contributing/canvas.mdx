@@ -1,0 +1,119 @@
+---
+title: Canvas
+description: Guide to setting up a CanvasMC Server development environment.
+authors: [Ventitoja]
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## Introduction
+
+This guide presents the essential steps for configuring a CanvasMC development environment on Windows.
+
+<Callout type="warn">
+    Paper-based servers are optimized for Linux. While Windows development is possible, we strongly recommend WSL2 for optimal performance.
+</Callout>
+
+## Environment Setup
+
+### Configuration Steps
+
+<Steps>
+  <Step>
+    Enable WSL 2 using these commands in PowerShell (Administrator):
+    ```bash
+    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+    wsl --set-default-version 2
+    ```
+    Restart your system afterward.
+  </Step>
+
+  <Step>
+    Obtain Ubuntu via Microsoft Store or command line:
+    ```bash
+    wsl --install -d Ubuntu-24.04
+    ```
+    Configure credentials when prompted.
+  </Step>
+
+  <Step>
+    Ensure your system is current:
+    ```bash
+    sudo apt update && sudo apt full-upgrade -y
+    ```
+  </Step>
+
+  <Step>
+    Deploy SDKMAN! for Java version management:
+    ```bash
+    curl -s "https://get.sdkman.io" | bash
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    ```
+  </Step>
+
+  <Step>
+    Install Eclipse Temurin JDK 22:
+    ```bash
+    sdk install java 22.0.2+9-temurin
+    ```
+    <Callout type="info">
+      Alternative JDK providers may impact performance and compilation speed.
+    </Callout>
+  </Step>
+
+  <Step>
+    Clone the Canvas Repository:
+    ```bash
+    https://github.com/CraftCanvasMC/Canvas.git
+    cd Canvas
+    ```
+  </Step>
+
+  <Step>
+    Import the cloned Canvas project using IntelliJ IDEA (or other IDE's but really IntelliJ is the best out there).
+  </Step>
+
+  <Step>
+    Initialize the development environment:
+    ```bash
+    ./gradlew applyAllPatches
+    ```
+  </Step>
+
+</Steps>
+
+## Troubleshooting
+
+For technical assistance, visit the [CanvasMC Discord](https://canvasmc.io/discord).
+
+## Contributing
+
+After making changes to the source code:
+
+<Steps>
+  <Step>
+    Rebuild patches (using the bash script in the root of the repo) to update the project:
+    ```bash
+    ./rebuildPatches
+    ```
+  </Step>
+  <Step>
+    Commit your changes with a descriptive message:
+    ```bash
+    git add .
+    git commit -m "feat: describe your changes"
+    ```
+  </Step>
+
+  <Step>
+    Push your changes and create a Pull Request on GitHub:
+    ```bash
+    git push
+    ```
+  </Step>
+</Steps>
+
+<Callout type="warn">
+  Always run `rebuildPatches` before submitting a Pull Request to ensure your changes are properly captured in the patch files.
+</Callout>
