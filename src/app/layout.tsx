@@ -1,7 +1,12 @@
 import './globals.css';
 import { RootProvider } from 'fumadocs-ui/provider';
+import type { Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { geist, geistMono } from '~/lib/fonts';
+
+export const viewport: Viewport = {
+  themeColor: '#2a2d30',
+};
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
