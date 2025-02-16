@@ -1,53 +1,67 @@
 ---
 title: Canvas
-description: Guide to setting up a CanvasMC Server development environment.
-authors: [Ventitoja]
+description: Learn how to contribute to CanvasMC Server
+authors: [Ventitoja, feenko]
 ---
-
-import { Callout } from 'fumadocs-ui/components/callout';
 
 ## Introduction
 
-This guide presents the essential steps for configuring a CanvasMC development environment on Windows.
+This guide will help you get started with contributing to CanvasMC server.
 
 :::warn
 
-Paper-based servers are optimized for Linux. While Windows development is possible, we strongly recommend WSL2 for optimal performance.
+Paper-based servers are optimized for Linux environments. While development on Windows is possible, we only provide support for Linux.
 
 :::
 
-## Environment Setup
+## Getting Started
 
-### Configuration Steps
+### Prerequisites
+
+- For Windows users, WSL2.
+- [Git](https://git-scm.com) with configured credentials.
+
+### WSL2 Configuration
+
+For Windows users, Windows Subsystem for Linux 2 (WSL2) provides an Linux development environment. If you have WSL2 configured or are using a native Linux/macOS system, proceed to the next section.
 
 <Steps>
   <Step>
-    Enable WSL 2 using these commands in PowerShell (Administrator):
+    Open Command Prompt as Administrator and enable WSL 2 with the following commands:
+
     ```bash
     dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
     dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
-    wsl --set-default-version 2
     ```
-    Restart your system afterward.
+    
+    Restart your computer to apply these changes.
   </Step>
 
   <Step>
-    Obtain Ubuntu via Microsoft Store or command line:
+    Install Ubuntu or any other preferred Linux distribution via Microsoft Store or command line:
+
     ```bash
     wsl --install -d Ubuntu-24.04
     ```
-    Configure credentials when prompted.
-  </Step>
 
+    When prompted, set up your Linux username and password. These credentials will be used for sudo commands.
+  </Step>
+</Steps>
+
+### Local Setup
+
+<Steps>
   <Step>
-    Ensure your system is current:
+    Update your system packages to ensure everything is current:
+    
     ```bash
-    sudo apt update && sudo apt full-upgrade -y
+    sudo apt update && sudo apt upgrade -y && sudo apt full-upgrade -y
     ```
   </Step>
 
   <Step>
-    Deploy SDKMAN! for Java version management:
+    Install SDKMAN! for Java version management:
+
     ```bash
     curl -s "https://get.sdkman.io" | bash
     source "$HOME/.sdkman/bin/sdkman-init.sh"
@@ -56,9 +70,11 @@ Paper-based servers are optimized for Linux. While Windows development is possib
 
   <Step>
     Install Eclipse Temurin JDK 22:
+
     ```bash
     sdk install java 22.0.2+9-temurin
     ```
+
     :::info
 
     Alternative JDK providers may impact performance and compilation speed.
@@ -68,58 +84,117 @@ Paper-based servers are optimized for Linux. While Windows development is possib
 
   <Step>
     Clone the Canvas Repository:
+
     ```bash
-    https://github.com/CraftCanvasMC/Canvas.git
+    git clone https://github.com/CraftCanvasMC/Canvas.git
     cd Canvas
     ```
   </Step>
 
   <Step>
-    Import the cloned Canvas project using IntelliJ IDEA (or other IDE's but really IntelliJ is the best out there).
+    Import the cloned Canvas project into IntelliJ IDEA.
+
+    :::warning
+    
+    While other IDEs can be used, IntelliJ IDEA provides the best Java development experience with superior code analysis, debugging tools, and Gradle integration.
+    
+    :::
   </Step>
 
   <Step>
-    Initialize the development environment:
+    Make sure you have Git configured with your credentials:
+
+    ```bash
+    git config --global user.name "Your Name"
+    git config --global user.email "your.email@example.com"
+    ```
+  </Step>
+
+  <Step>
+    Set up your development environment by applying Paper, Purpur and Canvas patches:
+
     ```bash
     ./gradlew applyAllPatches
     ```
+
+    This command prepares the codebase by applying all necessary patches to the Minecraft server, making it ready for development.
   </Step>
 
 </Steps>
 
-## Troubleshooting
+### Troubleshooting
 
-For technical assistance, visit the [CanvasMC Discord](https://canvasmc.io/discord).
+If you encounter any issues, you can join our [Discord server](https://canvasmc.io/discord) for support.
 
 ## Contributing
 
-After making changes to the source code:
+### Creating Issues
+
+Before making changes, create an issue to discuss your proposed server changes.
 
 <Steps>
   <Step>
-    Rebuild patches (using the bash script in the root of the repo) to update the project:
-    ```bash
-    ./rebuildPatches
-    ```
+    Check existing issues to avoid duplicates
   </Step>
+  
   <Step>
-    Commit your changes with a descriptive message:
-    ```bash
-    git add .
-    git commit -m "feat: describe your changes"
-    ```
+    Create a new issue
   </Step>
-
+  
   <Step>
-    Push your changes and create a Pull Request on GitHub:
-    ```bash
-    git push
-    ```
+    Clearly describe:
+    - What needs to be changed/added
+    - Why this change is needed
+    - Which parts of the code are affected
   </Step>
 </Steps>
 
-:::info
+### Submitting Changes
 
-Always run `rebuildPatches` before submitting a Pull Request to ensure your changes are properly captured in the patch files.
+<Steps>
+  <Step>
+    Fork the repository
+  </Step>
+  
+  <Step>
+    Create a new branch from `dev`:
+    
+    ```bash
+    git checkout dev
+    git pull origin dev
+    git checkout -b feature/your-feature-name
+    ```
+  </Step>
+  
+  <Step>
+    Make your changes
+  </Step>
+  
+  <Step>
+    Commit with a clear message:
 
-:::
+    ```bash
+    git commit -m "Add feature"
+    ```
+  </Step>
+  
+  <Step>
+    Push your changes and create a Pull Request
+  </Step>
+</Steps>
+
+### Review Process
+
+<Steps>
+  <Step>
+    Maintainers will review your PR within 2-3 business days
+  </Step>
+  
+  <Step>
+    Address any requested changes
+  </Step>
+  
+  <Step>
+    Once approved, your changes will be merged
+  </Step>
+</Steps>
