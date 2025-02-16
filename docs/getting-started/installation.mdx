@@ -39,19 +39,22 @@ CanvasMC follows a similar installation process to other PaperMC-based server so
   <Step>
     Create a startup script for your operating system:
 
-    ```bash title="start.bat (Windows)"
-    java -Xms2G -Xmx4G -jar canvas.jar nogui
-    pause
+    ```bash tab="Windows" title="start.bat"
+    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar server.jar --nogui # [!code word:server.jar]
+    pause >nul 2>&1
     ```
 
-    ```bash title="start.sh (Linux/macOS)"
+    ```bash tab="Linux/macOS" title="start.sh"
     #!/bin/bash
-    java -Xms2G -Xmx4G -jar canvas.jar nogui
+    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar server.jar --nogui # [!code word:server.jar]
+    pause > /dev/null 2>&1
     ```
     
-    <Callout type="info">
-      For optimal performance, get customized JVM flags from [flags.sh](https://flags.sh) based on your server specs.
-    </Callout>
+    :::info
+    
+    For optimal performance, get customized JVM flags from [Birdflop Flags Generator](https://www.birdflop.com/resources/flags/) based on your server specs.
+    
+    :::
   </Step>
 
   <Step>
