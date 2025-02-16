@@ -1,6 +1,7 @@
 import { getGithubLastEdit } from 'fumadocs-core/server';
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
@@ -75,7 +76,17 @@ export default async function Page(props: {
         </div>
         <DocsBody>
           <hr />
-          <MDX components={{ ...defaultMdxComponents, WorkInProgress, Step, Steps, Callout }} />
+          <MDX
+            components={{
+              ...defaultMdxComponents,
+              WorkInProgress,
+              Step,
+              Steps,
+              Callout,
+              Tab,
+              Tabs,
+            }}
+          />
         </DocsBody>
       </DocsPage>
     </DocsLayout>
