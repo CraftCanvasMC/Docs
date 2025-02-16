@@ -1,0 +1,200 @@
+---
+title: Canvas
+description: Learn how to contribute to CanvasMC Server
+authors: [Ventitoja, feenko]
+---
+
+## Introduction
+
+This guide will help you get started with contributing to CanvasMC server.
+
+:::warn
+
+Paper-based servers are optimized for Linux environments. While development on Windows is possible, we only provide support for Linux.
+
+:::
+
+## Getting Started
+
+### Prerequisites
+
+- For Windows users, WSL2.
+- [Git](https://git-scm.com) with configured credentials.
+
+### WSL2 Configuration
+
+For Windows users, Windows Subsystem for Linux 2 (WSL2) provides an Linux development environment. If you have WSL2 configured or are using a native Linux/macOS system, proceed to the next section.
+
+<Steps>
+  <Step>
+    Open Command Prompt as Administrator and enable WSL 2 with the following commands:
+
+    ```bash
+    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+    ```
+    
+    Restart your computer to apply these changes.
+  </Step>
+
+  <Step>
+    Install Ubuntu or any other preferred Linux distribution via Microsoft Store or command line:
+
+    ```bash
+    wsl --install -d Ubuntu-24.04
+    ```
+
+    When prompted, set up your Linux username and password. These credentials will be used for sudo commands.
+  </Step>
+</Steps>
+
+### Local Setup
+
+<Steps>
+  <Step>
+    Update your system packages to ensure everything is current:
+    
+    ```bash
+    sudo apt update && sudo apt upgrade -y && sudo apt full-upgrade -y
+    ```
+  </Step>
+
+  <Step>
+    Install SDKMAN! for Java version management:
+
+    ```bash
+    curl -s "https://get.sdkman.io" | bash
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    ```
+  </Step>
+
+  <Step>
+    Install Eclipse Temurin JDK 22:
+
+    ```bash
+    sdk install java 22.0.2+9-temurin
+    ```
+
+    :::info
+
+    Alternative JDK providers may impact performance and compilation speed.
+    
+    :::
+  </Step>
+
+  <Step>
+    Clone the Canvas Repository:
+
+    ```bash
+    git clone https://github.com/CraftCanvasMC/Canvas.git
+    cd Canvas
+    ```
+  </Step>
+
+  <Step>
+    Import the cloned Canvas project into IntelliJ IDEA.
+
+    :::warning
+    
+    While other IDEs can be used, IntelliJ IDEA provides the best Java development experience with superior code analysis, debugging tools, and Gradle integration.
+    
+    :::
+  </Step>
+
+  <Step>
+    Make sure you have Git configured with your credentials:
+
+    ```bash
+    git config --global user.name "Your Name"
+    git config --global user.email "your.email@example.com"
+    ```
+  </Step>
+
+  <Step>
+    Set up your development environment by applying Paper, Purpur and Canvas patches:
+
+    ```bash
+    ./gradlew applyAllPatches
+    ```
+
+    This command prepares the codebase by applying all necessary patches to the Minecraft server, making it ready for development.
+  </Step>
+
+</Steps>
+
+### Troubleshooting
+
+If you encounter any issues, you can join our [Discord server](https://canvasmc.io/discord) for support.
+
+## Contributing
+
+### Creating Issues
+
+Before making changes, create an issue to discuss your proposed server changes.
+
+<Steps>
+  <Step>
+    Check existing issues to avoid duplicates
+  </Step>
+  
+  <Step>
+    Create a new issue
+  </Step>
+  
+  <Step>
+    Clearly describe:
+    - What needs to be changed/added
+    - Why this change is needed
+    - Which parts of the code are affected
+  </Step>
+</Steps>
+
+### Submitting Changes
+
+<Steps>
+  <Step>
+    Fork the repository
+  </Step>
+  
+  <Step>
+    Create a new branch from `dev`:
+    
+    ```bash
+    git checkout dev
+    git pull origin dev
+    git checkout -b feature/your-feature-name
+    ```
+  </Step>
+  
+  <Step>
+    Make your changes
+  </Step>
+  
+  <Step>
+    Commit with a clear message:
+
+    ```bash
+    git commit -m "Add feature"
+    ```
+  </Step>
+  
+  <Step>
+    Push your changes and create a Pull Request
+  </Step>
+</Steps>
+
+### Review Process
+
+<Steps>
+  <Step>
+    Maintainers will review your PR within 2-3 business days
+  </Step>
+  
+  <Step>
+    Address any requested changes
+  </Step>
+  
+  <Step>
+    Once approved, your changes will be merged
+  </Step>
+</Steps>
