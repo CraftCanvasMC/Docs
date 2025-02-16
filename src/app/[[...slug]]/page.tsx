@@ -42,7 +42,7 @@ export default async function Page(props: {
         <DocsDescription className='mb-0'>{page.data.description}</DocsDescription>
         <div className='mb-6 flex flex-col gap-2'>
           {page.data.authors && (
-            <p className='flex items-center gap-2'>
+            <div className='flex items-center gap-2'>
               <span className='text-fd-muted-foreground'>Authors:</span>
               {page.data.authors.map(author => (
                 <Link
@@ -60,9 +60,9 @@ export default async function Page(props: {
                   {author}
                 </Link>
               ))}
-            </p>
+            </div>
           )}
-          <p className='flex items-center gap-2'>
+          <div className='flex items-center gap-2'>
             <span className='text-fd-muted-foreground'>Reading time:</span>
             <span>
               {Math.ceil(
@@ -71,7 +71,7 @@ export default async function Page(props: {
               )}{' '}
               min read
             </span>
-          </p>
+          </div>
         </div>
         <DocsBody>
           <hr />
