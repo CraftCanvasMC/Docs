@@ -10,9 +10,11 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 This guide presents the essential steps for configuring a CanvasMC development environment on Windows.
 
-<Callout type="warn">
-    Paper-based servers are optimized for Linux. While Windows development is possible, we strongly recommend WSL2 for optimal performance.
-</Callout>
+:::warn
+
+Paper-based servers are optimized for Linux. While Windows development is possible, we strongly recommend WSL2 for optimal performance.
+
+:::
 
 ## Environment Setup
 
@@ -57,9 +59,11 @@ This guide presents the essential steps for configuring a CanvasMC development e
     ```bash
     sdk install java 22.0.2+9-temurin
     ```
-    <Callout type="info">
-      Alternative JDK providers may impact performance and compilation speed.
-    </Callout>
+    :::info
+
+    Alternative JDK providers may impact performance and compilation speed.
+    
+    :::
   </Step>
 
   <Step>
@@ -114,6 +118,8 @@ After making changes to the source code:
   </Step>
 </Steps>
 
-<Callout type="warn">
-  Always run `rebuildPatches` before submitting a Pull Request to ensure your changes are properly captured in the patch files.
-</Callout>
+:::info
+
+Always run `rebuildPatches` before submitting a Pull Request to ensure your changes are properly captured in the patch files.
+
+:::
