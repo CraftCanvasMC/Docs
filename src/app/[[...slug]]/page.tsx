@@ -1,4 +1,7 @@
 import { getGithubLastEdit } from 'fumadocs-core/server';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
@@ -40,13 +43,13 @@ export default async function Page(props: {
         <DocsDescription className='mb-0'>{page.data.description}</DocsDescription>
         <div className='mb-6 flex flex-col gap-2'>
           {page.data.authors && (
-            <p className='flex items-center gap-2'>
+            <div className='flex items-center gap-2'>
               <span className='text-fd-muted-foreground'>Authors:</span>
               {page.data.authors.map(author => (
                 <Link
                   key={author}
                   href={`https://github.com/${author}`}
-                  className='flex items-center gap-1.5 font-medium underline decoration-fd-muted-foreground underline-offset-3 transition-colors duration-200 hover:decoration-fd-foreground'
+                  className='flex items-center gap-1.5 font-medium underline decoration-2 underline-offset-3 transition-colors duration-200 hover:decoration-3'
                 >
                   <Image
                     src={`https://github.com/${author}.png`}
@@ -58,9 +61,9 @@ export default async function Page(props: {
                   {author}
                 </Link>
               ))}
-            </p>
+            </div>
           )}
-          <p className='flex items-center gap-2'>
+          <div className='flex items-center gap-2'>
             <span className='text-fd-muted-foreground'>Reading time:</span>
             <span>
               {Math.ceil(
@@ -69,11 +72,21 @@ export default async function Page(props: {
               )}{' '}
               min read
             </span>
-          </p>
+          </div>
         </div>
         <DocsBody>
           <hr />
-          <MDX components={{ ...defaultMdxComponents, WorkInProgress }} />
+          <MDX
+            components={{
+              ...defaultMdxComponents,
+              WorkInProgress,
+              Step,
+              Steps,
+              Callout,
+              Tab,
+              Tabs,
+            }}
+          />
         </DocsBody>
       </DocsPage>
     </DocsLayout>

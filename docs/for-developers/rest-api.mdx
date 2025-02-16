@@ -1,0 +1,117 @@
+---
+icon: Globe
+title: REST API
+description: Comprehensive documentation for Canvas's REST API, including endpoints, parameters, and response formats.
+authors: [feenko]
+---
+
+## API Versions
+
+The Canvas REST API supports versioning through the `/api/v{version}` URL prefix. Currently, two API versions are available:
+
+- **V2 (Current)**: The latest stable version, featuring enhanced performance and expanded functionality. All new integrations should use this version.
+- **V1 (Deprecated)**: Legacy version maintained for existing integrations. This version will be discontinued soon.
+
+:::warning
+
+For backwards compatibility with already existing integrations, route `/api` automatically redirects to the `/api/v1` endpoint.
+
+:::
+
+## V2 API Endpoints
+
+Base URL: `https://canvasmc.io/api/v2`
+
+### Get All Builds
+
+`GET /builds`
+
+Returns a list of all recent builds.
+
+#### Query Parameters
+
+- `minecraft_version` (string) - Filter builds by Minecraft version
+- `experimental` (boolean) - Include experimental builds
+
+#### Response
+
+```jsonc title="Example Response"
+[
+  {
+    "buildNumber": 1337,
+    "url": "https://jenkins.canvasmc.io/job/Canvas/1337/",
+    "downloadUrl": "https://jenkins.canvasmc.io/job/Canvas/1337/artifact/canvas-server/build/libs/canvas-build.1337.jar",
+    "minecraftVersion": "1.21.4",
+    "timestamp": 1739339329161,
+    "isExperimental": true,
+    "commit": { // [!code --]
+      "message": "Hello world!", // [!code --]
+      "hash": "3768ac53eb2671853145bd077ade0579e13741ed" // [!code --]
+    }, // [!code --]
+    "commits": [
+      {
+        "message": "Hello world!",
+        "hash": "3768ac53eb2671853145bd077ade0579e13741ed"
+      },
+      {
+        "message": "Why are you reading this?",
+        "hash": "895b307dcc7c6fbb040dc7bd26d9a754e03cf8c7"
+      }
+    ]
+  },
+  // ...
+]
+```
+
+:::warning
+
+The `commit` property has been deprecated in favor of the `commits` array.
+
+:::
+
+### Get Latest Build
+
+`GET /builds/latest`
+
+Returns the latest build.
+
+#### Query Parameters
+
+- `experimental` (boolean) - Include experimental builds
+
+#### Response
+
+```jsonc title="Example Response"
+{
+  "buildNumber": 1337,
+  "url": "https://jenkins.canvasmc.io/job/Canvas/1337/",
+  "downloadUrl": "https://jenkins.canvasmc.io/job/Canvas/1337/artifact/canvas-server/build/libs/canvas-build.1337.jar",
+  "minecraftVersion": "1.21.4",
+  "timestamp": 1739339329161,
+  "isExperimental": true,
+  "commit": { // [!code --]
+    "message": "Hello world!", // [!code --]
+    "hash": "3768ac53eb2671853145bd077ade0579e13741ed" // [!code --]
+  }, // [!code --]
+  "commits": [
+    {
+      "message": "Hello world!",
+      "hash": "3768ac53eb2671853145bd077ade0579e13741ed"
+    },
+    {
+      "message": "Why are you reading this?",
+      "hash": "895b307dcc7c6fbb040dc7bd26d9a754e03cf8c7"
+    }
+  ]
+}
+```
+
+:::warning
+
+The `commit` property has been deprecated in favor of the `commits` array.
+
+:::
+
+## V1 API Endpoints
+
+The V1 API has been deprecated. While still accessible, we strongly recommend migrating to V2 API for all new and existing integrations. For historical reference, the V1 API documentation can be found [here](https://github.com/CraftCanvasMC/Website/blob/bd804056306e713da89ebe56132e58702119ba4a/api/DOCUMENTATION.md).
