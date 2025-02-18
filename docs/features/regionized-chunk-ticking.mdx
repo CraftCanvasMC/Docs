@@ -41,7 +41,7 @@ Assuming you store those groups in some sort of list, you have successfully sepe
 
 ### Ticking Chunks
 Ticking things in parallel can often cause many headaches. Lucky for us however, the way we handle grouping of the chunks actually takes most of the risk out of parallelizing this!
-Due to touching chunks always being in the same group, you can guarantee that regions will have at least one chunk of space between them. Since regions are also remade every tick, you only need to worry about interactions on this current tick.
+Due to touching chunks always being in the same group, you can guarantee that regions will have at least one chunk of space between them. Since regions are also remade every tick, you only need to worry about interactions on the current tick.
 There's not much, if anything, that can actually interact with two different and seperated chunks on the same tick so as long as you catch those edge cases you're safe to parallelize away!
 
 ### Canvas vs Folia
