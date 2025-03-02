@@ -49,7 +49,7 @@ export default async function Page(props: {
                 <Link
                   key={author}
                   href={`https://github.com/${author}`}
-                  className='flex items-center gap-1.5 font-medium underline decoration-2 underline-offset-3 transition-colors duration-200 hover:decoration-3'
+                  className='flex items-center gap-1.5 font-medium underline decoration-2 underline-offset-3 transition-opacity duration-200 hover:opacity-80'
                 >
                   <Image
                     src={`https://github.com/${author}.png`}
