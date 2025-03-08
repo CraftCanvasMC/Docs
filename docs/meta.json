@@ -4,6 +4,7 @@
     "---Getting Started---",
     "getting-started/installation",
     "getting-started/plugins",
+    "getting-started/pterodactyl",
     "---Features---",
     "features/regionized-chunk-ticking",
     "---For Developers---",
