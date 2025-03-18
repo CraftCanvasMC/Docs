@@ -1,0 +1,32 @@
+---
+icon: Timer
+title: Long Term Support
+description: Long Term Support Policy
+authors: [Dueris]
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Long-Term Support (LTS) Policy
+
+## Overview
+Our LTS policy ensures continued support for previous versions while maintaining focus on the latest developments. Below are the specific support guidelines:
+
+## Support Duration
+- **Previous Minor Version:**
+  The last minor version before a new release will be supported for **1 month** after the first build of the latest version is available.
+  - Example: If `1.21.5` is released, then `1.21.4` will be supported for 1 month after the first `1.21.5` build is deployed.
+
+- **Previous Major Version:**
+  The latest minor version of the previous major version will be supported **until the next update cycle**.
+  - Example: If `1.22` is released, then `1.21.(latest)` will be supported until `1.22.1` is released.
+
+## Additional Notes
+- **Critical Fix Updates:**
+  Critical fixes from Minecraft itself **do not** affect this policy. If a critical fix update is released, it will be considered as the same as the update it associates with(like 1.21 and 1.21.1 would be considered the same).
+- **Feature Backporting:**
+  New features will **only** be available on the latest version and **will not** be backported.
+- **Bug Fixes:**
+  Only **bug fixes** will be provided for LTS versions.
+
+This policy ensures a balance between stability for existing users and continued progress on the latest version.

@@ -1,0 +1,74 @@
+---
+icon: Merge
+title: Threading
+description: Documentation on Canvas multithreading
+authors: [Dueris]
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Canvas Multithreading
+This page discusses and outlines Canvas' most significant changes to the Minecraft server to bring various threading optimizations.
+
+## Chunks/Moonrise
+Moonrise is PaperMCs chunk system rewrite that introduces "async" operations to the chunk system. Moonrise however, is flawed in numerous ways that stunt performance and scalability. For example:
+- Broken scaling
+- Async/Sync task filtering
+- Max parallelism
+
+Moonrise scaling completely falls apart at ~8 threads. With Moonrise, certain chunk steps are filtered as "parallel-safe" or not.
+This defines whether the chunk system can run the task on a worker thread, or on the main thread. Most chunk tasks are handled on workers
+except a few. `LIGHT`, `SPAWN`, `FEATURES`, and `FULL`.
+By making some tasks run on the main thread, it slows down productivity when loading/generating chunks. Canvas changes this to make
+all chunk steps marked as "parallel-safe". The tasks mentioned however, are not parallel-safe, so Canvas implements various fixes to
+make these steps thread-safe, which boosts productivity with worker threads, implementing some patches from C2ME to fix various worldgen bugs.
+
+Unfortunately, that only does so much to improve performance of the chunk system, and we still have various issues causing the chunk system to
+extremely under-perform. When building Moonrise executors``(interfaces into the worker thread pool)``, it sets the configuration option of `max-parallelism`.
+This configuration option essentially limits how many threads can process a specific task type on that thread, meaning only 1 thread can execute a singular
+chunk step at a time. This is the main source for why Moonrise doesn't linearly scale properly.
+What Canvas does to combat this, is remove max parallelism entirely, allowing any and all workers to run any of a specific task type at once.
+This does cause numerous issues, which is why Moonrise didn't do this already. Canvas fixes these issues allowing a fully threaded chunk system with proper
+linear scaling.
+
+Canvas also implements its own worker pool called `TheChunkSystem` class. This class interfaces with `FlowSched`, a collection of scheduling implementations
+created by ishland, one of the devs of C2ME. The new chunk system changes allow Canvas to fully utilize all threads allocated in a much more efficient and optimal way.
+
+## Tickloops
+
+There is a very big problem with Minecraft that creates a hard-ceiling with performance opportunities. Vanilla Minecraft is built to be almost fully single-threaded
+which leaves performance scalability extremely difficult. Various mods and server forks have attempted to fix this bottle-neck but most either were extremely unstable
+or failed entirely. Most notably, Folia and C2ME being far more stable and impressive than all others. Folia, despite being unstable still, is created by optimization
+legend, SpottedLeaf. Folia implements regionized ticking to make Minecraft truly scale and is the closest attempt to a truly threaded Minecraft server.
+Canvas attempts to try and become more of a "middle ground" between Paper and Folia, and aiming for Vanilla mechanics compatibility, unlike Folia which disables certain mechanics.
+Canvas does this by threading per world, instead of per region, and implements more threading optimizations to allow the server to scale more efficiently.
+
+Canvas threads the server in a few ways, by world(known internally as the ``ServerLevel``), network phases, and the chunk system. Canvas, similar to Folia, runs ticks
+inside a scheduler thread pool, so we can allocate a specific amount of threads for ticking the server, rather than dedicate threads to specific tickloops like the main thread.
+Canvas also exposes this API allowing plugins to create tickloops that are ticked in parallel with the server.
+
+### Level Threading
+Canvas' main optimization is isolated ticking of the world off the main thread. Each world becomes it's own "main thread", and is ticked on the scheduler in parallel.
+All things related to the world and it's tick are isolated on there to prevent concurrency issues, however there are a few rules that Canvas threading follows:
+- All commands are processed on the main thread. For commands that interact with the world, Canvas has made thread-safe so the server doesn't crash when running the `tp` command for example.
+- Connections/Packet processing is handled on the level of which the player is associated on. Instead of the main thread, Canvas queues packet processing tasks to the connection
+object that is associated with the player, the `ServerGamePacwketListenerImpl`. More information on networking handling is bellow. All packets are processed before the world is ticked.
+- Anything and everything related to the world tick is processed on that thread. Canvas also implements the Folia regionized scheduler to allow plugins to use that to schedule on the
+associated world thread.
+
+### Chunk Threading
+As mentioned previously, Canvas fixes linear scaling with the chunk system, supercharging chunk performance. However, there are still some things processed on the main thread
+related to the chunk system, that make the chunk system not fully async. To combat this, we made a "async chunk loader" thread, that ticks in parallel, and processes the following:
+- Distance Manager ticket purging
+- PlayerChunkLoader ticking, which updates queues associated with chunk system steps(load, generate, send, etc)
+- ChunkTaskScheduler main thread ticking, which processes any scheduled tasks for the main thread
+- Chunk update broadcasting
+- ChunkMap ticking
+- Distance Manager ticking
+
+In general, this thread keeps track of all things related to the chunk system, making the entirety of Moonrise completely async, and keeps everything in check.
+
+### Network Threading
+During the player configuration and joining phases, the server runs some blocking tasks related to establishing connections with the client, which can hurt performance immensely,
+often tanking MSPT from ~3 -> 500+ from 1 player joining, and is even worse when multiple players are joining at once. To help reduce this lag, we move the configuration and joining
+phases of the player connection to the "async join thread", ticking in parallel with the server and isolates the blocking tasks to minimize lag on the rest of the server.
