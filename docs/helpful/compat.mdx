@@ -1,0 +1,26 @@
+---
+icon: Blocks
+title: Plugin Compatibility
+description: Plugin compatibility rules and information
+authors: [Dueris]
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## General Rules
+Canvas, being multithreaded, is obviously not going to work with all plugins, but it is important to note that Canvas is far more compatible than it's closest relative in terms of behavior, Folia.
+Folia attempts for full parallelism, using a much more strict method of regionizing the server to ensure parallelism is kept with the server using tick thread checks. Canvas does not do this whatsoever,
+and instead opts for implementing concurrency fixes within server internals to allow plugins to run things off the tick runners in parallel, instead of forcing the correct thread to be used.
+Canvas tries to fix plugin compatibility with most plugins that have an incompatibility, with a few exceptions like WorldEdit, as there is a faster and compatible alternative, FastAsyncWorldEdit. If you
+do find an incompatibility with a plugin and Canvas, tell us in our discord server or make an issue in the Github Repository! We cannot fix these incompatibilities if we don't even know they exist!
+Canvas has implemented various patches to support a large variety of plugins, implementing custom utilities to ensure that we keep stability, performance, and compatibility with plugins.
+
+## Events
+Events are unpredictable, as with the right config, they could be firing events anytime, anywhere, about anything. To help fix this, we implemented a "plugin compatibility mode" option
+in our configuration to make it so that only 1 thread can fire at a time. While horrible for performance, this is implemented as a last resort for if we cannot fix compatibility with a plugin.
+The join thread is another issue that people have speculated as going to mess with plugins, however this is not the case. We isolate the join and configuration phases of the client on *one* thread.
+This means that it is just run off-main, not out of order or anything. Everything is still kept intact, yet run on a different thread to isolate the blocking tasks that tank performance.
+
+## Conclusion
+When making Canvas, one of our goals was to make Canvas as plugin compatible as possible. We prioritize plugin compatibility when making feature and performance patches, and consistently try and
+improve on our systems to better support plugins, even implementing full APIs to assist with compatibility, and even adapt plugins to allow better usage of Canvas' threaded environment.

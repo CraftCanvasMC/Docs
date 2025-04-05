@@ -40,35 +40,49 @@ There is a very big problem with Minecraft that creates a hard-ceiling with perf
 which leaves performance scalability extremely difficult. Various mods and server forks have attempted to fix this bottle-neck but most either were extremely unstable
 or failed entirely. Most notably, Folia and C2ME being far more stable and impressive than all others. Folia, despite being unstable still, is created by optimization
 legend, SpottedLeaf. Folia implements regionized ticking to make Minecraft truly scale and is the closest attempt to a truly threaded Minecraft server.
-Canvas attempts to try and become more of a "middle ground" between Paper and Folia, and aiming for Vanilla mechanics compatibility, unlike Folia which disables certain mechanics.
-Canvas does this by threading per world, instead of per region, and implements more threading optimizations to allow the server to scale more efficiently.
+Canvas attempts to try and become more of a fully threaded Minecraft server, and aiming for Vanilla mechanics compatibility and plugin compatibility, unlike Folia which disables certain mechanics and is a plugin compatibility mess.
 
-Canvas threads the server in a few ways, by world(known internally as the ``ServerLevel``), network phases, and the chunk system. Canvas, similar to Folia, runs ticks
+Canvas threads the server in a few ways, by world(known internally as the ``ServerLevel``), network phases, the chunk system, and (optionally) by regions. Canvas, similar to Folia, runs ticks
 inside a scheduler thread pool, so we can allocate a specific amount of threads for ticking the server, rather than dedicate threads to specific tickloops like the main thread.
 Canvas also exposes this API allowing plugins to create tickloops that are ticked in parallel with the server.
 
 ### Level Threading
 Canvas' main optimization is isolated ticking of the world off the main thread. Each world becomes it's own "main thread", and is ticked on the scheduler in parallel.
 All things related to the world and it's tick are isolated on there to prevent concurrency issues, however there are a few rules that Canvas threading follows:
-- All commands are processed on the main thread. For commands that interact with the world, Canvas has made thread-safe so the server doesn't crash when running the `tp` command for example.
+- All commands are processed on the world thread(or region if regionizing is enabled, see **Regionizing**). For commands that interact with the world, Canvas has made thread-safe so the server doesn't crash when running the `tp` command for example.
 - Connections/Packet processing is handled on the level of which the player is associated on. Instead of the main thread, Canvas queues packet processing tasks to the connection
-object that is associated with the player, the `ServerGamePacwketListenerImpl`. More information on networking handling is bellow. All packets are processed before the world is ticked.
+  object that is associated with the player, the `ServerGamePacwketListenerImpl`. More information on networking handling is bellow. All packets are processed before the world is ticked.
 - Anything and everything related to the world tick is processed on that thread. Canvas also implements the Folia regionized scheduler to allow plugins to use that to schedule on the
-associated world thread.
+  associated world thread.
 
 ### Chunk Threading
 As mentioned previously, Canvas fixes linear scaling with the chunk system, supercharging chunk performance. However, there are still some things processed on the main thread
-related to the chunk system, that make the chunk system not fully async. To combat this, we made a "async chunk loader" thread, that ticks in parallel, and processes the following:
-- Distance Manager ticket purging
-- PlayerChunkLoader ticking, which updates queues associated with chunk system steps(load, generate, send, etc)
-- ChunkTaskScheduler main thread ticking, which processes any scheduled tasks for the main thread
-- Chunk update broadcasting
-- ChunkMap ticking
-- Distance Manager ticking
-
-In general, this thread keeps track of all things related to the chunk system, making the entirety of Moonrise completely async, and keeps everything in check.
+related to the chunk system, that make the chunk system not fully async. To combat this, we made a "async chunk loader" thread, that ticks in parallel, which essentially runs as
+a thread to keep everything in check and running smoothly with the chunk system(most likely will be removed in the future).
 
 ### Network Threading
 During the player configuration and joining phases, the server runs some blocking tasks related to establishing connections with the client, which can hurt performance immensely,
 often tanking MSPT from ~3 -> 500+ from 1 player joining, and is even worse when multiple players are joining at once. To help reduce this lag, we move the configuration and joining
 phases of the player connection to the "async join thread", ticking in parallel with the server and isolates the blocking tasks to minimize lag on the rest of the server.
+
+### Regionizing
+Canvas uses the same regionizer as Folia, meaning they act basically the same in terms of behavior of region management, however in terms of actual ticking, they are vastly different in a few ways.
+To start, Folia implements checks throughout the server to ensure parallelism is kept, meanwhile Canvas opts more towards fixing these concurrency issues to allow the server to tick in concurrency, rather
+than forcing parallelism. Canvas shards the world in a very similar way to Folia aswell, implementing our own version of its mechanics, even creating custom utilities to assist plugin compatibility internally.
+Canvas also ticks the worlds independently aswell as the regions(purely for simplicity internally, and to continue to allow behavior with threaded dimensions as mentioned above with Level Threading). Connections
+are slightly different with regionizing aswell, as the ServerLevel can contain region data(however we try and avoid this as much as possible). We pass connections to the ServerLevel allowing it to handle
+connection regionizing, which is far more efficient as it ensures we don't loose connections during region updates(like merging and splitting). In general, regionizing was done in a way that tried to be better
+in both plugin compatibility and stability than its relative, Folia.
+
+## Plugin Compatibility
+This page has been moved to the /plugin-compat page.
+
+## Configuring thread counts
+With Canvas threading, the rules of thread counts are vastly different than upstream Purpur. For example, with Canvas' chunk system, it is a ***lot*** more aggressive, meaning it can full utilize
+the threads allocated, which makes it much more difficult to share threads with tick schedulers and such, so we created this rule that should help server owners with making a good
+configuration for the Canvas threaded environment.
+
+``(chunk worker count) + (tick scheduler count) <= (max threads on the CPU - 2)``
+
+This rule helps allow the server to better split its tasks, as if it's greater than the CPUs thread count, it could cause worse performance as the chunk workers and tick runners will begin
+fighting for who gets to run tasks on that thread.
