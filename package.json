@@ -18,7 +18,7 @@
     "@theguild/remark-mermaid": "^0.3.0",
     "fumadocs-core": "15.5.0",
     "fumadocs-mdx": "11.6.0",
-    "fumadocs-ui": "15.4.2",
+    "fumadocs-ui": "15.5.0",
     "lucide-react": "^0.511.0",
     "next": "15.3.3",
     "react": "^19.0.0",
