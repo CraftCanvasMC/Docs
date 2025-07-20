@@ -1,0 +1,193 @@
+---
+icon: Diff
+title: Fixes
+description: An overview of what Canvas fixes in Folia
+authors: [Dueris]
+---
+
+Folia breaks a **lot** of Vanilla mechanics and systems. Canvas aims to try and fix as many as possible. This page contains information regarding what Canvas fixes, and how.
+These strictly document behavioral fixes and restorations of Vanilla systems, not crash and bug fixes in Folia itself.
+
+## Commands
+- Fixes the `/bossbar` command
+- Fixes the `/dialog` command
+- Fixes the `/loot` command
+- Fixes the `/ride` command
+- Fixes the `/spectate` command
+- Fixes the `/spreadplayers` command
+  - This command was completely rewritten to function primarily asynchronously, scheduling to regions when needing to validate data
+  which assists in keeping this command as performant as possible, as it doesn't effect the region threads. This prevents thread ownership
+  issues and is much safer for region threading and performance purposes
+  - See `canvas-server/minecraft-patches/sources/net/minecraft/server/commands/SpreadPlayersCommand.java.patch` for the full patch implementation
+- Fixes the `/tag` commmand
+- Fixes the `/waypoint` command
+  - More documented changes bellow
+- Fixes the `/save-all` command
+  - This command was redone to complete in an asynchronous fashion, marking all currently ticking regions in all worlds to be fully saved
+  on their next tick, saving all their chunks and players. This prevents thread ownership issues and is much safer for region threading
+- Fixes pitch/yaw in the `/tp` command being consistently 0 when ran, instead of keeping the teleporting entity X/Y rot
+
+## Vanilla Systems
+
+### Waypoints & The Locator Bar
+
+The Locator Bar and Waypoints were not very hard to reimplement. This was done simply by reversing Folia's changes to disable the waypoint
+system, and then regionizing it. The reason this works is due to how the locator bar functions.
+The locator bar shows the position of other players as colored indicators, known as **waypoints**. The waypoint's icon changes based on the player's
+distance to its location. The further the player is from the waypoint, the smaller the icon visually is shown on the locator bar. Several sprites
+of the icon can be observed based on the distance:
+
+| Sprite | Range          |
+|--------|----------------|
+| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_0.png" width="16" height="16" alt="Locator Bar Pos-0" /> </span> | (0–179 blocks, 11 chunks) |
+| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_1.png" width="16" height="16" alt="Locator Bar Pos-1" /> </span> | (179–230 blocks, 14 chunks) |
+| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_2.png" width="16" height="16" alt="Locator Bar Pos-2" /> </span> | (230–281 blocks, 17 chunks) |
+| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_3.png" width="16" height="16" alt="Locator Bar Pos-3" /> </span> | (281+ blocks, 17+ chunks) |
+
+Unfortunately Canvas' implementation does deviate from Vanilla behavior, because it only shows the waypoints for the waypoints within the region the player is currently in.
+This is realistically the only way to implement this feature without making waypoints completely threadsafe, which was a thought and may be revisited in the future.
+There is not much of a visual difference, infact it looks quite normal as regions generally do not go far beyond 17 chunks depending on the grid exponent, so it does make sense
+that the next step would be to disappear after enough distance is put between players. To keep original Folia behavior, disable the locator bar.
+
+:::note
+
+This change may be revisited in the future to attack the issue of regionizng this deviates from Vanilla behavior at a certain distance. Another option
+is a concurrent/thread-safe implementation of waypoints, but this is still up to debate.
+
+:::
+
+### Vanilla Ender Pearl Behavior
+
+Folia removes pearl loading and unloading behavior when a player joins or leaves, either by disconnecting or during server shutdown. Canvas implements a configuration option that fixes this mechanic
+```yaml
+## Restores vanilla loading and unloading behavior broken by Folia
+restoreVanillaEnderPearlBehavior: false ## This value is false by default
+```
+
+This was implemented via a PR by <u>**Vitminee**</u> as PR [114](https://github.com/CraftCanvasMC/Canvas/pull/114). This was later followed up with commit [c6cac70](https://github.com/CraftCanvasMC/Canvas/commit/c6cac70d7dc8bcb551824f8ce32ba5e03b0af434)
+fixing numerous issues with this patch. This primarily reverts Folias changes to removing this behavior, makes the `enderPearls` field in `ServerPlayer` thread-safe, and
+ensures proper regionizing on removal of the ender pearl. We don't need to regionize the loading of the ender pearl ourselves, as Folia does this for us already as part
+of their region threading patch.
+
+### End Credits
+
+The end credits were disabled by Folia due to Folias rewrite of respawning logic. Folias respawning logic contains the method:
+
+```java
+private void respawn(java.util.function.Consumer<ServerPlayer> respawnComplete, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason reason, boolean alive)
+```
+
+This method contains all logic for respawning a player with region threading. Canvas essentially splits this method into the method and the "finalizer".
+The finalizer is a `Runnable` that adds the player back to the world. Vanilla, when showing the end credits, removes the player from the world and
+waits on the packet `ServerboundClientCommandPacket` with the action, `PERFORM_RESPAWN`. If the player is in the end credits when this packet
+is received, the player has told the server they have exited the credits and is awaiting to be added back to the world. We split this method into its
+finalizer so we can replicate this process. We store the `Runnable` in the new field `exitEndCreditsCallback` in `ServerPlayer`, and is called
+when we receive this packet. When the player enters the end portal, we check if they have already seen the credits, and if they have we immediately
+run respawn and ignore storing the finalizer and just run it. If they haven't, we store the finalizer after removing the player from the world and
+*then* send a `ClientboundGameEventPacket` with the game event `WIN_GAME`, to tell the client to display the end credits
+
+:::note
+
+If we send the packet before removing the player from the world, the player ends up being stuck in the void unable to send the
+packet it needs to exit the credits and respawn. So we ensure we send this packet *after* we have removed the player completely
+
+:::
+
+When the packet is received, we redirect the packet to the global region thread, because if we queue this packet as a task like
+normal, this packet will not be run because the player isn't owned by any region, and as a result isn't being ticked. Once the finalizer
+is run, the player is scheduled to respawn back at their respawn location.
+
+## API Fixes
+
+### Teleport & Respawn Events
+
+Folia, with its rewritten systems, breaks numerous common events that plugins use, often leading to... questionable workarounds
+
+- `PlayerRespawnEvent` is fixed
+- `PlayerTeleportEvent` is fixed
+- `EntityTeleportEvent` is fixed
+
+For respawn events, this was simple and required us to modify the method we discussed above, the `respawn` method in `ServerPlayer`.
+The big roadblock with this fix was ensuring plugin modifications to the respawn location would be accepted, however now the entire event
+works as intended.
+
+For teleport-related events, Folia already had a place for us to put this! Marked with a shiny `// TODO any events that can modify go HERE` in
+the new `teleportAsync` method in Folia for region threading. Here, we turn the origin and destination locations into bukkit locations
+and run their respective events depending on if the object is a player or a non-player entity. This does respect plugin logic with
+setting the teleportation destination or cancelling the event.
+
+### World Loading & Unloading API
+
+This was already attempted by another person, <u>**masmc05**</u> in PR [63](https://github.com/PaperMC/Folia/pull/63) in Folias repository.
+The PR was eventually closed due to lack of requirements from SpottedLeaf. The requirements were as such:
+
+- teleporting into worlds that may or may not be unloading (this includes player login) is just not handled, which is unacceptable
+- interactions with the entity scheduler or region scheduler, this includes internal access as well as API access
+- waiting until all regions are halted (in your code this is done incorrectly due to threading issues) is not good enough, as new chunk holders may be created asynchronously by ticket additions which may create other regions
+- using the global tick thread to save the chunks is inappropriate as the global tick thread is not supposed to be doing expensive work, as it is maintaining the time for the worlds as well as being a fallback for processing tasks if there are no other tickable regions active. I do agree that the global tick thread is responsible for scheduling world loading / unloading though
+- realistically, there should not be any hacks to support reading other region's data during unloading as this imposes maintenance burden. the shutdown thread is an example of how to avoid this
+
+Without those issues being resolved in the original PR, the PR was closed. Canvas fixes these issues though and abides by SpottedLeafs guidelines!
+
+#### World Loading
+
+This is relatively simple. We just mimic the startup process for all worlds in Folia. We removed the `initWorld` call in `CraftServer#createWorld`,
+and replace it with adding tickets within a 1024 block radius of 0,0, mimicing Folias startup changes. We also add the world to the `RegionizedServer`
+class, so it's global tick is also run. On the first region tick of the new world, it calls `initWorld`, just like at startup
+
+#### World Unloading
+
+This one is tricky. To abide by SpottedLeafs rules, we needed to change how `CraftServer#unloadWorld` worked completely. Unloading follows a specific structure of steps:
+<Steps>
+  <Step>
+    Ensure that the world abides by Bukkit's unload requirements, like it is not the overworld, no players are online, and a new requirement which
+    requires that the world is not already marked for unloading.
+  </Step>
+
+  <Step>
+    Instead of unloading the full world, killing all regions, saving, etc, we mark the world for unloading. This is defined by a new boolean,
+    `isUnloading` in `ServerLevel`. On each region tick, the region will check if this boolean is `true`, and if it is it will begin shutdown processes.
+    We do this so that each region can conduct it's own part in the shutdown process, avoiding hacky ways to read another regions data during unload
+  </Step>
+
+  <Step>
+    Each region follows a similar process to shutdown, starting with completing pending teleports. This and the next step resolve the first requirement SpottedLeaf mentioned.
+    Any new teleports also check if the world is in the process of unloading, so no new teleports will be created during the unload process and entities will be prevented from
+    teleporting into an unloading world
+  </Step>
+
+  <Step>
+    With pending teleports existing, there is the chance that a player might have teleported into the world at the time of unloading. If this is the case,
+    we kick the player with the message of "World unloading", along with a new kick event cause, `WORLD_UNLOAD`. This is due to the fact that we have already
+    begun shutdown, and we cannot stop it from here, and Bukkit's beginning requirements were that no players were in the server at the time of shutdown.
+    If a player is kicked during this time, the next time they rejoin, if this world is unloaded still, then it will default to the players spawn location.
+    If this location is in the unloaded world(for example, a bed), it will fallback to the default world spawn position(this is Vanilla)
+  </Step>
+
+  <Step>
+    We then save all chunks currently in the region, on the running region. This resolves the fourth and fifth requirement SpottedLeaf mentioned
+  </Step>
+
+  <Step>
+    Finally, we deschedule the region from the tick scheduler. This means the region will no longer tick at all, ever. If new regions are created, they will also execute the same
+    process as the other regions until all of them are done.
+  </Step>
+
+  <Step>
+    When a world is running its global tick during unload, it skips the global tick and skips the tick until all regions are finished unloading. When all regions are finished
+    unloading the global tick finalizes the world unload, by halting the chunk system and releasing the level storage lock. This also removes it from all 3 world holders:
+     - `RegionizedServer#worlds`
+     - `CraftServer#worlds`
+     - `MinecraftServer#removeLevel`
+  </Step>
+</Steps>
+
+That is the full process for unloads. We do not block to wait for the world to unload either, and do not use the entity or region schedulers. We completely abide by SpottedLeafs
+requirements in a full safe manner.
+
+We don't need to worry about the server shutdown process interfering with unload, given if a plugin calls this during shutdown, it will be picked up by the shutdown thread
+since the unload process follows closely to what shutdown does. If this is called and *then* shutdown is called, then the shutdown thread halts all regions, so the unload
+just completes what it can before shutdown. Worse-case-scenario we save a region a second time on the shutdown thread, as the unload logic follows closely to the shutdown logic.
+
+During finalization of unload on the global tick thread, we do one last check for any players that might have found their way into the world during unload and boot them from the server
+like we do normally for players during region shutdown. This is to ensure no race conditions occur with players entering the world during shutdown that we didn't catch before

@@ -10,23 +10,16 @@ import { Callout } from 'fumadocs-ui/components/callout';
 # Long-Term Support (LTS) Policy
 
 ## Overview
-Our LTS policy ensures continued support for previous versions while maintaining focus on the latest developments. Below are the specific support guidelines:
+We follow a simple LTS policy: **only the latest version available on the downloads API of Minecraft is supported**. This ensures users always receive updates, fixes, and features aligned with the most recent Minecraft release.
 
-## Support Duration
-- **Previous Minor Version:**
-  The last minor version before a new release will be supported for **1 month** after the first build of the latest version is available.
-  - Example: If `1.21.5` is released, then `1.21.4` will be supported for 1 month after the first `1.21.5` build is deployed.
-
-- **Previous Major Version:**
-  The latest minor version of the previous major version will be supported **until the next update cycle**.
-  - Example: If `1.22` is released, then `1.21.(latest)` will be supported until `1.22.1` is released.
+## Support Scope
+- **Only Latest Version Supported:**
+  As soon as a new Minecraft version is released, support for all previous versions is immediately dropped.
 
 ## Additional Notes
-- **Critical Fix Updates:**
-  Critical fixes from Minecraft itself **do not** affect this policy. If a critical fix update is released, it will be considered as the same as the update it associates with(like 1.21 and 1.21.1 would be considered the same).
-- **Feature Backporting:**
-  New features will **only** be available on the latest version and **will not** be backported.
-- **Bug Fixes:**
-  Only **bug fixes** will be provided for LTS versions.
+- **No Backports:**
+  New features and fixes will only be available on the latest supported version. We do not backport features or bug fixes to previous versions.
+- **Critical Fixes:**
+  Fixes are only provided for the latest supported version, even if older versions receive critical updates from upstream
 
-This policy ensures a balance between stability for existing users and continued progress on the latest version.
+This approach keeps our development focused, reduces technical debt, and ensures the highest level of performance and compatibility for end users.

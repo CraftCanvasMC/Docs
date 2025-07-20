@@ -2,14 +2,14 @@
 icon: Download
 title: Installation
 description: Learn how to install and set up CanvasMC on your machine.
-authors: [Ventitoja, feenko]
+authors: [Dueris]
 ---
 
 ## Requirements
 
 To run CanvasMC, you'll need:
 
-- [Java 22](https://adoptium.net/en-GB/temurin/releases/?version=22) or newer
+- [Java 21](https://adoptium.net/en-GB/temurin/releases/?version=21) or newer
 - At least 4GB of RAM (recommended)
 - A stable internet connection
 
@@ -40,13 +40,13 @@ CanvasMC follows a similar installation process to other PaperMC-based server so
     Create a startup script for your operating system:
 
     ```bash tab="Windows" title="start.bat"
-    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar server.jar --nogui # [!code word:server.jar]
+    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar canvas.jar --nogui # [!code word:canvas.jar]
     pause >nul 2>&1
     ```
 
     ```bash tab="Linux/macOS" title="start.sh"
     #!/bin/bash
-    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar server.jar --nogui # [!code word:server.jar]
+    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar canvas.jar --nogui # [!code word:canvas.jar]
     pause > /dev/null 2>&1
     ```
     
