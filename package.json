@@ -16,9 +16,9 @@
   },
   "dependencies": {
     "@theguild/remark-mermaid": "^0.3.0",
-    "fumadocs-core": "15.5.3",
-    "fumadocs-mdx": "11.6.0",
-    "fumadocs-ui": "15.5.3",
+    "fumadocs-core": "15.6.8",
+    "fumadocs-mdx": "11.7.3",
+    "fumadocs-ui": "15.6.8",
     "lucide-react": "^0.516.0",
     "next": "15.3.3",
     "react": "^19.0.0",
