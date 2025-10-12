@@ -4,22 +4,22 @@
 @source '../../node_modules/fumadocs-ui/dist/**/*.js';
 
 @theme {
-  --color-fd-background: hsl(0, 0%, 96%);
-  --color-fd-foreground: hsl(0, 0%, 3.9%);
-  --color-fd-muted: hsl(0, 0%, 96.1%);
-  --color-fd-muted-foreground: hsl(0, 0%, 45.1%);
+  --color-fd-background: hsl(0, 0%, 100%);
+  --color-fd-foreground: hsl(222, 10%, 12%);
+  --color-fd-muted: hsl(210, 20%, 95%);
+  --color-fd-muted-foreground: hsl(210, 10%, 50%);
   --color-fd-popover: hsl(0, 0%, 98%);
-  --color-fd-popover-foreground: hsl(0, 0%, 15.1%);
-  --color-fd-card: hsl(0, 0%, 94.7%);
-  --color-fd-card-foreground: hsl(0, 0%, 3.9%);
-  --color-fd-border: hsl(0, 0%, 89.8%);
-  --color-fd-primary: hsl(0, 0%, 9%);
-  --color-fd-primary-foreground: hsl(0, 0%, 98%);
-  --color-fd-secondary: hsl(0, 0%, 93.1%);
-  --color-fd-secondary-foreground: hsl(0, 0%, 9%);
-  --color-fd-accent: hsl(0, 0%, 90.1%);
-  --color-fd-accent-foreground: hsl(0, 0%, 9%);
-  --color-fd-ring: hsl(0, 0%, 63.9%);
+  --color-fd-popover-foreground: hsl(222, 12%, 15%);
+  --color-fd-card: hsl(0, 0%, 100%);
+  --color-fd-card-foreground: hsl(222, 10%, 12%);
+  --color-fd-border: hsl(210, 15%, 85%);
+  --color-fd-primary: hsl(204, 86%, 53%);
+  --color-fd-primary-foreground: hsl(0, 0%, 100%);
+  --color-fd-secondary: hsl(210, 15%, 95%);
+  --color-fd-secondary-foreground: hsl(222, 10%, 20%);
+  --color-fd-accent: hsl(204, 86%, 30%);
+  --color-fd-accent-foreground: hsl(0, 0%, 100%);
+  --color-fd-ring: hsl(204, 86%, 53%);
 }
 
 .dark {
@@ -32,19 +32,25 @@
   --color-fd-card: hsl(180, 2%, 10%);
   --color-fd-card-foreground: hsl(0, 0%, 93%);
   --color-fd-border: hsl(0, 0%, 13%);
-  --color-fd-primary: hsl(0, 0%, 93%);
-  --color-fd-primary-foreground: hsl(0, 0%, 9%);
+  --color-fd-primary: hsl(202, 85%, 53%);
+  --color-fd-primary-foreground: hsl(202, 05%, 44%);
   --color-fd-secondary: hsl(180, 2%, 10%);
   --color-fd-secondary-foreground: hsl(0, 0%, 93%);
-  --color-fd-accent: hsl(0, 0%, 13%);
-  --color-fd-accent-foreground: hsl(0, 0%, 90%);
+  --color-fd-accent: hsl(202, 65%, 13%);
+  --color-fd-accent-foreground: hsl(202, 65%, 54%);
   --color-fd-ring: hsl(0, 0%, 54.9%);
 }
 
 #nd-sidebar {
-  --color-fd-card: hsl(0, 0%, 6%);
-  --color-fd-muted: hsl(0, 0%, 9%);
-  --color-fd-muted-foreground: hsl(0, 0%, 72%);
+  --color-fd-card: hsl(0, 0%, 100%);
+  --color-fd-muted: hsl(210, 15%, 95%);
+  --color-fd-muted-foreground: hsl(210, 10%, 50%);
+}
+
+.dark #nd-sidebar {
+  --color-fd-card: hsl(222, 9%, 5%);
+  --color-fd-muted: hsl(222, 14%, 10%);
+  --color-fd-muted-foreground: hsl(210, 10%, 60%);
 }
 
 pre,
@@ -54,7 +60,7 @@ code {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: rgba(37, 150, 190, 0.4) transparent;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -66,11 +72,11 @@ code {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(37, 150, 190, 0.4);
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(37, 150, 190, 0.6);
   }
 }
