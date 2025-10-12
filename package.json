@@ -36,5 +36,8 @@
     "tailwindcss": "^4.0.9",
     "typescript": "^5.8.2"
   },
-  "trustedDependencies": ["@biomejs/biome"]
+  "trustedDependencies": ["@biomejs/biome"],
+  "engines": {
+    "node": "20"
+  }
 }
