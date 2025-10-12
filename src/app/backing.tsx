@@ -66,11 +66,18 @@ export default function Backing({
     const animate = (time: number) => {
       animationRef.current = requestAnimationFrame(animate);
 
+      if (document.hidden) {
+        lastTime = time;
+        return;
+      }
+
+      let delta = time - lastTime;
+      lastTime = time;
+
+      delta = Math.min(delta, 50);
+
       const deltaSinceLastFrame = time - lastFrameTime.current;
       if (deltaSinceLastFrame < frameInterval) return;
-
-      const delta = time - lastTime;
-      lastTime = time;
       lastFrameTime.current = time;
 
       setGradientColors((prev) =>
@@ -120,7 +127,7 @@ export default function Backing({
         style={{
           background: gradientStyle,
           clipPath: `polygon(${polygonString})`,
-          opacity: 0.125,
+          opacity: 0.25,
         }}
       />
     </div>
