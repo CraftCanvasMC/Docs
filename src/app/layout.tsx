@@ -1,5 +1,3 @@
-// app/layout.tsx
-
 import './globals.css';
 import { RootProvider } from 'fumadocs-ui/provider';
 import type { Viewport } from 'next';
