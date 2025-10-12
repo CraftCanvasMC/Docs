@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function ThemeToggle() {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const [exploding, setExploding] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -16,7 +17,13 @@ export default function ThemeToggle() {
 
     const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-    const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
+    const toggleTheme = () => {
+        setTheme(isDark ? 'light' : 'dark');
+        setExploding(true);
+        setTimeout(() => setExploding(false), 500);
+    };
+
+    const particles = Array.from({ length: 6 });
 
     return (
         <button
@@ -24,6 +31,25 @@ export default function ThemeToggle() {
             className="fixed bottom-4 right-4 w-12 h-12 flex items-center justify-center rounded-full shadow-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors z-50"
             aria-label="Toggle Theme"
         >
+            <AnimatePresence>
+                {exploding &&
+                    particles.map((_, i) => (
+                        <motion.span
+                            key={i}
+                            className="absolute w-2 h-2 bg-yellow-400 dark:bg-gray-400 rounded-full"
+                            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                            animate={{
+                                x: Math.cos((i / particles.length) * 2 * Math.PI) * 20,
+                                y: Math.sin((i / particles.length) * 2 * Math.PI) * 20,
+                                opacity: 0,
+                                scale: 0.5,
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5, ease: 'easeOut' }}
+                        />
+                    ))}
+            </AnimatePresence>
+
             <AnimatePresence mode="wait">
                 {isDark ? (
                     <motion.svg
