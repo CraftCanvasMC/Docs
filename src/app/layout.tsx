@@ -17,12 +17,10 @@ export default function Layout({ children }: { children: ReactNode }) {
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <RootProvider>
-          {/* 💡 Move Toggle OUT of header */}
           <ThemeToggle /> 
           
           <BackingClient />
           <header className="flex justify-end p-4 relative z-10">
-            {/* Header content (no toggle here) */}
           </header>
           
           <div className="relative z-10">{children}</div>

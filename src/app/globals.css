@@ -97,5 +97,5 @@ body {
 
 hr {
   border: none;
-  border-top: 0px solid var(--color-fd-border); /* Change 4px to your desired thickness */
+  border-top: 0px solid var(--color-fd-border);
 }
