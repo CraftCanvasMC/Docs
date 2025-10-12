@@ -82,7 +82,6 @@ code {
 }
 
 body {
-  background-color: var(--color-fd-background);
   background-image:
     linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
@@ -90,7 +89,6 @@ body {
 }
 
 .dark body {
-  background-color: var(--color-fd-background);
   background-image:
     linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);

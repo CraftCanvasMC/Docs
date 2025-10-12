@@ -15,12 +15,14 @@ export const viewport: Viewport = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`} suppressHydrationWarning>
-      
       <body className="flex min-h-screen flex-col">
-        <RootProvider> 
+        <RootProvider>
+          {/* 💡 Move Toggle OUT of header */}
+          <ThemeToggle /> 
+          
           <BackingClient />
           <header className="flex justify-end p-4 relative z-10">
-            <ThemeToggle />
+            {/* Header content (no toggle here) */}
           </header>
           
           <div className="relative z-10">{children}</div>
