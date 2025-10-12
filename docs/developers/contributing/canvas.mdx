@@ -22,7 +22,7 @@ Before you begin, ensure you have the following installed:
 ### Cloning the Repository
 
 ```bash
-git clone https://github.com/CanvasMC/Canvas.git
+git clone https://github.com/CraftCanvasMC/Canvas.git
 cd Canvas
 ```
 
@@ -86,7 +86,7 @@ All modifications to Minecraft files, Paper files, and Folia files should be mar
 - You need to add a comment with a short and identifiable description of the patch.
   - These comments should generally be about the reason the change was made, what was before, or what the change is.
   - After the general commit description, you can add additional information either after a `;` or in the next line.
-- Multi-line changes start with `// Canvas start - <COMMIT DESCRIPTION>` and end with `// Canvas end <COMMIT DESCRIPTION>`
+- Multi-line changes start with `// Canvas start - <COMMIT DESCRIPTION>` and end with `// Canvas end - <COMMIT DESCRIPTION>`
   - We do not enforce the end having a description, but we do prefer it
 - One-line changes should have a `// Canvas - <COMMIT DESCRIPTION>` at the end of the line
 
@@ -158,11 +158,20 @@ and unmodified directories. The script is shown bellow to show what it does in m
 set -e
 
 force_run=false
+gradle_run=false
 
-if [[ "$1" == "--force" ]]; then
-  force_run=true
-  echo "Force mode enabled. All Gradle tasks will run."
-fi
+for arg in "$@"; do
+  case "$arg" in
+    --force)
+      force_run=true
+      echo "Force mode enabled. All Gradle tasks will run."
+      ;;
+    --gradle)
+      gradle_run=true
+      echo "--gradle flag detected. Will run rebuildFoliaSingleFilePatches."
+      ;;
+  esac
+done
 
 echo "Processing file patches..."
 
@@ -201,10 +210,10 @@ run_gradle_task() {
   fi
 }
 
-process_changes "./folia-server/" "FoliaServer"
-process_changes "./folia-api/" "FoliaApi"
 process_changes "./paper-server/" "PaperServer"
 process_changes "./paper-api/" "PaperApi"
+process_changes "./folia-server/" "FoliaServer"
+process_changes "./folia-api/" "FoliaApi"
 process_changes "./canvas-server/src/minecraft/java" "Minecraft"
 
 gradle_rebuild_task=false
@@ -219,22 +228,22 @@ if $force_run || ! git diff --quiet "./canvas-api/build.gradle.kts" || ! git dif
   gradle_rebuild_task=true
 fi
 
-if $gradle_rebuild_task; then
+if $gradle_rebuild_task || $gradle_run; then
   gradle_tasks["rebuildFoliaSingleFilePatches"]="true"
 fi
 
 echo "Running fixup tasks..."
-run_gradle_task "fixupFoliaApiFilePatches"
 run_gradle_task "fixupPaperApiFilePatches"
-run_gradle_task "fixupFoliaServerFilePatches"
 run_gradle_task "fixupPaperServerFilePatches"
+run_gradle_task "fixupFoliaApiFilePatches"
+run_gradle_task "fixupFoliaServerFilePatches"
 run_gradle_task "fixupMinecraftFilePatches"
 
 echo "Running rebuild tasks..."
-run_gradle_task "rebuildFoliaApiFilePatches"
 run_gradle_task "rebuildPaperApiFilePatches"
-run_gradle_task "rebuildFoliaServerFilePatches"
 run_gradle_task "rebuildPaperServerFilePatches"
+run_gradle_task "rebuildFoliaApiFilePatches"
+run_gradle_task "rebuildFoliaServerFilePatches"
 run_gradle_task "rebuildMinecraftFilePatches"
 run_gradle_task "rebuildFoliaSingleFilePatches"
 ```
@@ -333,13 +342,6 @@ respective sections, handlers and validators.
 Annotation handlers allow you to **customize the way specific fields appear in the YAML configuration file** when it is saved to disk. This is particularly
 useful for adding metadata such as comments, warnings, or other markers alongside configuration entries.
 
-For example, the `@Experimental` annotation adds a special comment block above the field it annotates:
-
-```yaml
-## === EXPERIMENTAL FEATURE ===
-example: false
-```
-
 ##### Defining a Handler
 
 To create your own annotation handler:
@@ -389,7 +391,8 @@ public class ExperimentalProcessor implements AnnotationContextProvider<Experime
 
 #### Serialization Flow
 
-When the config is being saved to disk, all fields are inspected. If a field has an associated annotation with a registered handler, the handler is invoked before the field is written out.
+When the config is being saved to disk, all non-static fields are inspected. If a field has an associated annotation with a registered handler, the handler
+is invoked before the field is written out.
 
 The handler’s `apply()` method is passed everything you need to write to the YAML output.
 

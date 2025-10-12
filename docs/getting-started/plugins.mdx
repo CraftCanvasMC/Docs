@@ -80,6 +80,14 @@ Below are common issues you might encounter when installing plugins along with r
   Re-download the plugin file and verify that it is compatible with your server version.
 </Callout>
 
+<Callout type="error" title="Not Compatible">
+  Caused if the plugin is not explicitly marked as Folia-compatible.
+  ```log
+  [00:00:00] [Server thread/ERROR] Could not load plugin `Example' as it is not marked as supporting Folia!
+  ```
+  Find an alternative plugin to use to replace this plugin, or make your own plugin that supports Folia
+</Callout>
+
 <Callout type="error" title="Duplicate Plugins">
   Caused if the plugin is installed in multiple versions.
   ```log
