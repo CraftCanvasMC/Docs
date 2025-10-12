@@ -55,7 +55,7 @@
 
 pre,
 code {
-  font-family: var(--font-mono);
+  font-family: Consolas, 'Fira Mono', 'Menlo', 'Monaco', 'Liberation Mono', 'Courier New', monospace;
 }
 
 * {
@@ -79,4 +79,23 @@ code {
   &::-webkit-scrollbar-thumb:hover {
     background: rgba(37, 150, 190, 0.6);
   }
+}
+
+body {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.dark body {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+hr {
+  border: none;
+  border-top: 0px solid var(--color-fd-border);
 }
