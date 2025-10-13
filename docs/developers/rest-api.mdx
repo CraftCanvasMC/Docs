@@ -22,95 +22,122 @@ For backwards compatibility with already existing integrations, route `/api` aut
 
 Base URL: `https://canvasmc.io/api/v2`
 
-### Get All Builds
+<details>
+    <summary><code>GET /builds</code></summary>
+    <div>
+        Returns a list of all recent builds.
 
-`GET /builds`
+        #### Query Parameters
 
-Returns a list of all recent builds.
+        - `minecraft_version` (string) - Filter builds by Minecraft version
+        - `experimental` (boolean) - Include experimental builds
 
-#### Query Parameters
+        #### Response
 
-- `minecraft_version` (string) - Filter builds by Minecraft version
-- `experimental` (boolean) - Include experimental builds
+        ```jsonc title="Example Response"
+        [
+          {
+            "buildNumber": 1337,
+            "url": "https://jenkins.canvasmc.io/job/Canvas/1337/",
+            "downloadUrl": "https://jenkins.canvasmc.io/job/Canvas/1337/artifact/canvas-server/build/libs/canvas-build.1337.jar",
+            "minecraftVersion": "1.21.4",
+            "timestamp": 1739339329161,
+            "isExperimental": true,
+            "commit": { // [!code --]
+              "message": "Hello world!", // [!code --]
+              "hash": "3768ac53eb2671853145bd077ade0579e13741ed" // [!code --]
+            }, // [!code --]
+            "commits": [
+              {
+                "message": "Hello world!",
+                "hash": "3768ac53eb2671853145bd077ade0579e13741ed"
+              },
+              {
+                "message": "Why are you reading this?",
+                "hash": "895b307dcc7c6fbb040dc7bd26d9a754e03cf8c7"
+              }
+            ]
+          },
+          // ...
+        ]
+        ```
 
-#### Response
+        :::warning
 
-```jsonc title="Example Response"
-[
-  {
-    "buildNumber": 1337,
-    "url": "https://jenkins.canvasmc.io/job/Canvas/1337/",
-    "downloadUrl": "https://jenkins.canvasmc.io/job/Canvas/1337/artifact/canvas-server/build/libs/canvas-build.1337.jar",
-    "minecraftVersion": "1.21.4",
-    "timestamp": 1739339329161,
-    "isExperimental": true,
-    "commit": { // [!code --]
-      "message": "Hello world!", // [!code --]
-      "hash": "3768ac53eb2671853145bd077ade0579e13741ed" // [!code --]
-    }, // [!code --]
-    "commits": [
-      {
-        "message": "Hello world!",
-        "hash": "3768ac53eb2671853145bd077ade0579e13741ed"
-      },
-      {
-        "message": "Why are you reading this?",
-        "hash": "895b307dcc7c6fbb040dc7bd26d9a754e03cf8c7"
-      }
-    ]
-  },
-  // ...
-]
-```
+        The `commit` property has been deprecated in favor of the `commits` array.
 
-:::warning
+        :::
+    </div>
+</details>
+<details>
+    <summary><code>GET /builds/latest</code></summary>
+    <div>
+        Returns the latest build.
 
-The `commit` property has been deprecated in favor of the `commits` array.
+        #### Query Parameters
 
-:::
+        - `experimental` (boolean) - Include experimental builds
 
-### Get Latest Build
+        #### Response
 
-`GET /builds/latest`
+        ```jsonc title="Example Response"
+        {
+          "buildNumber": 1337,
+          "url": "https://jenkins.canvasmc.io/job/Canvas/1337/",
+          "downloadUrl": "https://jenkins.canvasmc.io/job/Canvas/1337/artifact/canvas-server/build/libs/canvas-build.1337.jar",
+          "minecraftVersion": "1.21.4",
+          "timestamp": 1739339329161,
+          "isExperimental": true,
+          "commit": { // [!code --]
+            "message": "Hello world!", // [!code --]
+            "hash": "3768ac53eb2671853145bd077ade0579e13741ed" // [!code --]
+          }, // [!code --]
+          "commits": [
+            {
+              "message": "Hello world!",
+              "hash": "3768ac53eb2671853145bd077ade0579e13741ed"
+            },
+            {
+              "message": "Why are you reading this?",
+              "hash": "895b307dcc7c6fbb040dc7bd26d9a754e03cf8c7"
+            }
+          ]
+        }
+        ```
 
-Returns the latest build.
+        :::warning
 
-#### Query Parameters
+        The `commit` property has been deprecated in favor of the `commits` array.
 
-- `experimental` (boolean) - Include experimental builds
+        :::
+    </div>
+</details>
+<details>
+    <summary><code>GET /jd</code></summary>
+    <div>
+        Redirects to the Javadocs page for the latest Canvas build (or filtered by version/experimental).
 
-#### Response
+        #### Query Parameters
 
-```jsonc title="Example Response"
-{
-  "buildNumber": 1337,
-  "url": "https://jenkins.canvasmc.io/job/Canvas/1337/",
-  "downloadUrl": "https://jenkins.canvasmc.io/job/Canvas/1337/artifact/canvas-server/build/libs/canvas-build.1337.jar",
-  "minecraftVersion": "1.21.4",
-  "timestamp": 1739339329161,
-  "isExperimental": true,
-  "commit": { // [!code --]
-    "message": "Hello world!", // [!code --]
-    "hash": "3768ac53eb2671853145bd077ade0579e13741ed" // [!code --]
-  }, // [!code --]
-  "commits": [
-    {
-      "message": "Hello world!",
-      "hash": "3768ac53eb2671853145bd077ade0579e13741ed"
-    },
-    {
-      "message": "Why are you reading this?",
-      "hash": "895b307dcc7c6fbb040dc7bd26d9a754e03cf8c7"
-    }
-  ]
-}
-```
+        - `version` (string, optional) – The Minecraft version to use. Defaults to the version of the latest build.
+        - `experimental` (boolean, optional) – Include experimental builds (`true` or `false`). Defaults to `false`.
 
-:::warning
+        The query parameters are optional, and with no params specified, it defaults to the latest stable API version.
 
-The `commit` property has been deprecated in favor of the `commits` array.
+        #### Response
 
-:::
+        Example redirect URL if `version=1.21.8` and `experimental=false`:
+        ```
+        https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.8-R0.1-SNAPSHOT
+        ```
+
+        #### Notes
+
+        - If version is not provided, the endpoint uses the Minecraft version from the latest build (respecting the experimental flag to allow experimental versions).
+        - This endpoint does not return JSON; it performs an HTTP redirect to the Javadocs page.
+        - Use this endpoint to quickly navigate to the Javadocs without manually looking up the build number.
+    </div>
+</details>
 
 ## V1 API Endpoints
 
