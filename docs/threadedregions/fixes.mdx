@@ -34,8 +34,6 @@ These strictly document behavioral fixes and restorations of Vanilla systems, no
 
 ### Waypoints & The Locator Bar
 
-The Locator Bar and Waypoints were not very hard to reimplement. This was done simply by reversing Folia's changes to disable the waypoint
-system, and then regionizing it. The reason this works is due to how the locator bar functions.
 The locator bar shows the position of other players as colored indicators, known as **waypoints**. The waypoint's icon changes based on the player's
 distance to its location. The further the player is from the waypoint, the smaller the icon visually is shown on the locator bar. Several sprites
 of the icon can be observed based on the distance:
@@ -47,18 +45,7 @@ of the icon can be observed based on the distance:
 | <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_2.png" width="16" height="16" alt="Locator Bar Pos-2" /> </span> | (230–281 blocks, 17 chunks) |
 | <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_3.png" width="16" height="16" alt="Locator Bar Pos-3" /> </span> | (281+ blocks, 17+ chunks) |
 
-Unfortunately Canvas' implementation does deviate from Vanilla behavior, because it only shows the waypoints for the waypoints within the region the player is currently in.
-This is realistically the only way to implement this feature without making waypoints completely threadsafe, which was a thought and may be revisited in the future.
-There is not much of a visual difference, infact it looks quite normal as regions generally do not go far beyond 17 chunks depending on the grid exponent, so it does make sense
-that the next step would be to disappear after enough distance is put between players. To keep original Folia behavior, disable the locator bar.
-
-:::info
-
-This change may be revisited in the future to attack the issue of regionizng this deviates from Vanilla behavior at a certain distance. Another option
-is a concurrent/thread-safe implementation of waypoints, but this comes with multiple caveats, like the waypoints system being simply extremely slow.
-There are multiple ideas floating around right now, but it is unclear whether they will be implemented or not.
-
-:::
+Canvas' implementation works 1:1 with Vanilla, while also including some major optimizations so the global state for this is as fast as possible.
 
 ### Vanilla Ender Pearl Behavior
 
