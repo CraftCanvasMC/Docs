@@ -4,7 +4,7 @@ dist/
 .bun/
 .astro/
 .cache/
-package-lock.json # we use bun
+package-lock.json
 
 # dependencies
 node_modules/
