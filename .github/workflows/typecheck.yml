@@ -3,18 +3,18 @@ name: Type Check
 on:
   push:
     paths:
-      - '**.ts'
-      - '**.tsx'
-      - 'package.json'
-      - 'bun.lock*'
-      - 'tsconfig.json'
+      - "**.ts"
+      - "**.tsx"
+      - "package.json"
+      - "bun.lock*"
+      - "tsconfig.json"
   pull_request:
     paths:
-      - '**.ts'
-      - '**.tsx'
-      - 'package.json'
-      - 'bun.lock*'
-      - 'tsconfig.json'
+      - "**.ts"
+      - "**.tsx"
+      - "package.json"
+      - "bun.lock*"
+      - "tsconfig.json"
 
 jobs:
   typecheck:

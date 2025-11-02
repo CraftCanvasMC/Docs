@@ -1,0 +1,78 @@
+---
+icon: Download
+title: Installation
+description: Learn how to install and set up CanvasMC on your machine.
+authors: [Dueris]
+---
+
+## Requirements
+
+To run CanvasMC, you'll need:
+
+- [Java 21](https://adoptium.net/en-GB/temurin/releases/?version=21) or newer
+- At least 4GB of RAM (recommended)
+- A stable internet connection
+
+## Installation
+
+CanvasMC follows a similar installation process to other PaperMC-based server software, making it familiar for experienced server administrators.
+
+### Downloading the Server
+
+<ul>
+  <li>
+    Visit [canvasmc.io/downloads](https://canvasmc.io/downloads) to get the newest version of CanvasMC.
+  </li>
+
+  <li>
+    Make a new folder to keep your server files organized and easily accessible.
+  </li>
+
+  <li>
+    Move the downloaded CanvasMC jar file into your server directory.
+  </li>
+</ul>
+
+### Running the Server
+
+<ul>
+  <li>
+    Create a startup script for your operating system:
+
+    ```bash tab="Windows" title="start.bat"
+    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar canvas.jar --nogui
+    pause >nul 2>&1
+    ```
+
+    ```bash tab="Linux/macOS" title="start.sh"
+    #!/bin/bash
+    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar canvas.jar --nogui
+    pause > /dev/null 2>&1
+    ```
+
+    :::info
+
+    For optimal performance, get customized JVM flags from [Birdflop Flags Generator](https://www.birdflop.com/resources/flags/) based on your server specs.
+
+    :::
+  </li>
+
+  <li>
+    The first launch creates an `eula.txt` file. Open it and change the following line:
+
+    ```diff title="eula.txt"
+    # By changing the setting below to TRUE, you agree to our EULA (https://aka.ms/MinecraftEULA).
+    # Thu Jan 1 00:00:00 UTC 1970
+    - eula=false
+    + eula=true
+    ```
+  </li>
+
+  <li>
+    Run the server again using the startup script you created. Once it fully loads, your installation is complete!
+  </li>
+</ul>
+
+## Next Steps
+
+Now that you have your CanvasMC server running, you can start adding plugins and configuring it to your liking.

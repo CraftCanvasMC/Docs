@@ -1,0 +1,4 @@
+*.md
+*.mdx
+
+src/components/*.astro

@@ -1,0 +1,126 @@
+/* poppins-latin-500-normal - defined as 600, because actual 600 is too bold */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src:
+    url(@fontsource/poppins/files/poppins-latin-500-normal.woff2) format("woff2"),
+    url(@fontsource/poppins/files/poppins-latin-500-normal.woff) format("woff");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --sl-font: Poppins;
+  --sl-font-mono: "JetBrains Mono";
+}
+
+/* Make images wide and centered */
+.sl-markdown-content img:not(:where(.not-content *)) {
+  margin: 0 auto;
+}
+.sl-markdown-content img:not(:where(.not-content *)):not([alt="Diagram"]) {
+  width: 100%;
+}
+/* Inline images */
+.sl-markdown-content :is(img.img-inline, .img-inline img) {
+  margin: 0;
+  width: auto;
+}
+.sl-markdown-content img.img-inline {
+  display: inline-block;
+}
+.sl-markdown-content :is(img.img-inline-center, .img-inline-center img) {
+  width: auto;
+}
+
+/* Custom font for badges */
+.sl-badge {
+  font-family: var(--sl-font-mono);
+}
+
+/* Hero image sizing */
+.hero > img {
+  width: min(70%, 20rem);
+}
+
+/* Smaller vertical padding on index hero */
+@media (min-width: 50rem) {
+  .hero {
+    padding-block: clamp(2.5rem, calc(1rem + 2.5vmin), 8rem);
+  }
+}
+
+/* Make main content slightly narrower on very large screens */
+@media (min-width: 96rem) {
+  :root {
+    --sl-content-width: 54rem; /* smaller than original 64rem */
+  }
+}
+
+/* View transitions (Starlight magic) */
+@view-transition {
+  navigation: auto;
+}
+
+/* Dark mode colors */
+:root {
+  --sl-color-accent-low: #1e3a8a;
+  --sl-color-accent: #2563eb;
+  --sl-color-accent-high: #60a5fa;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #e2e5e9;
+  --sl-color-gray-2: #d1d5db;
+  --sl-color-gray-3: #9fa5af;
+  --sl-color-gray-4: #3f4347;
+  --sl-color-gray-5: #2a2c2e;
+  --sl-color-gray-6: #181a1b;
+  --sl-color-black: #111111;
+
+  /* caution asides */
+  --sl-color-orange-low: hsl(var(--sl-hue-orange), 44%, 27%);
+}
+
+/* Light mode colors */
+:root[data-theme="light"] {
+  --sl-color-accent-low: #60a5fa;
+  --sl-color-accent-high: #1e3a8a;
+  --sl-color-white: #000000;
+  --sl-color-gray-1: #111111;
+  --sl-color-gray-2: #181a1b;
+  --sl-color-gray-3: #2a2c2e;
+  --sl-color-gray-4: #9fa5af;
+  --sl-color-gray-5: #e5e7eb;
+  --sl-color-gray-6: #f3f4f6;
+  --sl-color-gray-7: #f9fafb;
+  --sl-color-black: #ffffff;
+
+  /* separators */
+  --sl-color-hairline: var(--sl-color-gray-5);
+  --sl-color-hairline-light: var(--sl-color-gray-5);
+  --sl-color-hairline-shade: var(--sl-color-gray-5);
+
+  /* badge background */
+  --sl-badge-danger-bg: oklch(from var(--sl-color-red-high) calc(l + 0.1) c h);
+
+  /* caution asides */
+  --sl-color-orange-low: hsl(var(--sl-hue-orange), 90%, 88%);
+}
+:root {
+  --sl-color-accent: #a78bfa;
+  --sl-color-accent-high: #c4b5fd;
+}
+
+header svg,
+header .starlight-icon,
+header .starlight-site-title a {
+  color: var(--sl-color-accent) !important;
+}
+
+header svg:hover,
+header .starlight-icon:hover,
+header .starlight-site-title a:hover {
+  color: var(--sl-color-accent-high) !important;
+}

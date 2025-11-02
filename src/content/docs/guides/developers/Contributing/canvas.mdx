@@ -1,0 +1,552 @@
+---
+title: CanvasMC Source
+description: Learn how to contribute to CanvasMC
+authors: [Dueris]
+---
+
+# Introduction
+
+This guide will help you get started and understand developing and contributing with CanvasMC's source code
+
+## Getting Started
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- Java 21 (or latest LTS version supported by CanvasMC)
+- Git
+- IntelliJ IDEA (recommended) or any modern Java IDE
+- Gradle (optional, wrapper included)
+
+### Cloning the Repository
+
+```bash
+git clone https://github.com/CraftCanvasMC/Canvas.git
+cd Canvas
+```
+
+## Patches
+Canvas uses a modified version of paperweight, Weaver. Weaver fixes and adds features ontop of the existing paperweight system, and is required for when
+plugins use NMS with Canvas, or for forks of Canvas. This system adds "base" patches, which are essentially feature patches applied before all Canvas patches.
+These patches are used for things like removing the old profilers, rebrand, etc. Things that probably should be it's own dedicated patch so it's isolated from
+Canvas features and fixes.
+
+Canvas uses the per-file format of patching, alongside base-feature patching to make its changes to the server source. We do not use feature patches
+
+:::info
+
+Credit to кармучик, who built and maintains the Weaver system.
+
+:::
+
+To build the Canvas development environment, simply run this command in the root of your cloned Canvas repository:
+
+```bash
+./gradlew applyAllPatches
+```
+
+After that has completed, you can now start developing with Canvas' internals.
+
+### Understanding the Environment
+
+The Canvas development environment has a lot of directories with a lot of files that mean
+different things. The table bellow will help outline what these directories are and their purpose.
+
+:::caution
+
+Files that are created by feature patches are created in the directory that the feature patch is applied to.
+
+:::
+
+| Directory                            | Purpose                                                                                                                                                |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `/canvas-api/src/main/java/`         | Canvas' API files, added by Canvas. This does not contain source code from other forks, and all new API files should be placed here                    |
+| `/canvas-server/src/main/java/`      | Canvas' Server files, added by Canvas. This does not contain source code from other forks or Minecraft, and all new server files should be placed here |
+| `/paper-api/`                        | All Paper API sources                                                                                                                                  |
+| `/paper-server/`                     | All Paper Server sources                                                                                                                               |
+| `/folia-api/`                        | All Folia API sources                                                                                                                                  |
+| `/folia-server/`                     | All Folia Server sources                                                                                                                               |
+| `/canvas-server/minecraft-patches/`  | All Canvas patches to the Minecraft source directory                                                                                                   |
+| `/canvas-server/paper-patches/`      | All Canvas patches to the Paper server source directory                                                                                                |
+| `/canvas-server/folia-patches/`      | All Canvas patches to the Folia server source directory                                                                                                |
+| `/canvas-api/folia-patches/`         | All Canvas patches to the Folia API source directory                                                                                                   |
+| `/canvas-api/paper-patches/`         | All Canvas patches to the Paper API source directory                                                                                                   |
+| `/canvas-server/src/minecraft/java/` | The Minecraft source code                                                                                                                              |
+
+
+### Making Changes
+
+Canvas is very strict about code quality. This section will teach you how to make changes to the server source in a maintainable and clean way.
+Do note, some of these rules do *not* apply to the Canvas source files that were added by Canvas.
+
+#### Formatting
+
+All modifications to Minecraft files, Paper files, and Folia files should be marked. Canvas-added files do not need markings.
+- You need to add a comment with a short and identifiable description of the patch.
+  - These comments should generally be about the reason the change was made, what was before, or what the change is.
+  - After the general commit description, you can add additional information either after a `;` or in the next line.
+- Multi-line changes start with `// Canvas start - <COMMIT DESCRIPTION>` and end with `// Canvas end - <COMMIT DESCRIPTION>`
+  - We do not enforce the end having a description, but we do prefer it
+- One-line changes should have a `// Canvas - <COMMIT DESCRIPTION>` at the end of the line
+
+:::note
+
+These comments are incredibly important to keep track of changes across files to remember what they are for
+
+:::
+
+Example:
+```java
+    public void baseTick() {
+        // Canvas start - don't tick if we are spinning
+        if (this.isSpinning) {
+            this.becomeDizzy();
+            return;
+        }
+        // Canvas end - don't tick if we are spinning
+        ...
+    }
+
+    public void singleLineChangeExample() {
+        this.level().dontBeStupid(); // Canvas - don't be stupid
+        this.updateFriends();
+        this.explode();
+    }
+```
+We generally follow the usual Java style, or what is programmed into most IDEs and formatters by default. However, when in doubt or the code
+around you is in a clearly different style, use the same style as the surrounding code.
+
+#### Imports
+
+We like to steer away from using imports as much as possible. Imports can cause a maintainability burden when imports change during an upstream update,
+either from Minecraft, Paper, or Folia. When making changes, please use the fully qualified class name instead of adding imports at the import section of a file.
+
+```java
+import net.minecraft.server.MinecraftServer;
+// Don't add imports here, use the fully qualified class name like bellow.
+
+public class SomeRandomVanillaClassExample {
+    public final net.minecraft.server.level.ServerLevel world; // Canvas - add world
+}
+
+```
+
+### Access Transformers
+
+Sometimes, Vanilla code already contains a field, method, or type you want to access but the visibility is too low (e.g. a private field in an entity class).
+Canvas can use access transformers to change the visibility or remove the final modifier from fields, methods, and classes. Inside the `build-data/canvas.at` file,
+you can add ATs that are applied when you `./gradlew applyAllPatches`. You can read about the format of ATs [here](https://docs.minecraftforge.net/en/latest/advanced/accesstransformers/#access-modifiers).
+
+### Rebuilding Patches
+
+After making all of your changes, we need to turn them into per-file patches so they are ready to be PRed to the Canvas repository. Good thing Canvas has a fun script that does
+all of the work for you! Simply run this command in the root of your cloned Canvas repository:
+
+```bash
+./rebuildPatches
+```
+
+This script automatically detects changes made to Canvas and runs the necessary commands to rebuild patches. If something went wrong(like a patch wasn't made but it should have been)
+then look through the logs of the script, as it runs through gradle so all logs from the gradle tasks will be printed. If you made changes to the `build.gradle.kts` files in `canvas-api`
+or `canvas-server`, then you need to run the script with `--force`. There should be no other reason you are running `--force`, as this just runs all rebuild tasks for all modified
+and unmodified directories. The script is shown bellow to show what it does in more detail
+
+```bash
+#!/bin/bash
+
+set -e
+
+force_run=false
+gradle_run=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --force)
+      force_run=true
+      echo "Force mode enabled. All Gradle tasks will run."
+      ;;
+    --gradle)
+      gradle_run=true
+      echo "--gradle flag detected. Will run rebuildFoliaSingleFilePatches."
+      ;;
+  esac
+done
+
+echo "Processing file patches..."
+
+declare -A gradle_tasks
+
+process_changes() {
+  local dir="$1"
+  local project="$2"
+
+  if [ ! -d "$dir" ]; then
+    echo "Error: The directory '$dir' does not exist or is not valid."
+    exit 1
+  fi
+
+  cd "$dir"
+
+  if $force_run || ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Changes detected in $dir (or force mode enabled). Running Gradle fixup and rebuild tasks."
+    gradle_tasks["fixup${project}FilePatches"]="true"
+    gradle_tasks["rebuild${project}FilePatches"]="true"
+  else
+    echo "No changes detected in $dir"
+  fi
+
+  cd - > /dev/null
+}
+
+run_gradle_task() {
+  local task="$1"
+  if [ "${gradle_tasks[$task]}" = "true" ]; then
+    echo "Running Gradle task: $task"
+    ./gradlew "$task" -Dpaperweight.debug=true || echo "Gradle task '$task' failed, continuing..."
+    echo "Gradle task '$task' completed (or failed but continuing)."
+  else
+    echo "Skipping Gradle task '$task' as no changes were detected."
+  fi
+}
+
+process_changes "./paper-server/" "PaperServer"
+process_changes "./paper-api/" "PaperApi"
+process_changes "./folia-server/" "FoliaServer"
+process_changes "./folia-api/" "FoliaApi"
+process_changes "./canvas-server/src/minecraft/java" "Minecraft"
+
+gradle_rebuild_task=false
+
+if $force_run || ! git diff --quiet "./canvas-server/build.gradle.kts" || ! git diff --cached --quiet "./canvas-server/build.gradle.kts"; then
+  echo "Changes detected in ./canvas-server/build.gradle.kts"
+  gradle_rebuild_task=true
+fi
+
+if $force_run || ! git diff --quiet "./canvas-api/build.gradle.kts" || ! git diff --cached --quiet "./canvas-api/build.gradle.kts"; then
+  echo "Changes detected in ./canvas-api/build.gradle.kts"
+  gradle_rebuild_task=true
+fi
+
+if $gradle_rebuild_task || $gradle_run; then
+  gradle_tasks["rebuildFoliaSingleFilePatches"]="true"
+fi
+
+echo "Running fixup tasks..."
+run_gradle_task "fixupPaperApiFilePatches"
+run_gradle_task "fixupPaperServerFilePatches"
+run_gradle_task "fixupFoliaApiFilePatches"
+run_gradle_task "fixupFoliaServerFilePatches"
+run_gradle_task "fixupMinecraftFilePatches"
+
+echo "Running rebuild tasks..."
+run_gradle_task "rebuildPaperApiFilePatches"
+run_gradle_task "rebuildPaperServerFilePatches"
+run_gradle_task "rebuildFoliaApiFilePatches"
+run_gradle_task "rebuildFoliaServerFilePatches"
+run_gradle_task "rebuildMinecraftFilePatches"
+run_gradle_task "rebuildFoliaSingleFilePatches"
+```
+
+### Adding Configurations
+
+Adding configuration options to Canvas is very simple with its API backend. It works using an annotation based yaml serializer, which
+takes the class provided and turns that into a yaml configuration, and you can add features to via annotations to fields. The
+system auto updates your configuration with new and removed options and even tells you when these options are removed or added at startup!
+Making one is as easy as adding a new field to the end of the section you want to add your config to. If this configuration has multiple
+configurations that are associated with eachother, create an inner class like this:
+
+```java
+public ExampleMultiConfig exampleMultiConfig = new ExampleMultiConfig();
+public static class ExampleMultiConfig {
+    public boolean enabled = false;
+    public int count = 43;
+    public float chance = 0.212;
+}
+```
+
+As a formatting rule, we like to add new configuration options to the end of the section it belongs to. Like if
+the section already exists for it, like the `chunks` section, add it to the end of the inner class `Config$Chunks`.
+If the section is the root section, add it at the end of the file above the method `buildSerializer`. We also like to
+ensure all configuration options have an `@Comment` annotation describing the option. More detail about the annotations
+bellow. If your configuration needs to run something after the configuration init has been run, you can add code at
+the end of the `post(context -> {...})` block in the `buildSerializer` method with what you need. However, if possible,
+use runtime modifiers.
+
+#### Runtime Modifiers
+
+Runtime modifiers are a way to apply modifications to the memory version of the config(meaning this isn't saved to disk).
+This can allow choosing defaults for a configuration option if the option is an `int` that is `<= 0` as an example.
+The runtime modifier takes 2 arguments, a pattern and a modifier. The "pattern" is a String pattern that is checked over
+each field after deserializing, and if the pattern matches the **fully qualified configuration option**, it applies the
+runtime modifier. The pattern could be something like the following:
+- `example.*` - this will cover all configs in the 'example' section of the config
+- `test*` - this will cover all configs that start with `test`
+- `enableSuperCoolMechanic` - this will cover the `enableSuperCoolMechanic` config in the root directory
+- `*.enable` - this will cover all `enable` fields in all sections
+
+All normal Java string patterns work with this system. The 2nd argument is a `RuntimeModifier`, which takes a
+`Class<T>`, and a `Function<T, T>`. This will allow checking what class type the field is, and then applying
+your modifications to the field. It can be something like this:
+
+```java
+// This makes all booleans that match the pattern we defined in
+// argument 1 true in memory, even if the configuration option
+// saved to disk marks the configuration as false
+new RuntimeModifier<>(boolean.class, (original) -> true)
+```
+
+Here is a quick example of a runtime modifier:
+
+```java
+// This is in the `buildSerializer` method, after we create our validators and handlers
+// and before we define our post instructions
+.runtimeModifier("*.enable", new RuntimeModifier<>(boolean.class, (original) -> net.minecraft.SharedConstants.IS_RUNNING_IN_IDE || original))
+```
+
+#### Using Annotations
+
+As an *annotation based configuration API*, we use annotations to add extra detail to our configuration options.
+
+:::info
+
+Canvas **requires** an `@Comment` annotation when adding new options, with the only exception being for new section fields
+
+:::
+
+Using these annotations is very easy, it's as simple as adding an annotation to your field, and the serializer will do the rest
+of the work. Lets try an `@Comment` annotation:
+
+```java
+@Comment("This enables a super cool optimization that boosts performance 10000000%!")
+public boolean enableSuperCoolOptimization = false;
+
+```
+
+The annotation we just showed was a single-line comment annotation, but comment annotations can support multiline comments, like so:
+
+```java
+@Comment(value = {
+    "This is super interesting stuff! I really don't know what I'm going to say since",
+    "it's 2am at the time of writing this section of the docs! This is such a cool config!!"
+})
+public boolean enableSuperCoolOptimization = false;
+```
+
+Canvas also includes numerous other annotations. Keep in mind, all annotation handlers are processed from the first
+to the last annotation declared, meaning order **does matter**. The other annotations are documented bellow in their
+respective sections, handlers and validators.
+
+#### Annotation Handlers
+
+Annotation handlers allow you to **customize the way specific fields appear in the YAML configuration file** when it is saved to disk. This is particularly
+useful for adding metadata such as comments, warnings, or other markers alongside configuration entries.
+
+##### Defining a Handler
+
+To create your own annotation handler:
+
+1. **Create a custom annotation** to mark the fields you want to handle.
+
+2. Your annotation must be annotated with:
+
+   ```java
+   @Retention(RetentionPolicy.RUNTIME)
+   @Target(ElementType.FIELD)
+   ```
+
+   This ensures your annotation is accessible at runtime and can only be used on fields.
+
+3. Create a class that implements the `AnnotationContextProvider<T>` interface, where `T` is your annotation type.
+
+4. Annotate your handler class with `@RegisteredHandler`, passing a string name. This name **must match** the method name that returns your annotation class.
+
+##### Example: `@Experimental`
+
+This annotation adds a comment block above the field to denote that it’s an experimental feature.
+
+**Step 1: Define the annotation**
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface Experimental {}
+```
+
+**Step 2: Create the handler**
+
+```java
+@RegisteredHandler("experimental")
+public class ExperimentalProcessor implements AnnotationContextProvider<Experimental> {
+    @Override
+    public void apply(final @NotNull StringWriter yamlWriter, final String indent, final String fullKey, final Field field, final @NotNull Experimental annotation) {
+        yamlWriter.append(indent).append("## ").append("=== EXPERIMENTAL FEATURE ===").append("\n");
+    }
+
+    public Class<Experimental> experimental() {
+        return Experimental.class;
+    }
+}
+```
+
+#### Serialization Flow
+
+When the config is being saved to disk, all non-static fields are inspected. If a field has an associated annotation with a registered handler, the handler
+is invoked before the field is written out.
+
+The handler’s `apply()` method is passed everything you need to write to the YAML output.
+
+#### Parameters Provided
+
+The `apply()` method provides:
+
+* `StringWriter yamlWriter`: The internal writer used to build the YAML string that will be written to disk.
+* `String indent`: The current indent level. Always prepend this when adding new lines to keep formatting consistent.
+* `String fullKey`: The fully-qualified config key, like `features.enableOptimization`.
+* `Field field`: The Java `Field` being serialized.
+* `T annotation`: The annotation instance you defined, used to customize behavior.
+
+#### Example Output
+
+For the field:
+
+```java
+@Experimental
+public boolean example = false;
+```
+
+The saved YAML will include:
+
+```yaml
+## === EXPERIMENTAL FEATURE ===
+example: false
+```
+
+#### Annotation Validators
+
+Annotation validators are a way to enforce **validation rules** on values loaded from a YAML configuration file. These are used in conjunction with custom annotations
+such as `@NonNegativeNumericValue`, which validate that a field satisfies certain criteria **before** the configuration is accepted.
+
+This system enables you to hook into the configuration deserialization process and throw a `ValidationException` if a field’s value does not meet the requirements,
+which will prevent the server from starting until all requirements are met to avoid the server breaking due to an improper value in the configuration
+
+#### Defining a Validator
+
+To create your own validator:
+
+1. **Create an annotation** that defines your validation rule.
+
+2. Your annotation must be annotated with:
+
+   ```java
+   @Retention(RetentionPolicy.RUNTIME)
+   @Target(ElementType.FIELD)
+   ```
+
+   This ensures it’s available at runtime and only applicable to fields.
+
+3. Create a class implementing the `AnnotationValidationProvider<T>` interface, where `T` is the annotation you're using.
+
+4. Annotate your validator class with `@RegisteredHandler`, passing a **String** that matches the name of the method that returns your annotation class.
+
+#### Example: `@NonNegativeNumericValue`
+
+This validator ensures the field is a non-negative number. Here's how it's set up:
+
+**Step 1: Define the annotation**
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface NonNegativeNumericValue {}
+```
+
+**Step 2: Create the validator**
+
+```java
+@RegisteredHandler("nonNegative")
+public class NonNegativeProcessor implements AnnotationValidationProvider<NonNegativeNumericValue> {
+    @Override
+    public boolean validate(final String fullKey, final Field field, final NonNegativeNumericValue annotation, final Object value) throws ValidationException {
+        if (value instanceof Number number) {
+            if (number.floatValue() < 0) {
+                throw new ValidationException("Value must be a non-negative value");
+            }
+            return true;
+        }
+        throw new ValidationException("NonNegativeNumericValue validation applied to a non-numeric object.");
+    }
+
+    public Class<NonNegativeNumericValue> nonNegative() {
+        return NonNegativeNumericValue.class;
+    }
+}
+```
+
+#### Validation Flow
+
+When a configuration file is being deserialized, the validator is invoked automatically if the field has the relevant annotation:
+
+```java
+if (field.isAnnotationPresent(annotation)) {
+    try {
+        validator.validate(key, field, field.getAnnotation(annotation), value);
+    } catch (ValidationException exception) {
+        throw new RuntimeException("Field " + key + " did not pass validation of " + annotation.getSimpleName()
+            + " for reason of '" + exception.getMessage() + "'");
+    }
+}
+```
+
+#### Parameters Provided
+
+The `validate()` method gives you access to:
+
+* `String fullKey`: The fully qualified configuration key (e.g., `example.someCoolConfiguration`)
+* `Field field`: The Java `Field` being validated
+* `T annotation`: The annotation instance, allowing you to access any custom parameters you've defined
+* `Object value`: The actual value loaded from YAML to validate
+
+#### Example Use Case
+
+```yaml
+# config.yml
+max-tick-rate: -1
+```
+
+```java
+@NonNegativeNumericValue
+public int maxTickRate = 20;
+```
+
+This would fail validation with:
+
+```
+RuntimeException: Field maxTickRate did not pass validation of NonNegativeNumericValue
+for reason of 'Value must be a non-negative value'
+```
+
+### Making a PR
+
+When making a PR with your changes, please ensure you have done the following:
+<ul>
+  <li>
+    Ensure you have followed correct formatting guidelines
+  </li>
+
+  <li>
+    Rebuilt all patches
+  </li>
+
+  <li>
+    Fixed any generalized formatting issues
+  </li>
+
+  <li>
+    Ensured any configuration options added have at least a `@Comment` annotation
+  </li>
+
+  <li>
+    Test ***THOROUGHLY***. The PR needs to be production ready at the time of merging, meaning all testing needs to be done preferably before the PR is made
+  </li>
+</ul>

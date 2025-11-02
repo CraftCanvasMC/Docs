@@ -1,32 +1,26 @@
-# deps
-/node_modules
+# build output
+dist/
+# generated types
+.bun/
+.astro/
+.cache/
+package-lock.json # we use bun
 
-# generated content
-.contentlayer
-.content-collections
-.source
+# dependencies
+node_modules/
 
-# test & build
-/coverage
-/.next/
-/out/
-/build
-*.tsbuildinfo
-
-# misc
-.DS_Store
-*.pem
-/.pnp
-.pnp.js
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# others
-.env*.local
-.vercel
-next-env.d.ts
 
-# cursor
-.cursor
-/.idea/
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+.idea/
