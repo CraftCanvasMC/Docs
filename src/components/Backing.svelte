@@ -12,14 +12,12 @@
     return `hsl(${h},${s}%,${l}%)`;
   }
 
-  function randomGradient(index: number, total: number) {
-    const hueOffset = (index / total) * 360;
-    const from = [(250 + hueOffset) % 360, 80, 50];
-    const via = [(180 + hueOffset) % 360, 80, 50];
-    const to = [(270 + hueOffset) % 360, 80, 50];
-    const angle = (index * (360 / total)) % 360;
-    return { from, via, to, angle };
-  }
+  const randomGradient = (index: number, total: number) => ({
+    from: [250 + Math.random() * 30, 60, 15 + Math.random() * 10],
+    via: [200 + Math.random() * 25, 45, 21 + Math.random() * 10],
+    to: [270 + Math.random() * 30, 70, 25 + Math.random() * 10],
+    angle: (index * (360 / total) + Math.random() * 20) % 360,
+  });
 
   let gradients = Array.from({ length: layers }, (_, i) => randomGradient(i, layers));
 
