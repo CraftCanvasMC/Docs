@@ -27,8 +27,9 @@ export default defineConfig({
         { icon: "discord", label: "Discord", href: "https://canvasmc.io/discord" },
       ],
       components: {
-        SocialIcons: "./src/components/SocialIcons.astro",
-        Footer: "./src/components/Footer.astro",
+        SocialIcons: "./src/components/overrides/SocialIcons.astro",
+        Footer: "./src/components/overrides/Footer.astro",
+        LastUpdated: "./src/components/overrides/LastUpdated.astro",
       },
       sidebar: [
         {
@@ -56,6 +57,10 @@ export default defineConfig({
         src: "/public/logo.png",
         alt: "CraftCanvasMC Logo",
         href: "/",
+      },
+      lastUpdated: true,
+      editLink: {
+        baseUrl: "https://github.com/CraftCanvasMC/Docs/edit/main/",
       },
       customCss: [
         "@fontsource/poppins/400.css",
