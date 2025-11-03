@@ -2,33 +2,40 @@
   import { onMount } from "svelte";
   import gsap from "gsap";
 
-  export let layers = 3;
+  export let layers = 2;
   export let speed = 60;
   export let pulseSpeed = 5;
 
   let container: HTMLDivElement;
 
-  function randomGradient(index: number, total: number) {
-    const hueOffset = (index / total) * 360;
-    return {
-      from: [(250 + hueOffset) % 360, 80, 50],
-      via: [(180 + hueOffset) % 360, 80, 50],
-      to: [(270 + hueOffset) % 360, 80, 50],
-      angle: (index * (360 / total)) % 360,
-    };
+  function hsl([h, s, l]: number[]) {
+    return `hsl(${h},${s}%,${l}%)`;
   }
 
-  let gradients: { from: number[]; via: number[]; to: number[]; angle: number }[] = Array.from(
-    { length: layers },
-    (_, i) => randomGradient(i, layers)
-  );
+  function randomGradient(index: number, total: number) {
+    const hueOffset = (index / total) * 360;
+    const from = [(250 + hueOffset) % 360, 80, 50];
+    const via = [(180 + hueOffset) % 360, 80, 50];
+    const to = [(270 + hueOffset) % 360, 80, 50];
+    const angle = (index * (360 / total)) % 360;
+    return { from, via, to, angle };
+  }
+
+  let gradients = Array.from({ length: layers }, (_, i) => randomGradient(i, layers));
+
+  let gradientStrings = gradients.map((g) => {
+    const from = hsl(g.from);
+    const via = hsl(g.via);
+    const to = hsl(g.to);
+    return { from, via, to };
+  });
 
   function buildGradient() {
     return gradients
-      .map(
-        (g) =>
-          `linear-gradient(${g.angle}deg, hsl(${g.from[0]},${g.from[1]}%,${g.from[2]}%) 0%, hsl(${g.via[0]},${g.via[1]}%,${g.via[2]}%) 50%, hsl(${g.to[0]},${g.to[1]}%,${g.to[2]}%) 100%)`
-      )
+      .map((g, i) => {
+        const { from, via, to } = gradientStrings[i];
+        return `linear-gradient(${g.angle}deg, ${from} 0%, ${via} 50%, ${to} 100%)`;
+      })
       .join(", ");
   }
 
@@ -37,13 +44,20 @@
   onMount(() => {
     if (!container) return;
 
+    let lastUpdate = 0;
+
     gsap.to(gradients, {
       duration: speed,
       repeat: -1,
       angle: "+=360",
       ease: "none",
       onUpdate: () => {
-        container.style.background = buildGradient();
+        const now = performance.now();
+        if (now - lastUpdate > 16) {
+          // throttle
+          container.style.background = buildGradient();
+          lastUpdate = now;
+        }
       },
     });
 
@@ -65,13 +79,13 @@
     position: fixed;
     inset: 0;
     z-index: -10;
-    overflow: hidden;
     width: 100%;
     height: 100%;
-    filter: blur(6rem);
+    filter: blur(4rem);
     transform: translateZ(0);
-    background-size: auto;
     opacity: 0.25;
+    will-change: opacity, transform, background;
+    pointer-events: none;
   }
 
   .grid-overlay {

@@ -1,5 +1,6 @@
 ---
 import { Icon } from "@astrojs/starlight/components";
+import { Image } from 'astro:assets';
 import type { ComponentProps } from "astro/types";
 
 interface Props {
@@ -21,7 +22,7 @@ const { icon, src, title, href, destructive, color } = Astro.props;
   <article class="sl-flex">
     <div class="title sl-flex">
         {icon && <Icon name={icon} class="icon" size="1.333em" />}
-        {src && <img src={src} alt="Icon" class="icon" />}
+        {src && <Image src={src} alt="Icon" class="icon", loading="eager", height={24} width={24} />}
       <span set:html={title} />
       {destructive && <Icon name="warning" class="warning-icon" />}
     </div>

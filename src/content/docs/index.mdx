@@ -16,7 +16,7 @@ import { ContributorList } from "starlight-contributor-list";
 import LinkCard from "/src/components/LinkCard.astro";
 import Backing from '/src/components/Backing.svelte';
 
-<Backing client:load/>
+<Backing client:idle/>
 
 <CardGrid>
   <LinkCard title="Introduction to Canvas" href="/introduction" src="/canvas_icon.png" color="purple">
