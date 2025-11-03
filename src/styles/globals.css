@@ -44,6 +44,14 @@
 /* Hero image sizing */
 .hero > img {
   width: min(70%, 20rem);
+  pointer-events: none;
+  user-select: none;
+  position: relative;
+}
+
+.hero > img {
+  filter: drop-shadow(0 0 30px rgba(50, 150, 180, 0.4))
+         drop-shadow(0 0 60px rgba(40, 120, 150, 0.3));
 }
 
 /* Smaller vertical padding on index hero */
