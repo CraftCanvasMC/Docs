@@ -22,7 +22,8 @@ const info = await getCommitInfo(filePath);
       </span>{" "}
       {info && (
         <span class="nowrap author">
-          by <a class="author-link" href={info.committer.href}>
+          by{" "}
+          <a class="author-link" href={info.committer.href}>
             {info.committer.avatar && (
               <Image
                 src={info.committer.avatar}
@@ -36,7 +37,8 @@ const info = await getCommitInfo(filePath);
             )}
             <span class="author-name">{info.committer.name}</span>
           </a>
-          in <a class="commit-link" href={`https://github.com/${REPO}/commit/${info.hash}`}>
+          in{" "}
+          <a class="commit-link" href={`https://github.com/${REPO}/commit/${info.hash}`}>
             {info.hash.substring(0, 7)}
           </a>
         </span>

@@ -43,7 +43,7 @@ export const getCommitInfo = async (filePath: string): Promise<CommitInfo | null
     return { hash, committer: cached };
   }
 
-  const info: CommitterInfo = { name, href: `mailto:${email}` };
+  const info: CommitterInfo = { name, href: `mailto:${email}`, avatar: "", username: "" };
 
   const res = await fetch(`https://api.github.com/repos/${REPO}/commits/${hash}`, GITHUB_OPTIONS);
   if (res.ok) {
