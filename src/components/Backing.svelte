@@ -18,14 +18,24 @@
     };
   }
 
-  let gradients: { from: number[]; via: number[]; to: number[]; angle: number }[] = [];
+  let gradients: { from: number[]; via: number[]; to: number[]; angle: number }[] = Array.from(
+    { length: layers },
+    (_, i) => randomGradient(i, layers)
+  );
+
+  function buildGradient() {
+    return gradients
+      .map(
+        (g) =>
+          `linear-gradient(${g.angle}deg, hsl(${g.from[0]},${g.from[1]}%,${g.from[2]}%) 0%, hsl(${g.via[0]},${g.via[1]}%,${g.via[2]}%) 50%, hsl(${g.to[0]},${g.to[1]}%,${g.to[2]}%) 100%)`
+      )
+      .join(", ");
+  }
+
+  const initialBackground = buildGradient();
 
   onMount(() => {
     if (!container) return;
-
-    gradients = Array.from({ length: layers }, (_, i) => randomGradient(i, layers));
-
-    container.style.background = buildGradient();
 
     gsap.to(gradients, {
       duration: speed,
@@ -45,18 +55,9 @@
       ease: "sine.inOut",
     });
   });
-
-  function buildGradient() {
-    return gradients
-      .map(
-        (g) =>
-          `linear-gradient(${g.angle}deg, hsl(${g.from[0]},${g.from[1]}%,${g.from[2]}%) 0%, hsl(${g.via[0]},${g.via[1]}%,${g.via[2]}%) 50%, hsl(${g.to[0]},${g.to[1]}%,${g.to[2]}%) 100%)`
-      )
-      .join(", ");
-  }
 </script>
 
-<div bind:this={container} class="backing"></div>
+<div bind:this={container} class="backing" style="background: {initialBackground}"></div>
 <div class="grid-overlay"></div>
 
 <style>
