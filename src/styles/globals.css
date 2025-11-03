@@ -131,3 +131,8 @@ header .starlight-icon:hover,
 header .starlight-site-title a:hover {
   color: var(--sl-color-accent-high) !important;
 }
+
+:root {
+  --spi-sidebar-icon-size: 1.25rem;
+  --spi-sidebar-icon-gap: 0.25rem;
+}

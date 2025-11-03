@@ -1,5 +1,6 @@
 ---
 import { REPO, getCommitInfo } from "../../utils/git";
+import { Image } from "astro:assets";
 
 const { lang, lastUpdated } = Astro.locals.starlightRoute;
 const filePath = Astro.locals.starlightRoute.entry.filePath;
@@ -9,7 +10,7 @@ const info = await getCommitInfo(filePath);
 
 {
   lastUpdated && (
-    <p>
+    <p class="last-updated">
       <span class="nowrap">
         Last updated:
         <time datetime={lastUpdated.toISOString()}>
@@ -20,9 +21,24 @@ const info = await getCommitInfo(filePath);
         </time>
       </span>{" "}
       {info && (
-        <span class="nowrap">
-          by <a href={info.committer.href}>{info.committer.name}</a>
-          in <a href={`https://github.com/${REPO}/commit/${info.hash}`}>{info.hash.substring(0, 7)}</a>
+        <span class="nowrap author">
+          by <a class="author-link" href={info.committer.href}>
+            {info.committer.avatar && (
+              <Image
+                src={info.committer.avatar}
+                alt={info.committer.name}
+                class="avatar"
+                width="18"
+                height="18"
+                loading="lazy"
+                style="vertical-align: middle; border-radius: 50%; margin-right: 4px;"
+              />
+            )}
+            <span class="author-name">{info.committer.name}</span>
+          </a>
+          in <a class="commit-link" href={`https://github.com/${REPO}/commit/${info.hash}`}>
+            {info.hash.substring(0, 7)}
+          </a>
         </span>
       )}
     </p>
@@ -35,7 +51,53 @@ const info = await getCommitInfo(filePath);
     color: var(--sl-color-accent-high);
   }
 
+  .last-updated {
+    color: var(--sl-color-text-muted);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
   .nowrap {
     white-space: nowrap;
+  }
+
+  .author {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .author-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    text-decoration: none;
+    color: inherit;
+    margin-left: 0.1rem;
+  }
+
+  .avatar {
+    border-radius: 50%;
+    border: 1px solid var(--sl-color-gray-5);
+    width: 18px;
+    height: 18px;
+    object-fit: cover;
+  }
+
+  .author-name {
+    color: var(--sl-color-accent-high);
+  }
+
+  .commit-link {
+    color: var(--sl-color-accent-high);
+    text-decoration: none;
+  }
+
+  .commit-link:hover,
+  .author-link:hover {
+    text-decoration: underline;
   }
 </style>

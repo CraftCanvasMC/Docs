@@ -23,4 +23,10 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
+# IDE
 .idea/
+
+# Docs icons
+.starlight-icons/*
+!.starlight-icons/safelist.json
+
