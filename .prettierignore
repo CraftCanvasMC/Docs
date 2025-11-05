@@ -1,0 +1,5 @@
+*.md
+*.mdx
+
+src/components/*.astro
+.starlight-icons/safelist.json

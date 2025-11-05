@@ -1,0 +1,124 @@
+---
+title: Installing Plugins
+description: Extend your server with trusted plugins
+---
+
+## Introduction
+
+Plugins are a great way to extend your server with new features. They allow you to customize game mechanics and add new commands or game modes. In this guide, we will go over the basics of plugins and how to install them.
+
+:::caution
+
+**This is a fork of Folia**, which means only Folia compatible plugins work with Canvas.
+Keep this in mind when choosing your plugins. We will not remove thread checks or the
+`folia-supported` flag to make your plugin compatible, the plugin developer must add support themselves.
+
+:::
+
+
+## Trusted Sources
+
+For security and reliability, only install plugins from reputable sources:
+
+- [Modrinth](https://modrinth.com/plugins) (recommended)
+- [Hangar](https://hangar.papermc.io)
+- [SpigotMC](https://www.spigotmc.org/resources)
+- [BukkitDev](https://dev.bukkit.org/bukkit-plugins)
+- Official GitHub repositories
+
+## Installing Plugins
+
+<ul>
+  <li>
+    Obtain the plugin's `.jar` file from a trusted source. If the plugin is provided as a
+    `.zip`, extract the `.jar` prior to installation.
+  </li>
+
+  <li>
+    Place the downloaded `.jar` file into the `plugins` folder located in your server's root
+    directory.
+  </li>
+
+  <li>
+    Restart CanvasMC to load the new plugin
+
+    :::caution
+    The **/reload** command is **disabled** in Folia, and will not be returning.
+    :::
+
+  </li>
+
+  <li>
+    Execute the `/plugins` command in-game or via the console. A green listing indicates that
+    the plugin loaded successfully, while a red listing signals an error.
+  </li>
+</ul>
+
+## Troubleshooting
+
+Below are common issues you might encounter when installing plugins along with recommended solutions:
+
+:::danger
+
+  ##### Missing dependencies
+
+  Caused if the plugin requires other plugins to function.
+  ```log
+  [00:00:00] [Server thread/WARN] Could not load 'plugins/SomePlugin.jar' in folder 'plugins'
+  [00:00:00] [Server thread/WARN] org.bukkit.plugin.UnknownDependencyException: Unknown/missing dependency plugins: [DependencyPlugin]. Please download and install these plugins to run 'SomePlugin'.
+  ```
+  Install the required dependency plugins as specified in the plugin's documentation.
+
+:::
+
+:::danger
+
+  ##### Invalid Plugin File
+
+  Caused if the plugin is either:
+  1. Intended for a different modding platform (such as Forge or Fabric) and is incompatible with CanvasMC.
+  2. Corrupted or incomplete due to network issues, transferring in ASCII mode instead of binary, or downloading an error page.
+  ```log
+  [00:00:00] [Server thread/WARN] Could not load 'plugins/ExamplePlugin.jar' in folder 'plugins'
+  [00:00:00] [Server thread/WARN] org.bukkit.plugin.InvalidDescriptionException: Invalid plugin.yml
+  ```
+  Re-download the plugin file and verify that it is compatible with your server version.
+
+:::
+
+:::danger
+
+  ##### Not Compatible
+
+  Caused if the plugin is not explicitly marked as Folia-compatible.
+  ```log
+  [00:00:00] [Server thread/ERROR] Could not load plugin `Example' as it is not marked as supporting Folia!
+  ```
+  Find an alternative plugin to use to replace this plugin, or make your own plugin that supports Folia
+
+:::
+
+:::danger
+
+  ##### Duplicate Plugins
+
+  Caused if the plugin is installed in multiple versions.
+  ```log
+  [00:00:00] [Server thread/WARN] Ambiguous plugin name `Essentials' for files 'plugins/EssentialsX-2.19.4.jar' and 'plugins/EssentialsX-2.20.0-dev.jar' in 'plugins'
+  ```
+  Remove duplicate versions by keeping only one version of each plugin. Delete older or conflicting versions, then restart your server.
+
+:::
+
+:::danger
+
+  ##### Incompatible Java Version
+
+  Caused if the plugin is compiled with a newer Java version than installed on the server.
+  ```log
+  [00:00:00] [Server thread/ERROR] Could not load 'plugins/ExamplePlugin.jar' in folder 'plugins'
+  [00:00:00] [Server thread/ERROR] java.lang.UnsupportedClassVersionError: ExamplePlugin has been compiled by a more recent Java Runtime (class file version 67.0), this version only recognizes class file versions up to 66.0
+  ```
+  Update your server's Java version or request a compatible build from the plugin developer.
+
+:::
