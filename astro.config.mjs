@@ -99,18 +99,4 @@ export default defineConfig({
       },
     }),
   ],
-  server: {
-    port: 3000,
-    host: "0.0.0.0",
-  },
-  vite: {
-    server: {
-      host: "0.0.0.0",
-      strictPort: false,
-      hmr: {
-        clientPort: 443,
-      },
-      proxy: {},
-    },
-  },
 });
