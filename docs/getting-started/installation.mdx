@@ -1,0 +1,78 @@
+---
+icon: Download
+title: Installation
+description: Learn how to install and set up CanvasMC on your machine.
+authors: [Dueris]
+---
+
+## Requirements
+
+To run CanvasMC, you'll need:
+
+- [Java 21](https://adoptium.net/en-GB/temurin/releases/?version=21) or newer
+- At least 4GB of RAM (recommended)
+- A stable internet connection
+
+## Installation
+
+CanvasMC follows a similar installation process to other PaperMC-based server software, making it familiar for experienced server administrators.
+
+### Downloading the Server
+
+<Steps>
+  <Step>
+    Visit [canvasmc.io/downloads](https://canvasmc.io/downloads) to get the newest version of CanvasMC.
+  </Step>
+  
+  <Step>
+    Make a new folder to keep your server files organized and easily accessible.
+  </Step>
+
+  <Step>
+    Move the downloaded CanvasMC jar file into your server directory.
+  </Step>
+</Steps>
+
+### Running the Server
+
+<Steps>
+  <Step>
+    Create a startup script for your operating system:
+
+    ```bash tab="Windows" title="start.bat"
+    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar canvas.jar --nogui # [!code word:canvas.jar]
+    pause >nul 2>&1
+    ```
+
+    ```bash tab="Linux/macOS" title="start.sh"
+    #!/bin/bash
+    java -Xms2G -Xmx4G --add-modules=jdk.incubator.vector -jar canvas.jar --nogui # [!code word:canvas.jar]
+    pause > /dev/null 2>&1
+    ```
+    
+    :::info
+    
+    For optimal performance, get customized JVM flags from [Birdflop Flags Generator](https://www.birdflop.com/resources/flags/) based on your server specs.
+    
+    :::
+  </Step>
+
+  <Step>
+    The first launch creates an `eula.txt` file. Open it and change the following line:
+
+    ```bash title="eula.txt"
+    # By changing the setting below to TRUE, you agree to our EULA (https://aka.ms/MinecraftEULA).
+    # Thu Jan 1 00:00:00 UTC 1970
+    eula=false # [!code --]
+    eula=true # [!code ++]
+    ```
+  </Step>
+
+  <Step>
+    Run the server again using the startup script you created. Once it fully loads, your installation is complete!
+  </Step>
+</Steps>
+
+## Next Steps
+
+Now that you have your CanvasMC server running, you can start adding plugins and configuring it to your liking.
