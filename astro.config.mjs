@@ -111,4 +111,13 @@ export default defineConfig({
       },
     }),
   ],
+
+  vite: {
+    server: {
+      allowedHosts: ["docs.canvasmc.io"],
+    },
+    preview: {
+      allowedHosts: ["docs.canvasmc.io"],
+    },
+  },
 });
