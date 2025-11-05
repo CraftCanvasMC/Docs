@@ -1,23 +1,12 @@
 import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
-import astroExpressiveCode from "astro-expressive-code";
 import { defineConfig } from "astro/config";
 import Icons from "starlight-plugin-icons";
 import UnoCSS from "unocss/astro";
 
-const prod = process.env.NODE_ENV === "production";
-
 export default defineConfig({
-  site: prod ? "https://docs.canvasmc.io" : undefined,
+  site: "https://docs.canvasmc.io",
   integrations: [
-    {
-      name: "docs:config-md",
-      hooks: {
-        "astro:config:setup": ({ config }) => {
-          globalThis.markdownConfig = { ...config.markdown };
-        },
-      },
-    },
     svelte(),
     tailwindcss(),
     UnoCSS(),
