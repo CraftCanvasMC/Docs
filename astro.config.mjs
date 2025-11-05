@@ -111,7 +111,6 @@ export default defineConfig({
         clientPort: 443,
       },
       proxy: {},
-      allowedHosts: ["all"],
     },
   },
 });
