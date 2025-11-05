@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "scripts": {
     "dev": "bun astro dev",
-    "start": "bun astro preview --port 80",
+    "start": "bun astro preview --port 3000",
     "build": "bun astro build",
     "preview": "bun astro preview",
     "format": "bun prettier . --write",
