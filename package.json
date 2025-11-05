@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^6.3.8",
+    "@astrojs/node": "^9.5.0",
     "@astrojs/starlight": "^0.36.2",
     "@astrojs/svelte": "^7.2.1",
     "@expressive-code/plugin-collapsible-sections": "^0.41.3",
