@@ -111,6 +111,11 @@ export default defineConfig({
       },
     }),
   ],
+  vite: {
+    preview: {
+      allowedHosts: ["docs.canvasmc.io"],
+    },
+  },
   server: {
     port: 80,
     host: true,
