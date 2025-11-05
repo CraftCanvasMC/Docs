@@ -103,4 +103,14 @@ export default defineConfig({
     port: 3000,
     host: true,
   },
+  vite: {
+    server: {
+      hmr: {
+        clientPort: 443,
+      },
+    },
+    preview: {
+      allowedHosts: ["all"],
+    },
+  },
 });
