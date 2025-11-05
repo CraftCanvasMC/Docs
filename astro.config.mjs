@@ -4,14 +4,13 @@ import { defineConfig } from "astro/config";
 import Icons from "starlight-plugin-icons";
 import UnoCSS from "unocss/astro";
 
-const prod = process.env.NODE_ENV === "server";
+const prod = process.env.NODE_ENV === "production";
 
 export default defineConfig({
   output: "server",
   adapter: node({
     mode: "standalone",
   }),
-  site: prod ? "https://docs.canvasmc.io" : undefined,
   integrations: [
     {
       name: "docs:config-md",
