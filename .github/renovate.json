@@ -11,5 +11,6 @@
   "postUpgradeTasks": {
     "commands": ["bun format"],
     "fileFilters": ["**/*.{js,ts,json,md}"]
-  }
+  },
+  "allowedPostUpgradeCommands": ["bun format"]
 }
