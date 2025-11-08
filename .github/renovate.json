@@ -7,5 +7,9 @@
       "automerge": true
     }
   ],
-  "dependencyDashboard": false
+  "dependencyDashboard": false,
+  "postUpgradeTasks": {
+    "commands": ["bun format"],
+    "fileFilters": ["**/*.{js,ts,json,md}"]
+  }
 }

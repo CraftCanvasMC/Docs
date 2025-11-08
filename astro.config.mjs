@@ -1,9 +1,9 @@
+import node from "@astrojs/node";
 import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import Icons from "starlight-plugin-icons";
 import UnoCSS from "unocss/astro";
-import node from "@astrojs/node";
 
 export default defineConfig({
   output: "server",
