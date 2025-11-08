@@ -1,6 +1,5 @@
 import node from "@astrojs/node";
 import svelte from "@astrojs/svelte";
-import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import Icons from "starlight-plugin-icons";
 import UnoCSS from "unocss/astro";
@@ -12,7 +11,6 @@ export default defineConfig({
   }),
   integrations: [
     svelte(),
-    tailwindcss(),
     UnoCSS(),
     Icons({
       sidebar: true,
