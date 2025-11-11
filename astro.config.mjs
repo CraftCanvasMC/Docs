@@ -1,14 +1,9 @@
-import node from "@astrojs/node";
 import svelte from "@astrojs/svelte";
 import { defineConfig } from "astro/config";
 import Icons from "starlight-plugin-icons";
 import UnoCSS from "unocss/astro";
 
 export default defineConfig({
-  output: "server",
-  adapter: node({
-    mode: "standalone",
-  }),
   integrations: [
     svelte(),
     UnoCSS(),
