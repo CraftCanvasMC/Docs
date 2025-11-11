@@ -4,6 +4,7 @@ import Icons from "starlight-plugin-icons";
 import UnoCSS from "unocss/astro";
 
 export default defineConfig({
+  site: "https://docs.canvasmc.io",
   integrations: [
     svelte(),
     UnoCSS(),
