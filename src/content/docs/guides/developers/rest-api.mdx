@@ -5,16 +5,16 @@ description: Comprehensive documentation for Canvas's REST API, including endpoi
 
 ## API Versions
 
-The Canvas REST API supports versioning through the `/api/v{version}` URL prefix. Currently, two API versions are available:
+The Canvas REST API supports versioning through the `/api/v{version}` URL prefix:
 
-- **V2 (Current)**: The latest stable version, featuring enhanced performance and expanded functionality. All new integrations should use this version.
-- **V1 (Deprecated, to be removed soon)**: Legacy version maintained for existing integrations. This version will be discontinued soon.
+:::danger
 
-:::caution
-
-For backwards compatibility with already existing integrations, route `/api` automatically redirects to the `/api/v1` endpoint.
+Currently, only the v2 API version is available.
 
 :::
+
+- **V2 (Current)**: The latest stable version, featuring enhanced performance and expanded functionality. All integrations have to use this version.
+- **V1 (Removed)**: The legacy version, which has since been removed as of November 5th 2025.
 
 ## V2 API Endpoints
 
@@ -136,10 +136,6 @@ Base URL: `https://canvasmc.io/api/v2`
         - Use this endpoint to quickly navigate to the Javadocs without manually looking up the build number.
     </div>
 </details>
-
-## V1 API Endpoints
-
-The V1 API has been deprecated. While still accessible, we strongly recommend migrating to V2 API for all new and existing integrations. For historical reference, the V1 API documentation can be found [here](https://github.com/CraftCanvasMC/Website/blob/bd804056306e713da89ebe56132e58702119ba4a/api/DOCUMENTATION.md).
 
 ## Java API Client
 
