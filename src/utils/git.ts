@@ -4,7 +4,6 @@ export interface CommitterInfo {
   name: string;
   href: string;
   avatar: string;
-  username: string;
 }
 
 export interface CommitInfo {
@@ -43,14 +42,13 @@ export const getCommitInfo = async (filePath: string): Promise<CommitInfo | null
     return { hash, committer: cached };
   }
 
-  const info: CommitterInfo = { name, href: `mailto:${email}`, avatar: "", username: "" };
+  const info: CommitterInfo = { name, href: `mailto:${email}`, avatar: "" };
 
   const res = await fetch(`https://api.github.com/repos/${REPO}/commits/${hash}`, GITHUB_OPTIONS);
   if (res.ok) {
     const commit = await res.json();
     info.href = commit.author.html_url;
     info.avatar = commit.author.avatar_url;
-    info.username = commit.author.login;
   }
 
   cache.set(email, info);
