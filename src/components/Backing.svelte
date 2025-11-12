@@ -13,9 +13,9 @@
   }
 
   const randomGradient = (index: number, total: number) => ({
-    from: [250 + Math.random() * 30, 60, 15 + Math.random() * 10],
-    via: [200 + Math.random() * 25, 45, 21 + Math.random() * 10],
-    to: [270 + Math.random() * 30, 70, 25 + Math.random() * 10],
+    from: [245 + Math.random() * 40, 65, 18 + Math.random() * 6],
+    via: [195 + Math.random() * 30, 50, 22 + Math.random() * 6],
+    to: [265 + Math.random() * 40, 72, 27 + Math.random() * 5],
     angle: (index * (360 / total) + Math.random() * 20) % 360,
   });
 
@@ -25,14 +25,13 @@
     const from = hsl(g.from);
     const via = hsl(g.via);
     const to = hsl(g.to);
-    return { from, via, to };
+    return `linear-gradient(0deg, ${from} 0%, ${via} 50%, ${to} 100%)`;
   });
 
   function buildGradient() {
     return gradients
       .map((g, i) => {
-        const { from, via, to } = gradientStrings[i];
-        return `linear-gradient(${g.angle}deg, ${from} 0%, ${via} 50%, ${to} 100%)`;
+        return gradientStrings[i].replace("0deg", `${g.angle.toFixed(1)}deg`);
       })
       .join(", ");
   }
@@ -42,7 +41,7 @@
   onMount(() => {
     if (!container) return;
 
-    let lastUpdate = 0;
+    let rafScheduled = false;
 
     gsap.to(gradients, {
       duration: speed,
@@ -50,11 +49,12 @@
       angle: "+=360",
       ease: "none",
       onUpdate: () => {
-        const now = performance.now();
-        if (now - lastUpdate > 16) {
-          // throttle
-          container.style.background = buildGradient();
-          lastUpdate = now;
+        if (!rafScheduled) {
+          rafScheduled = true;
+          requestAnimationFrame(() => {
+            container.style.background = buildGradient();
+            rafScheduled = false;
+          });
         }
       },
     });
@@ -82,7 +82,7 @@
     filter: blur(4rem);
     transform: translateZ(0);
     opacity: 0.25;
-    will-change: opacity, transform, background;
+    will-change: opacity, transform;
     pointer-events: none;
   }
 
