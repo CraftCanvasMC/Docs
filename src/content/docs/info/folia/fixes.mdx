@@ -10,8 +10,8 @@ These strictly document behavioral fixes and restorations of Vanilla systems, no
 - Fixes the `/bossbar` command
 - Fixes the `/dialog` command
 - Fixes the `/loot` command
-- Fixes the `/ride` command
-- Fixes the `/rotate` command
+- ~~Fixes the `/ride` command~~ - Changes merged into Folia 1.21.11
+- ~~Fixes the `/rotate` command~~ - Changes merged into Folia 1.21.11
 - Fixes the `/spectate` command
 - Fixes the `/spreadplayers` command
   - This command was completely rewritten to function primarily asynchronously, scheduling to regions when needing to validate data
@@ -29,6 +29,37 @@ These strictly document behavioral fixes and restorations of Vanilla systems, no
 - Fixes pitch/yaw in the `/tp` command being consistently 0 when ran, instead of keeping the teleporting entity X/Y rot
 
 ## Vanilla Systems
+
+### POI Update Scheduling
+
+While POI update scheduling works fine on Folia, it has a major flaw with how it works. In the region threading base patch, Folia replaces the method call
+`BlockableEventLoop#execute` with `RegionizedTaskQueue#queueChunkTask`. While this works fine in general gameplay, it does cause all POI updates to be
+scheduled to the next tick, which technically breaks vanilla behavior and also breaks a few things.
+
+The `BlockableEventLoop#execute` method is as such:
+```java
+    public void execute(Runnable task) {
+        R runnable = this.wrapRunnable(task);
+        if (this.scheduleExecutables()) {
+            this.schedule(runnable);
+        } else {
+            this.doRunTask(runnable);
+        }
+    }
+```
+
+Essentially, it checks if it is the "main thread" or not(which no longer exists in Folia, but for this case we will assume the "main thread" is the region owning
+the `BlockPos` we are updating at), and if it is the "main thread", it will run the task immediately, otherwise, it will schedule for the next tick.
+
+Folia breaks this logic, as it always schedules for the next tick. While in normal gameplay, this is fine, but in some occurrences this does cause issues. Canvas fixes
+this behavior, restoring the Vanilla logic and fixing the issues that were caused by this change in behavior.
+
+:::note
+
+This is in the process of being merged to Folia 1.21.11 in this PR:
+https://github.com/PaperMC/Folia/pull/419
+
+:::
 
 ### Waypoints & The Locator Bar
 
