@@ -20,7 +20,7 @@
     "@expressive-code/plugin-line-numbers": "^0.41.4",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/poppins": "^5.2.7",
-    "astro": "5.16.8",
+    "astro": "5.16.9",
     "gsap": "^3.14.2",
     "lucide-svelte": "^0.562.0",
     "sharp": "^0.34.5",
