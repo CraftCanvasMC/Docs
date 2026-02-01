@@ -1,0 +1,211 @@
+---
+title: Horizon API
+description: How to use the Horizon API
+tableOfContents: false
+---
+
+Horizon includes API for Horizon plugins to interact with to better understand its environment and other plugins in the
+server. This part of the documentation is still a WIP, as there is more API being planned, and more API to document.
+
+### Horizon Properties API
+
+The Horizon Properties API allows plugin developers to see into the configuration for the server, including the following:
+- Plugins directory
+- Target Paperclip server jar
+- Cache directory
+- Extra plugins to be loaded
+
+This can be useful for situations where you need this data, since that data is configured per-server, so it may differ.
+
+### VersionMeta API
+
+Horizon implements a way to view Paperclip version metadata, which contains Minecraft version info, pack info, etc.
+Currently, Horizon exposes the Paperclip version info and pack info, which can be obtained and used quite simply:
+
+```java
+// Here is an example of how to fetch the Horizon instance and read server version information
+// Note: there are *many* more methods, and it is best to look at the Javadocs for each class aswell
+HorizonLoader horizon = HorizonLoader.getInstance();
+FileJar paperclip = horizon.getPaperclipJar();
+
+getLogger().info("Paperclip JAR: " + paperclip.ioFile().getName());
+
+PaperclipVersion version = horizon.getVersionMeta();
+
+getLogger().info("Minecraft Version: " + version.name());
+getLogger().info("Protocol Version: " + version.protocol_version());
+getLogger().info("Java Version: " + version.java_version());
+getLogger().info("Is stable?: " + version.stable());
+
+PaperclipVersion.PackVersion pack = version.pack_version();
+getLogger().info("Pack Version(resources):" + pack.resource_major() + "." + pack.resource_minor());
+getLogger().info("Pack Version(data):" + pack.data_major() + "." + pack.data_minor());
+```
+
+There may be more things exposed in the future about the Paperclip data, but it is currenly not planned, as it isn't
+really something any plugin would need.
+
+### Instrumentation and ClassLoader Exposure
+
+Horizon exposes the JVM Instrumentation that Horizon uses for its booting of the server. It isn't really recommended
+to touch the Instrumentation directly, but there are APIs available that do call methods in it, which are more safe to
+use and are more recommended for some operations, like appending a jar file to the classloader.
+
+```java
+// Gets the MixinLaunch instance, which contains the classloader,
+// and other more advanced API like class transformers
+MixinLaunch launcher = HorizonLoader.getInstance().getLaunchService();
+
+// This contains data like the String[] args that will be passed to the server
+// along with inital game connections, and the actual game jar
+MixinLaunch.LaunchContext launchContext = launcher.getLaunchContext();
+
+// This is the JVM Instrumentation that can be accessed for doing more advanced operations
+// although, it is recommended to use any API provided by Horizon that functions
+// similarly or as a replacement to the API that the Instrumentation provides, as it will
+// function safer and better for the Horizon environment
+JavaInstrumentation instrumentation = HorizonLoader.getInstance().getInstrumentation();
+
+// This is the Ember ClassLoader, which is the primary bytecode modification
+// loader for the Horizon environment. Here you can append new jars to the classpath too!
+EmberClassLoader classLoader = launcher.getClassLoader();
+classLoader.tryAddToHorizonSystemLoader(Paths.get("test.jar"));
+```
+
+The code above is a brief showcase of some things you can access and do with the Instrumentation and ClassLoader exposure.
+If you want more information on how Instrumentations work, it is linked below:
+
+- [Instrumentation JavaDocs](https://docs.oracle.com/en/java/javase/21/docs/api/java.instrument/java/lang/instrument/Instrumentation.html)
+
+### Plugin API
+
+Horizon introduces a full plugin API that is exposed for all plugins to access. This allows for numerous things like
+viewing what other plugins are on the server, which can be used for dependency declaration(coming soon), incompatibilities,
+etc. This API also allows you to view nested data entries and more. All data in each plugin is immutable, and shouldn't
+be attempted to be modified.
+
+```java
+// Get the Horizon instance
+HorizonLoader horizon = HorizonLoader.getInstance();
+// This includes *all* Horizon plugins, nested and unnested
+PluginTree plugins = horizon.getPlugins();
+for (HorizonPlugin plugin : plugins.getAll()) {
+    // The HorizonMetadata class acts as an object representation of the
+    // Horizon plugin json file. It contains the name, version, mixins,
+    // ats, api version, etc.
+    HorizonMetadata metadata = plugin.pluginMetadata();
+    getLogger().info("Hello " + metadata.name() + "!");
+
+    // The plugin identifier is the same as the 'name' entry in the metadata
+    String id = plugin.identifier();
+
+    // The HorizonPlugin also provides the FileJar instance that is tied
+    // to the plugin, and also a FileSystem via HorizonPlugin#fileSystem()
+    FileJar file = plugin.file();
+    getLogger().info("Path of \"" + id + "\": " + file.ioFile().toPath());
+}
+```
+
+The plugin API is a useful tool for when trying to get other plugins data, or even your own plugins data.
+
+### Class Transformers API
+
+Horizon contains a ClassTransformer API, which is the primary API that drives Mixins and ATs transformation of
+ClassNodes. With this API, plugins can register their own `TransformationService`s much like the Mixin and AT transformation
+services. The internal plugin includes the Mixin and AT transformers, and plugins can register their own via their
+service loader. The plugin JSON structure should be something like this:
+
+```json
+"transformers": [
+  "io.canvasmc.testplugin.TransformerTest"
+]
+```
+
+The Class Transformers API uses a list of `String` values that, upon accessing the values in `ClassTransformer#<init>`,
+is parsed into `Class<? extends TransformationService>`. It is then immediately instantiated, using a **no-args
+constructor**. Class transformers can be used to perform bytecode modifications on class nodes during the game lifecycle.
+An example:
+
+```java
+public class TransformerExample implements TransformationService {
+    @Override
+    public void preboot() {
+        // called before game launch, after mixin bootstrap
+    }
+
+    @Override
+    public int priority(@NonNull TransformPhase phase) {
+        // return the integer priority of this service, including the current phase
+    }
+
+    @Override
+    public boolean shouldTransform(@NonNull Type type, @NonNull ClassNode node) {
+        // return if this should transform or not
+    }
+
+    @Override
+    public @Nullable ClassNode transform(@NonNull Type type, @NonNull ClassNode node, @NonNull TransformPhase phase) throws Throwable {
+        // return 'null' if the class node was not transformed, and return the modified class node if modified
+    }
+}
+```
+
+That is an example of how a transformation service should be made. They are extremely powerful and can transform the
+entire class on any class on load. This is used internally for inital patches by Horizon, and for service implementations
+for plugins like Mixins and ATs. It is generally recommended to just use Mixins, but if seriously needed, this API is
+exposed to plugins.
+
+### Entrypoint API
+
+Horizon provides an entrypoint API, similar to the Fabric-Loader. This API is driven by the `EntrypointContainer`, which
+provides a lightweight and reflection-driven entrypoint system for Horizon and its plugins. It allows plugins to expose
+implementations of an interface under an entrypoint key, which the API can later discover, instantiate, and invoke in
+bulk. At runtime, when the entrypoint key is called, Horizon scans plugins and finds entrypoints matching a key,
+verifies the target class implementations, and then constructs instances via a **no-arg constructor**. The result is a
+`Provider<C, R>` that contains all discovered implementations and an invocation system.
+
+Invocation is riven by an `@EntrypointHandler` annotation placed on the interface to be invoked, which defines the
+method name and parameter description to call. The provider enforces return-type correctness and executes the handler
+method across all loaded implementations, returning results as a `Stream<R>`. Failures are isolated per-plugin and are
+logged, and optionally routed to an error handler, which ensures one misbehaving plugin doesn't break the entire thing.
+
+This is an example entrypoint interface:
+
+```java
+@EntrypointHandler(
+    value = "onRegister",
+    argTypes = { String.class }
+)
+public interface ExampleEntrypoint {
+    void onRegister(String example);
+}
+```
+
+Implement the interface in a plugin:
+
+```java
+public class ExampleEntrypointImpl implements ExampleEntrypoint {
+    @Override
+    public void onRegister(String example) {
+        HorizonLoader.LOGGER.info("Called entrypoint!");
+    }
+}
+```
+
+The plugin metadata must declare this under the appropriate entrypoint key, for example, "example".
+This is how you invoke the provider:
+
+```java
+EntrypointContainer.Provider<ExampleEntrypoint, Void> provider =
+    EntrypointContainer.buildProvider(
+        "example_key",
+        ExampleEntrypoint.class,
+        Void.class
+    );
+
+provider.invoke("Example!");
+```
+
+Horizon provides a `"server_main"` entrypoint for plugins, which is executed on startup after the server build
+information impl is created, which is very similar to the fabric loader `"server"` entrypoint. All plugins using this
+must implement the `DedicatedServerInitializer` class.

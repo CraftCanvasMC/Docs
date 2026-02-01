@@ -19,6 +19,8 @@
         "sharp": "^0.34.5",
         "starlight-contributor-list": "^0.3.1",
         "starlight-plugin-icons": "^1.1.3",
+        "starlight-sidebar-topics": "^0.6.2",
+        "starlight-sidebar-topics-dropdown": "^0.5.2",
         "svelte": "^5.46.0",
         "typescript": "^5.9.3",
         "yaml": "^2.8.2",
@@ -1128,6 +1130,10 @@
     "starlight-contributor-list": ["starlight-contributor-list@0.3.1", "", { "dependencies": { "@11ty/eleventy-fetch": "^4.0.1" }, "peerDependencies": { "@astrojs/starlight": ">=0.30" } }, "sha512-8F3BcnqeCgvI/OcagJCBsp71/XU9/zDiuSmsgAkWrRTxql0H2bG9Z9VXvmwzB/569QVlAsOwK7StAxDxqG6Myw=="],
 
     "starlight-plugin-icons": ["starlight-plugin-icons@1.1.3", "", { "dependencies": { "glob": "^11.0.3", "hast-util-select": "^6.0.4", "hast-util-to-string": "^3.0.1", "hastscript": "^9.0.1", "rehype": "^13.0.2", "unist-util-visit": "^5.0.0" }, "peerDependencies": { "@astrojs/starlight": ">=0.35.0", "astro": ">=4", "typescript": "^5", "unocss": ">=0.58.0", "zod": ">=3.22.0 || >=4.0.0" } }, "sha512-b+7Cibp2IXKlmENF/bjrClqAfYV2UWco0np+GkH5RXqa3X/ZWks1KoiL9Gz6BGccd7jYrTHG/9jNKeahDFPtHA=="],
+
+    "starlight-sidebar-topics": ["starlight-sidebar-topics@0.6.2", "", { "dependencies": { "picomatch": "^4.0.2" }, "peerDependencies": { "@astrojs/starlight": ">=0.32.0" } }, "sha512-SNCTUZS/hcVor0ZcaXbaSVU37+V+qtvzNirkvnOg3Mqu/awuGpthkH5+uKpiZqWxLffp6TrOlsv5E5QsxrndNg=="],
+
+    "starlight-sidebar-topics-dropdown": ["starlight-sidebar-topics-dropdown@0.5.2", "", { "peerDependencies": { "@astrojs/starlight": ">=0.32", "starlight-sidebar-topics": ">=0.6" } }, "sha512-QeqSO5jjk/ZHDfXnUqJF1GpY1ny9dc9LqETuw9V124B93EYtpvCYa+zccxHMHojQvAuG7TguQs212P4XvJX0Wg=="],
 
     "statuses": ["statuses@2.0.2", "", {}, "sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw=="],
 

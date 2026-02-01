@@ -1,0 +1,76 @@
+---
+const { githubRepo } = Astro.props;
+
+let contributors = [];
+try {
+  const response = await fetch(`https://api.github.com/repos/${githubRepo}/contributors`);
+  if (response.ok) {
+    contributors = await response.json();
+  }
+} catch (error) {
+  console.error('Failed to fetch contributors:', error);
+}
+---
+
+<div class="contributor-grid">
+  {contributors.map((contributor) => (
+    <a
+      href={contributor.html_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="contributor-item"
+      title={contributor.login}
+    >
+      <img
+        src={contributor.avatar_url}
+        alt={contributor.login}
+        width="32"
+        height="32"
+        loading="lazy"
+      />
+      <span class="contributor-name">{contributor.login}</span>
+      <span class="contributor-contributions">{contributor.contributions} commits</span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .contributor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  .contributor-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+  }
+
+  .contributor-item:hover {
+    transform: translateY(-4px);
+  }
+
+  .contributor-item:hover img {
+    border-color: var(--sl-color-accent-high);
+  }
+
+  .contributor-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--sl-color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .contributor-contributions {
+    font-size: 0.75rem;
+    color: var(--sl-color-gray-3);
+  }
+</style>

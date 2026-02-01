@@ -1,0 +1,37 @@
+---
+title: Installing
+description: How to install and run Horizon
+tableOfContents: false
+---
+
+Horizon is simple to install and get running. You can download Horizon from our website, https://canvasmc.io, and from
+there it is as simple as dropping the downloaded JAR file
+into the *same directory* as your server JAR. **DO NOT REPLACE THE SERVER JAR!!** Horizon works as an external wrapper
+for the server JAR, so the server JAR needs to be present for Horizon
+to function correctly. The default file Horizon will search for is `server.jar`, which is configurable wth the
+`horizon.yml` configuration file:
+
+```yaml
+pluginsDirectory: plugins
+serverJar: server.jar
+cacheLocation: cache/horizon
+extraPlugins: [ ]
+serverName: horizon
+```
+
+This `horizon.yml` file is intended for more extensive configuration of Horizon, allowing setting the server JAR name,
+since not all servers will have their server JAR named `server.jar`, or you can then
+have multiple server JARs and swap between the target Horizons they use.
+
+- The `cacheLocation` is simply for storing JIJ plugins and such, and is cleared on each boot of Horizon. We don't
+  recommend changing it, but you can if there are conflicts or some issue
+  arises, and you need to change the location.
+- The option `extraPlugins` allows for adding additional plugins to the Horizon classpath to be loaded. Horizon also
+  reads from the `--add-plugin` JVM argument that is passed to the server
+- The `serverName` option is an optional override for the server mod name, as it gets overridden in Horizon
+  automatically by its internal mixin inject
+- The `pluginsDirectory` option should always point to your plugins directory for both Paper plugins and Horizon
+  plugins; however, you can separate them if you need or want to.
+
+Once all options are configured to your liking, you can boot the Horizon JAR as usual, and your server will run with
+Horizon as its bootstrapper!

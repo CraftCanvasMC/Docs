@@ -1,6 +1,7 @@
 ---
 title: Fixes to Folia
 description: An overview of what Canvas fixes in Folia
+tableOfContents: false
 ---
 
 Folia breaks a **lot** of mechanics and systems. Canvas aims to try and fix as many as possible. This page contains information regarding what Canvas fixes, and how.
@@ -151,7 +152,7 @@ To combat this, we changed a few things:
 The same applies for portal events. The only difference is, the teleport(pre) event allows modifications of the 'to' location, while the portal events
 cannot modify the 'to' location. Both "pre" events can cancel the portal or teleport though.
 
-:::info
+:::note
 
 We don't restore the original teleport events to keep compatibility with Folia upstream. Some plugins depend on the teleport events and portal events
 to do things, and support platforms other than Folia that utilize this. By adding these events back, we end up risking it so that the plugins using
@@ -178,7 +179,7 @@ This is relatively simple. We just mimic the startup process for all worlds in F
 and replace it with adding tickets within a 1024 block radius of 0,0, mimicing Folias startup changes. We also add the world to the `RegionizedServer`
 class, so it's global tick is also run. On the first region tick of the new world, it calls `initWorld`, just like at startup
 
-:::info
+:::note
 
 Note: The world load must be called on the global tick.
 
@@ -238,7 +239,7 @@ We don't need to worry about the server shutdown process interfering with unload
 since the unload process follows closely to what shutdown does. If this is called and *then* shutdown is called, then the shutdown thread halts all regions, so the unload
 just completes what it can before shutdown. Worse-case-scenario we save a region a second time on the shutdown thread, as the unload logic follows closely to the shutdown logic.
 
-:::info
+:::note
 
 Note: The world unload must be called on the global tick.
 

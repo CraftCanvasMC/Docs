@@ -17,7 +17,12 @@ const { icon, src, title, href, destructive, color } = Astro.props;
 
 <a
   href={href}
-  class:list={["not-content", "card", destructive && "card-destructive", color && `card-${color}`]}
+  class:list={[
+    "not-content",
+    "card",
+    destructive && "card-destructive",
+    color && `card-${color}`,
+  ]}
 >
   <article class="sl-flex">
     <div class="title sl-flex">
@@ -88,9 +93,24 @@ const { icon, src, title, href, destructive, color } = Astro.props;
   color: var(--sl-color-red);
 }
 
-.card-purple { --sl-card-border: var(--sl-color-purple); --sl-card-bg: var(--sl-color-purple-low); }
-.card-blue   { --sl-card-border: var(--sl-color-blue);   --sl-card-bg: var(--sl-color-blue-low); }
-.card-green  { --sl-card-border: var(--sl-color-green);  --sl-card-bg: var(--sl-color-green-low); }
-.card-red    { --sl-card-border: var(--sl-color-red);    --sl-card-bg: var(--sl-color-red-low); }
-.card-orange { --sl-card-border: var(--sl-color-orange); --sl-card-bg: var(--sl-color-orange-low); }
+.card-purple:hover {
+  --sl-card-border: var(--sl-color-purple);
+  --sl-card-bg: var(--sl-color-purple-low);
+}
+.card-blue:hover {
+  --sl-card-border: var(--sl-color-blue);
+  --sl-card-bg: var(--sl-color-blue-low);
+}
+.card-green:hover {
+  --sl-card-border: var(--sl-color-green);
+  --sl-card-bg: var(--sl-color-green-low);
+}
+.card-red:hover {
+  --sl-card-border: var(--sl-color-red);
+  --sl-card-bg: var(--sl-color-red-low);
+}
+.card-orange:hover {
+  --sl-card-border: var(--sl-color-orange);
+  --sl-card-bg: var(--sl-color-orange-low);
+}
 </style>

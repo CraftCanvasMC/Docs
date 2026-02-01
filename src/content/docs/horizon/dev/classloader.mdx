@@ -1,0 +1,23 @@
+---
+title: New Classloading Tree
+description: An explanation of the new classloading tree with Horizon
+tableOfContents: false
+---
+
+For obvious reasons, the classloading hierarchy tree has changed. A diagram is shown below with a general visual example
+of what this looks like
+
+![classloading tree](/ember.png)
+
+Paper (and forks) is similar to this tree; however, Ember is replaced with a normal `URLClassLoader`. The `DYNAMIC`
+classloader shown in the diagram
+is a `URLClassLoader` instance that allows modification of the URLs added to it post-init. Horizon plugins, instead of
+being loaded with every other
+plugin in their own classloader, are linked to the Ember classloader. This **does** mean that Horizon plugins **cannot**
+invoke code in non-Horizon plugins.
+
+One way to get around this is by using an abstraction layer and a 2nd plugin. You could have a Paper plugin and a
+Horizon plugin loaded(using JIJ too for more compact file managing) and create interfaces in the Horizon plugin that
+the Paper plugin implements, of which the Paper plugin will then access code in other non-Horizon plugin JARs.
+By implementing a system like this, you could create a Horizon plugin that can communicate with other Paper plugins.
+Do note, though, that all Horizon plugins are visible to the Paper plugin classloaders.
