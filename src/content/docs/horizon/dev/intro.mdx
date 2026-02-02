@@ -212,7 +212,9 @@ It also works with Kotlin and other JVM-based languages.
 Below is the internal graph of how the source sets interact with eachother to help you understand the constraints of their interactions.
 
 :::danger[Constraints]
+
 You may *not* access classes from the `plugin` source set in `main`, as it's unsupported due to the way Horizon's classloader works.
+
 :::
 
 ```ruby
