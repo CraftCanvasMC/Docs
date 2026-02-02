@@ -135,6 +135,12 @@ developing!
 Keep in mind that the versions provided below might be outdated, and you should always search for and ensure you're
 specifying the latest versions available.
 
+:::info
+
+For a list of all available configurations for the `horizon` plugin along with JDs, please refer to [here](https://github.com/CraftCanvasMC/Horizon/tree/HEAD/gradle-plugin/src/main/kotlin/io/canvasmc/horizon/extension/HorizonExtension.kt)
+
+:::
+
 ```kotlin
 plugins {
     id("io.canvasmc.weaver.userdev") version "2.3.12"
@@ -156,7 +162,8 @@ horizon {
 ```
 
 The `run-paper` plugin is automatically configured to download a jar for the version specified in the dev bundle;
-however, it can be overridden.
+however, it can be overridden, by manually specifying a version;
+Refer to its [github page](https://github.com/jpenilla/run-task) for more information.
 
 In addition, using the `shadow` Gradle plugin is *unsupported* and you should instead opt-in to JiJ'ing your
 dependencies by using the appropriate configurations, just like this:
@@ -183,4 +190,45 @@ Finally, for a library, the configuration to use is `includeLibrary`, which plac
 All of those dependencies will be loaded at the server startup. For a more detailed overlook refer to
 the [JIJ](#jijjar-in-jar) section.
 
-TODO TOFFIK - split sources documentation
+:::note
+
+You might also want to develop so-called "hybrid" plugins.
+Those plugins are horizon plugins, which bundle a regular plugin inside of them using JiJ;
+Thankfully, the Gradle plugin also has some tools to make that as easy for you as possible.
+
+:::
+
+To develop hybrid plugins using the `horizon` Gradle plugin, you need to configure it appropriately, like this:
+
+```kotlin
+horizon {
+    splitPluginSourceSets()
+}
+```
+
+This configuration registers another source set by the name of `plugin` that has access to the `main` source set and all of its dependencies.
+It also works with Kotlin and other JVM-based languages.
+
+Below is the internal graph of how the source sets interact with eachother to help you understand the constraints of their interactions.
+
+:::danger[Constraints]
+You may *not* access classes from the `plugin` source set in `main`, as it's unsupported due to the way Horizon's classloader works.
+:::
+
+```ruby
+dependencies (general)
+│
+main source set
+│
+└── plugin source set
+     └── dependencies (exclusive to this source set)
+```
+
+The source set's classes will be automatically packaged as a JAR file by the `pluginJar` task, which will append a `plugin` classifier to the produced JAR file,
+and also package it into the artifact produced by the main `jar` task as a JiJ dependency.
+
+:::danger
+
+You should distribute the regular artifact (without the classifier), as the other JAR is packaged inside and it doesn't possess your MIXIN or any other classes from the main JAR.
+
+:::
