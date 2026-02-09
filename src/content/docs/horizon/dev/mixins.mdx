@@ -132,12 +132,12 @@ patching or forking the upstream server codebase
 
 #### Enabling Mixins in a Horizon Plugin
 
-To enable mixins for a plugin, declare one or more mixin configuration files in your plugin metadata:
+To enable mixins for a plugin, declare one or more mixin configuration files in your Horizon plugin metadata:
 
-```yaml
-horizon:
-  mixins:
-    - "mixins.example.json"
+```json
+"mixins": [
+  "mixins.example.json"
+]
 ```
 
 Each entry must reference a mixin configuration file packaged in your plugin JAR resources
