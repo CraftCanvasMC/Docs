@@ -221,12 +221,10 @@ For example, you cannot inject into Horizon internals, for obvious reasons. The 
     - SpongePowered Mixin core implementation and MixinExtras. Transforming Mixin itself is unsafe and will almost
       certainly break class transformation.
 
-Horizon plugins **cannot** transform classes in non-Horizon plugins due to classloader constraints. Horizon plugins
-**CAN** transform classes by other Horizon plugins, and packages not excluded by Horizon.
-
 :::note
 
-There is a `remap` field in the injection annotations, this does *nothing* in Horizon.
+Horizon plugins **can** transform classes in non-Horizon plugins due to internal injections and the setup classloader
+building support for this feature
 
 :::
 
