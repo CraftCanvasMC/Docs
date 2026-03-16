@@ -4,6 +4,8 @@ description: Comprehensive documentation for Canvas's REST API, including endpoi
 tableOfContents: false
 ---
 
+// TODO - can we make this per-project? https://canvasmc.io/api/v2/{project}
+
 ## API Versions
 
 The Canvas REST API supports versioning through the `/api/v{version}` URL prefix:
@@ -144,10 +146,12 @@ Bellow is a Java example file for interacting with the Canvas V2 API.
 
 :::note
 
-The API client is authored by Dueris and used in the [Sculptor](https://github.com/CraftCanvasMC/Sculptor/) project for Canvas
+The API client is authored by Dueris and used in various CanvasMC projects
 
 :::
 
+<details>
+<summary>Click to view Java API client</summary>
 ```java
 /**
  * Client for interacting with the Canvas V2 REST API.
@@ -503,3 +507,4 @@ public final class ApiClient {
     }
 }
 ```
+</details>

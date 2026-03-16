@@ -28,6 +28,12 @@ These strictly document behavioral fixes and restorations of Vanilla systems, no
   - This command was redone to complete in an asynchronous fashion, marking all currently ticking regions in all worlds to be fully saved
   on their next tick, saving all their chunks and players. This prevents thread ownership issues and is much safer for region threading
 - Fixes pitch/yaw in the `/tp` command being consistently 0 when ran, instead of keeping the teleporting entity X/Y rot
+- Fixes [Folia#443](https://github.com/PaperMC/Folia/issues/443)
+- Fixes [Folia#436](https://github.com/PaperMC/Folia/issues/436)
+- Fixes [Folia#421](https://github.com/PaperMC/Folia/issues/421)
+- Fixes max player count being offset by -1 in Folia
+- Fixes a few technical Vanilla mechanics
+- Fixes even more stupid amounts of issues
 
 ## Vanilla Systems
 
@@ -35,7 +41,7 @@ These strictly document behavioral fixes and restorations of Vanilla systems, no
 
 While POI update scheduling works fine on Folia, it has a major flaw with how it works. In the region threading base patch, Folia replaces the method call
 `BlockableEventLoop#execute` with `RegionizedTaskQueue#queueChunkTask`. While this works fine in general gameplay, it does cause all POI updates to be
-scheduled to the next tick, which technically breaks vanilla behavior and also breaks a few things.
+scheduled to the next tick, which technically breaks vanilla behavior and also breaks things like portal creation.
 
 The `BlockableEventLoop#execute` method is as such:
 ```java
@@ -70,31 +76,59 @@ of the icon can be observed based on the distance:
 
 | Sprite | Range          |
 |--------|----------------|
-| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_0.png" width="16" height="16" alt="Locator Bar Pos-0" /> </span> | (0–179 blocks, 11 chunks) |
-| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_1.png" width="16" height="16" alt="Locator Bar Pos-1" /> </span> | (179–230 blocks, 14 chunks) |
-| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_2.png" width="16" height="16" alt="Locator Bar Pos-2" /> </span> | (230–281 blocks, 17 chunks) |
-| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_3.png" width="16" height="16" alt="Locator Bar Pos-3" /> </span> | (281+ blocks, 17+ chunks) |
+| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_0.png" width="36" height="36" alt="Locator Bar Pos-0" /> </span> | (0–179 blocks, 11 chunks) |
+| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_1.png" width="36" height="36" alt="Locator Bar Pos-1" /> </span> | (179–230 blocks, 14 chunks) |
+| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_2.png" width="36" height="36" alt="Locator Bar Pos-2" /> </span> | (230–281 blocks, 17 chunks) |
+| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_3.png" width="36" height="36" alt="Locator Bar Pos-3" /> </span> | (281+ blocks, 17+ chunks) |
 
 Canvas' implementation works 1:1 with Vanilla, while also including some major optimizations so the global state for this is as fast as possible.
 
 ### Vanilla Ender Pearl Behavior
 
-Folia removes pearl loading and unloading behavior when a player joins or leaves, either by disconnecting or during server shutdown. Canvas implements a configuration option that fixes this mechanic
-```yaml
-## Restores vanilla loading and unloading behavior broken by Folia
-restoreVanillaEnderPearlBehavior: false ## This value is false by default
-```
+Vanilla ender pearl behavior is defined as when a player leaves, the in-flight pearls in the server that the player owns will be unloaded along with
+the player and saved to their player data. On join, the player loads the in-flight pearls back in. Folia removes this functionality entirely, since
+the system is technically not region-threading safe. There was a previous attempt by Canvas to fix this, however it was deemed unsafe. Currently, Canvas
+contains a new rewritten system for storing these in-flight pearls.
 
-:::caution
+:::note
 
-This configuration is subject for removal in the future to be left enabled by default
+Introduced in [Canvas#167 "Rewrite Vanilla pearl save"](https://github.com/CraftCanvasMC/Canvas/pull/167), authored by [Dueris](https://github.com/Dueris)
 
 :::
 
-This was implemented via a PR by <u>**Vitminee**</u> as PR [114](https://github.com/CraftCanvasMC/Canvas/pull/114). This was later followed up with commit [c6cac70](https://github.com/CraftCanvasMC/Canvas/commit/c6cac70d7dc8bcb551824f8ce32ba5e03b0af434)
-fixing numerous issues with this patch. This primarily reverts Folias changes to removing this behavior, makes the `enderPearls` field in `ServerPlayer` thread-safe, and
-ensures proper regionizing on removal of the ender pearl. We don't need to regionize the loading of the ender pearl ourselves, as Folia does this for us already as part
-of their region threading patch.
+The new system makes it so that ONLY on leave it will save the pearls to a server-wide concurrent map of UUID -> Pearls. This is then saved to `pearls.dat` in
+the root folder of the server. When the player leaves, all pearls are added to the map on their owning region before being discarded for UNLOADED_WITH_PLAYER.
+On the global tick, the server will attempt to write to disk for autosave(same time interval as maps for autosave), with the save-all command, and on
+shutdown it will write to disk. This is all done through the utility IO pool. On join, each pearl is decoded, and then using Canvas utilities, spawns
+the pearl in on join, and then clears the current list in the save data associated with the player UUID, since we just spawned all of them, none of them need
+to be in the save data anymore.
+
+This makes this significantly more region threading safe, given everything is now scheduled properly, and saved properly, on the correct context,
+in a more efficient and safe manner.
+
+```
+"": {
+	Data: {
+    // player UUID
+		a4804847-858e-3278-941e-ab3175b15a81: [
+			{
+				world: "minecraft:overworld"
+				data: {
+					// Pearl entity data
+				}
+				uuid: b679858f-af33-48ea-9323-509219dc6189
+			},
+			{
+				world: "minecraft:overworld"
+				data: {
+					// Pearl entity data
+				}
+				uuid: de1c429f-3f7c-4d02-8c9c-495ff94c0367
+			},
+		]
+	}
+}
+```
 
 ### End Credits
 
@@ -131,10 +165,11 @@ is run, the player is scheduled to respawn back at their respawn location.
 Folia, with its rewritten systems, breaks numerous common events that plugins use, often leading to... questionable workarounds
 
 - `PlayerRespawnEvent` is fixed
-- `EntityTeleportAsyncEvent` is added
-- `EntityPostTeleportAsyncEvent` is added
-- `EntityPostPortalAsyncEvent` is added
-- `EntityPortalAsyncEvent` is added
+- [EntityTeleportAsyncEvent](https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.11-R0.1-SNAPSHOT/raw/io/canvasmc/canvas/event/EntityTeleportAsyncEvent.html) is added
+- [EntityPostTeleportAsyncEvent](https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.11-R0.1-SNAPSHOT/raw/io/canvasmc/canvas/event/EntityPostTeleportAsyncEvent.html) is added
+- [EntityPostPortalAsyncEvent](https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.11-R0.1-SNAPSHOT/raw/io/canvasmc/canvas/event/EntityPostPortalAsyncEvent.html) is added
+- [EntityPortalAsyncEvent](https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.11-R0.1-SNAPSHOT/raw/io/canvasmc/canvas/event/EntityPortalAsyncEvent.html) is added
+- [PlayerViewEndCreditsEvent](https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.11-R0.1-SNAPSHOT/raw/io/canvasmc/canvas/event/PlayerViewEndCreditsEvent.html) is added
 
 For respawn events, this was simple and required us to modify the method we discussed above, the `respawn` method in `ServerPlayer`.
 The big roadblock with this fix was ensuring plugin modifications to the respawn location would be accepted, however now the entire event

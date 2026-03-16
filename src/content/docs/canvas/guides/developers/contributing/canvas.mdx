@@ -152,8 +152,28 @@ then look through the logs of the script, as it runs through gradle so all logs 
 or `canvas-server`, then you need to run the script with `--force`. There should be no other reason you are running `--force`, as this just runs all rebuild tasks for all modified
 and unmodified directories. The script is shown bellow to show what it does in more detail
 
+<details>
+<summary>Click to view the rebuild patches script</summary>
 ```bash
 #!/bin/bash
+
+# If running with old Bash (3.x), try Homebrew Bash on macOS first.
+if [ -z "${BASH_VERSINFO:-}" ] || [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+  if [ "$(uname -s)" = "Darwin" ]; then
+    if command -v /opt/homebrew/bin/bash >/dev/null 2>&1; then
+      exec /opt/homebrew/bin/bash "$0" "$@"
+    elif command -v /usr/local/bin/bash >/dev/null 2>&1; then
+      exec /usr/local/bin/bash "$0" "$@"
+    else
+      echo "Error: Bash 4+ required but not found."
+      echo "Install with: brew install bash"
+      exit 1
+    fi
+  fi
+
+  echo "Error: Bash 4+ required."
+  exit 1
+fi
 
 set -e
 
@@ -247,6 +267,7 @@ run_gradle_task "rebuildFoliaServerFilePatches"
 run_gradle_task "rebuildMinecraftFilePatches"
 run_gradle_task "rebuildFoliaSingleFilePatches"
 ```
+</details>
 
 ### Adding Configurations
 
@@ -543,7 +564,7 @@ When making a PR with your changes, please ensure you have done the following:
   </li>
 
   <li>
-    Ensured any configuration options added have at least a `@Comment` annotation
+    Ensured any configuration options added have at least an `@Comment` annotation
   </li>
 
   <li>
