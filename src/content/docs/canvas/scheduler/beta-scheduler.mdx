@@ -1,0 +1,42 @@
+---
+title: Beta Scheduler
+description: The Beta scheduler developed by SpottedLeaf
+tableOfContents: false
+---
+
+:::danger
+
+This scheduler is extremely unstable, deprecated, and removed. It is not recommended to run any software with this as an
+active option, given its incredibly unstable nature and large amount of undiagnosable issues.
+
+:::
+
+## Introduction
+
+The beta scheduler is a now deleted branch on the Folia repository created by SpottedLeaf that attempts to replace and
+improve the previous region scheduler, known modern-day as the `EDF` scheduler. The core features of the beta scheduler
+include:
+- Intermediate task execution
+- Work stealing / task-thread affinity
+- No task scheduling lock
+
+While a good idea at the time, this scheduler came with a ***LOT*** of issues, some undiagnosable and completely broken.
+
+## Issues
+
+The beta scheduler had core design flaws that caused issues like deadlocks, softlocks, join locks, and even loss of tick
+tasks in their entirety. Like the following issues:
+- [Folia#346](https://github.com/PaperMC/Folia/issues/346)
+- [Folia#341](https://github.com/PaperMC/Folia/issues/341)
+- An issue where players can appear online after they left, and then that specific player can no longer join the server until reboot
+- Deadlocks.. lots of deadlocks
+
+Canvas attempted to fix these issues for a long while, however whenever we fixed one issue, another popped up in its place.
+The beta scheduler fundamentally has core design flaws, to the point where it was outright removed by SpottedLeaf. It is
+recommended to **never** run a software with this as an active option, as it will most likely be unstable, and not safe
+for production in the slightest.
+
+## Source
+
+While the branch is deleted now, the commits still technically exist in [298674...80ab57](https://github.com/PaperMC/Folia/compare/29867414449cede8010bac42dc9bf31dd21eb278...80ab57dcbe5fa96cc2f7fe34ecba94162d8dd5e9).
+It is not recommended to pull this into your own fork or use for personal use, as there are *many* issues present in this scheduler.

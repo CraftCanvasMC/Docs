@@ -94,6 +94,15 @@ export default defineConfig({
                     },
                   ],
                 },
+                {
+                  label: "Schedulers",
+                  items: [
+                    "canvas/scheduler/edf",
+                    "canvas/scheduler/work-stealing",
+                    "canvas/scheduler/affinity",
+                    "canvas/scheduler/beta-scheduler"
+                  ]
+                },
               ],
             },
           ],
@@ -108,7 +117,7 @@ export default defineConfig({
   ],
 
   server: {
-    port: 80,
+    port: 3000,
     host: true,
   },
 });

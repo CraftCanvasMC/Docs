@@ -1,0 +1,49 @@
+---
+title: EDF Scheduler
+description: The EDF scheduler provided by Folia
+tableOfContents: false
+---
+
+## Introduction
+
+The EDF scheduler is the initial scheduler provided by Folia, and the default. This scheduler is part of the
+[ConcurrentUtil](https://github.com/Tuinity/ConcurrentUtil) library by SpottedLeaf.
+
+This scheduler has been in Folia the longest, and was the first scheduler used in Folia. This is also the stablest
+option of all the schedulers provided in this documentation, given its long run of testing proving it to be reliable.
+
+------
+
+To set your scheduler to EDF, change the `threaded-regions.scheduler` option in `paper-global.yml` to `EDF`
+
+[Click to see source](https://github.com/Tuinity/ConcurrentUtil/blob/master/src/main/java/ca/spottedleaf/concurrentutil/scheduler/EDFSchedulerThreadPool.java)
+
+------
+
+## What is "EDF"?
+
+EDF stands for Earliest-Deadline-First, which is a CPU scheduling algorithm that assigns priorities to tasks according
+to the absolute deadline(in this case, nanoseconds). The task whose deadline is first gets the highest priority. This
+is pretty consistent throughout all the schedulers though. This scheduler attempts to ensure all task deadlines are met
+by making it so that each time a tick runner finishes a task, it will request a new one under the **scheduling lock**.
+
+This scheduler, by nature, does not guarantee any task will remain on the same thread for more than 1 tick. By design,
+the soonest task will be picked up by the tick runner that is next available, to ensure the deadline is met. Tasks can
+be picked up at the end of the tick of another task, or if a new task is inserted, and there are idle runners. If there
+is an idle runner during task insertion, the task gets accepted by the first idle runner immediately.
+
+It's the least performant of all the options listed, however it is the most stable and reliable.
+
+## Technical details
+
+All operations involving the queue of the scheduler, like insertion, polling, etc, run through a lock called the `scheduleLock`.
+This lock ensures all operations are atomic and safe, and avoids race conditions and such.
+
+The tasks are compared via a comparator of their tick times, always choosing the task with the sooner deadline. The tie
+breaker is defined by `Long.signum(task1.id - task2.id)`. The ids are unique per task
+
+:::note
+
+This scheduler does not support **work stealing**, **mid-tick-tasks**, **thread affinity**, or **NUMA-aware scheduling**
+
+:::

@@ -1,0 +1,115 @@
+---
+title: Work Stealing Scheduler
+description: The Work Stealing scheduler provided by Folia
+tableOfContents: false
+---
+
+The WORK_STEALING scheduler is the 2nd scheduler provided by Folia. This scheduler is part of the
+[ConcurrentUtil](https://github.com/Tuinity/ConcurrentUtil) library by SpottedLeaf.
+
+This scheduler has been in Folia the shortest, and was the second scheduler introduced in Folia. This was introduced as part
+of the massive Folia scheduler refactoring done in the 1.21.11 update, [here](https://github.com/PaperMC/Folia/commit/eee7128bc810195ad758ea5ace1b72c600896d3b)
+
+This refactoring brought in the ability to configure the scheduler the server used, and this scheduler, along with many other internal changes.
+
+------
+
+To set your scheduler to this scheduler, change the `threaded-regions.scheduler` option in `paper-global.yml` to `WORK_STEALING`
+
+[Click to see source](https://github.com/Tuinity/ConcurrentUtil/blob/master/src/main/java/ca/spottedleaf/concurrentutil/scheduler/StealingScheduledThreadPool.java)
+
+------
+
+## What does it do?
+
+This scheduler provides possibly better scheduling over the EDF scheduler, through these features:
+- Intermediate task execution(or mid-tick-tasks)
+- NUMA-aware scheduling on Linux(more details below)
+- Better thread/NUMA locality, so the scheduler will attempt to keep regions on the same scheduler thread/node
+- Dynamic thread count adjustment
+
+This scheduler, like the other schedulers, operates on a **deadline-driven model**, where each scheduled tick has a
+target execution time. Each thread maintains 2 queues. A **tick queue**, which is ordered by execution deadline, and
+a **task queue**, which is ordered by last execution time.
+
+Threads execute tasks while waiting for the next tick deadline, very similarly to the `AFFINITY` scheduler, and is
+able to steal tasks that are behind schedule from other threads.
+
+:::note
+
+This scheduler is technically configurable, but Folia does not provide any option to configure it.
+For the sake of this documentation, it will be referenced and called configurable in the case of this
+changing in the future and Folia letting this scheduler be configured. These are the values passed:
+
+- **`stealThreshold`** - 3 milliseconds
+- **`taskTimeSlice`** - 2 milliseconds
+
+:::
+
+------
+
+Work stealing allows threads to take ownership of ticks that are **behind schedule** on other threads.
+
+- A tick becomes eligible for stealing when:
+  - Its scheduled execution time is past
+  - It exceeds the configured **steal threshold**
+- Threads prioritize stealing:
+  - Tasks that are most overdue
+  - Tasks from closer NUMA nodes
+
+------
+
+Before executing a scheduled tick, threads will process tasks associated with that tick
+
+Tasks are executed until the tick deadline, and is bound by a **time slice**. Threads stop early if:
+- The deadline is reached
+- The thread is interrupted(can be for various reasons)
+
+This ensures deadlines are respected and task execution doesn't starve tick execution.
+
+------
+
+Tasks are assigned to the least loaded thread, of which load is estimated by queue size, unlike the other schedulers,
+which are determined by whichever thread is soonest available. Tasks are also assigned to threads close to the current
+NUMA node, and ties are broken using queue sizes. When stealing, this scheduler will always prioritize tasks that
+are on closer NUMA nodes during ties.
+
+This scheduler also supports dynamic thread adjustment, meaning you can modify the thread count allocated while
+the server is running by reloading the Paper configuration.
+
+## What is NUMA?
+
+**NUMA** is a system architecture used in many multi-socket and high-core CPUs where memory access time depends on
+which CPU is accessing which memory.
+
+In a NUMA system, each CPU(or group of cores) is part of a **NUMA node**, where each node has its own local memory.
+Accessing local memory is fast, while accessing memory from another node(remote memory), is slower.
+Instead of all CPUs sharing memory equally, the system is divided like this:
+
+- Node 0
+  - CPU cores
+  - Local RAM
+- Node 1
+  - CPU cores
+  - Local RAM
+
+If a thread on node `0` accesses memory from node `0`, low latency. If it tries to access memory from node `1`, higher latency.
+This scheduler tries to keep work on the same node it started on, and avoid moving tasks between nodes unnecessarily to reduce
+cross-node memory access, which improves cache locality, and memory access latency.
+
+:::note
+
+This feature for this scheduler is only supported on **Linux**, and must be enabled with the `-DPaper.NumaScheduling=true` flag.
+
+:::
+
+## Should I Use This Scheduler?
+
+This scheduler is probably not useful to most people unless you have a multi-socket system, but even then it isn't
+recommended to use because, from user testing, this scheduler does have issues like task loss. While the issues
+encountered weren't severe like the beta scheduler was, some of the issues presented in that scheduler were seen in
+this scheduler aswell. The only reported one being task loss so far, but there may be more. This documentation will
+be updated if more reports are made regarding this scheduler though.
+
+Generally, for most people, it is recommended to use the `AFFINITY` scheduler if using Canvas, and `EDF` otherwise,
+since those are known to be the most stable of the options documented, and stability is always preferred.
