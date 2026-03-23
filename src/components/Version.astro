@@ -1,0 +1,251 @@
+---
+import { Icon } from "@astrojs/starlight/components";
+
+interface Props {
+  version: string;
+  inline?: boolean;
+}
+
+const { version, inline } = Astro.props;
+---
+
+<div class:list={["notice", inline && "notice-inline"]}>
+  <div class="notice-block">
+    <div class="notice-icon-wrap">
+      <Icon name="information" class="icon" />
+    </div>
+    <div class="notice-inner">
+      <span class="notice-label">Written for version</span>
+      <span class="notice-version">{version}</span>
+      {
+        !inline && (
+          <button class="notice-toggle" type="button" aria-expanded="false">
+            <span class="notice-toggle-text">What does this mean?</span>
+            <Icon name="down-caret" class="caret" />
+          </button>
+        )
+      }
+    </div>
+  </div>
+  {
+    !inline && (
+      <div class="notice-detail" aria-hidden="true">
+        <p>
+          This shows the earliest version for which this page is fully accurate.
+          Features or APIs mentioned here may be missing or incomplete in older
+          versions.
+        </p>
+      </div>
+    )
+  }
+  {
+    inline && (
+      <span class="notice-fineprint">
+        Earliest version for which this page is fully accurate. Features or APIs
+        mentioned here may be missing or incomplete in older versions.
+      </span>
+    )
+  }
+</div>
+
+<script>
+  document.querySelectorAll(".notice-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const expanded = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!expanded));
+      const detail = btn.closest(".notice")?.querySelector(".notice-detail");
+      if (detail) {
+        detail.setAttribute("aria-hidden", String(expanded));
+      }
+    });
+  });
+</script>
+
+<style>
+  .notice {
+    --_accent: var(--sl-color-accent);
+    --_bg: oklch(from var(--_accent) l c h / 0.06);
+    --_border: oklch(from var(--_accent) l c h / 0.15);
+    --_icon-bg: oklch(from var(--_accent) l c h / 0.1);
+    --_version-color: oklch(from var(--_accent) calc(l * 0.85) c h);
+
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: var(--sl-text-sm);
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.5rem;
+    background: var(--_bg);
+    border: 1px solid var(--_border);
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .notice::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--_accent);
+    border-radius: 3px 0 0 3px;
+    opacity: 0.6;
+  }
+
+  .notice-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.375rem;
+    background: var(--_icon-bg);
+  }
+
+  .icon {
+    font-size: 1rem;
+    color: var(--_accent);
+  }
+
+  .notice-block {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .notice-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    line-height: 1.2;
+    min-width: 0;
+  }
+
+  .notice-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    font-weight: 500;
+  }
+
+  .notice-version {
+    font-weight: 700;
+    font-size: var(--sl-text-sm);
+    color: var(--_version-color);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  .notice-toggle {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-inline-start: 0;
+    font-size: 0.65rem;
+    opacity: 0.5;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    padding-top: 0.15rem;
+    transition: opacity 0.15s ease, background 0.15s ease;
+    white-space: normal;
+    user-select: none;
+  }
+
+  .notice-toggle:hover {
+    opacity: 0.85;
+  }
+
+  .notice-toggle:focus-visible {
+    outline: 2px solid var(--_accent);
+    outline-offset: 2px;
+  }
+
+  .caret {
+    font-size: 0.5rem;
+    transition: transform 0.2s ease;
+  }
+
+  .notice-toggle[aria-expanded="true"] .caret {
+    transform: rotate(180deg);
+  }
+
+  .notice-detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease, padding 0.25s ease;
+    padding: 0;
+  }
+
+  .notice-detail > p {
+    overflow: hidden;
+    margin: 0;
+    font-size: 0.7rem;
+    opacity: 0.55;
+    line-height: 1.5;
+    padding-inline-start: 2.375rem;
+  }
+
+  .notice-detail[aria-hidden="false"] {
+    grid-template-rows: 1fr;
+    padding-top: 0.375rem;
+  }
+
+  .notice-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    margin: 0;
+    border-radius: 0;
+    border-inline: none;
+    border-block: 1px solid var(--_border);
+    padding: 0.5rem var(--sl-content-pad-x);
+    font-size: var(--sl-text-sm);
+  }
+
+  .notice-inline::before {
+    display: none;
+  }
+
+  .notice-inline .notice-icon-wrap {
+    width: auto;
+    height: auto;
+    background: none;
+    border-radius: 0;
+  }
+
+  .notice-inline .icon {
+    font-size: 0.875rem;
+  }
+
+  .notice-inline .notice-inner {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.3rem;
+  }
+
+  .notice-inline .notice-label {
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: var(--sl-text-xs);
+    opacity: 1;
+  }
+
+  .notice-inline .notice-version {
+    font-size: var(--sl-text-xs);
+  }
+
+  .notice-inline .notice-fineprint {
+    font-size: 0.65rem;
+    opacity: 0.45;
+    padding-inline-start: 0;
+    line-height: 1.4;
+  }
+</style>

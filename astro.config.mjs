@@ -26,6 +26,10 @@ export default defineConfig({
         { icon: "github", label: "GitHub", href: "https://github.com/CraftCanvasMC" },
         { icon: "discord", label: "Discord", href: "https://canvasmc.io/discord" },
       ],
+      components: {
+        TableOfContents: "./src/components/overrides/TableOfContents.astro",
+        MobileTableOfContents: "./src/components/overrides/MobileTableOfContents.astro",
+      },
 
       plugins: [
         starlightSidebarTopics(
@@ -60,40 +64,35 @@ export default defineConfig({
               items: [
                 "canvas/introduction",
                 {
-                  label: "Guides",
+                  label: "Getting Started",
                   items: [
-                    {
-                      label: "Getting Started",
-                      items: [
-                        "canvas/guides/getting-started/installation",
-                        "canvas/guides/getting-started/plugins",
-                      ],
-                    },
-                    {
-                      label: "Developers",
-                      items: [
-                        "canvas/guides/developers/contributing/canvas",
-                        "canvas/guides/developers/contributing/docs",
-                        "canvas/guides/developers/rest-api"
-                      ],
-                    },
+                    "canvas/getting-started/installation",
+                    "canvas/getting-started/plugins",
                   ],
                 },
                 {
-                  label: "Info",
+                  label: "Developers",
                   items: [
-                    "canvas/info/helpful/compat",
-                    "canvas/info/helpful/lts",
                     {
-                      label: "Folia",
+                      label: "Contributing",
                       items: [
-                        "canvas/info/folia/overview",
-                        "canvas/info/folia/fixes",
-                        "canvas/info/folia/region-logic",
-                      ],
+                        "canvas/developers/contributing/canvas",
+                        "canvas/developers/contributing/docs",
+                      ]
                     },
+                    "canvas/developers/rest-api",
+                    "canvas/developers/canvas-api"
                   ],
                 },
+                {
+                  label: "Folia",
+                  items: [
+                    "canvas/info/folia/overview",
+                    "canvas/info/folia/fixes",
+                    "canvas/info/folia/region-logic",
+                  ],
+                },
+                "canvas/lts",
                 {
                   label: "Schedulers",
                   items: [
