@@ -24,7 +24,7 @@ Currently, Horizon exposes the Paperclip version info and pack info, which can b
 
 ```java
 // Here is an example of how to fetch the Horizon instance and read server version information
-// Note: there are *many* more methods, and it is best to look at the Javadocs for each class aswell
+// Note: there are *many* more methods, and it is best to look at the Javadocs for each class as well
 HorizonLoader horizon = HorizonLoader.getInstance();
 FileJar paperclip = horizon.getPaperclipJar();
 
@@ -42,7 +42,7 @@ getLogger().info("Pack Version(resources):" + pack.resource_major() + "." + pack
 getLogger().info("Pack Version(data):" + pack.data_major() + "." + pack.data_minor());
 ```
 
-There may be more things exposed in the future about the Paperclip data, but it is currenly not planned, as it isn't
+There may be more things exposed in the future about the Paperclip data, but it is currently not planned, as it isn't
 really something any plugin would need.
 
 ### Instrumentation and ClassLoader Exposure
@@ -57,7 +57,7 @@ use and are more recommended for some operations, like appending a jar file to t
 MixinLaunch launcher = HorizonLoader.getInstance().getLaunchService();
 
 // This contains data like the String[] args that will be passed to the server
-// along with inital game connections, and the actual game jar
+// along with initial game connections, and the actual game jar
 MixinLaunch.LaunchContext launchContext = launcher.getLaunchContext();
 
 // This is the JVM Instrumentation that can be accessed for doing more advanced operations
@@ -151,7 +151,7 @@ public class TransformerExample implements TransformationService {
 ```
 
 That is an example of how a transformation service should be made. They are extremely powerful and can transform the
-entire class on any class on load. This is used internally for inital patches by Horizon, and for service implementations
+entire class on any class on load. This is used internally for initial patches by Horizon, and for service implementations
 for plugins like Mixins and ATs. It is generally recommended to just use Mixins, but if seriously needed, this API is
 exposed to plugins.
 

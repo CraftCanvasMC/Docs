@@ -10,7 +10,7 @@ npm create astro@latest -- --template starlight
 
 ## 🚀 Project Structure
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+Inside your Astro + Starlight project, you'll see the following folders and files:
 
 ```
 .

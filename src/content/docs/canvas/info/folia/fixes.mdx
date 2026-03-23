@@ -131,7 +131,7 @@ in a more efficient and safe manner.
 
 ### End Credits
 
-The end credits were disabled by Folia due to Folias rewrite of respawning logic. Folias respawning logic contains the method:
+The end credits were disabled by Folia due to Folia's rewrite of respawning logic. Folia's respawning logic contains the method:
 
 ```java
 private void respawn(java.util.function.Consumer<ServerPlayer> respawnComplete, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason reason, boolean alive)
@@ -196,7 +196,7 @@ those original events end up breaking.
 
 ### World Loading & Unloading API
 
-This was already attempted by another person, <u>**masmc05**</u> in PR [63](https://github.com/PaperMC/Folia/pull/63) in Folias repository.
+This was already attempted by another person, <u>**masmc05**</u> in PR [63](https://github.com/PaperMC/Folia/pull/63) in Folia's repository.
 The PR was eventually closed due to lack of requirements from SpottedLeaf. The requirements were as such:
 
 - teleporting into worlds that may or may not be unloading (this includes player login) is just not handled, which is unacceptable
@@ -216,7 +216,7 @@ This section is outdated and subject for relocation/update
 :::
 
 This is relatively simple. We just mimic the startup process for all worlds in Folia. We removed the `initWorld` call in `CraftServer#createWorld`,
-and replace it with adding tickets within a 1024 block radius of 0,0, mimicing Folias startup changes. We also add the world to the `RegionizedServer`
+and replace it with adding tickets within a 1024 block radius of 0,0, mimicking Folia's startup changes. We also add the world to the `RegionizedServer`
 class, so it's global tick is also run. On the first region tick of the new world, it calls `initWorld`, just like at startup
 
 :::note
