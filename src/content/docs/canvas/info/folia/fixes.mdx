@@ -210,7 +210,11 @@ Without those issues being resolved in the original PR, the PR was closed. Canva
 
 #### World Loading
 
-// TODO - update this section
+:::caution
+
+This section is outdated and subject for relocation/update
+
+:::
 
 This is relatively simple. We just mimic the startup process for all worlds in Folia. We removed the `initWorld` call in `CraftServer#createWorld`,
 and replace it with adding tickets within a 1024 block radius of 0,0, mimicing Folias startup changes. We also add the world to the `RegionizedServer`
@@ -224,8 +228,11 @@ Note: The world load must be called on the global tick.
 
 #### World Unloading
 
-// TODO - make it so that we track players joining worlds, and we check that against bukkit requirements along with if there are players in the world
-// TODO - make create, unload, and player joining checks regarding the world unloading **ALL** under lock
+:::caution
+
+This section is outdated and subject for relocation/update
+
+:::
 
 This one is tricky. To abide by SpottedLeafs rules, we needed to change how `CraftServer#unloadWorld` worked completely. Unloading follows a specific structure of steps:
 <ul>
