@@ -1,9 +1,74 @@
 ---
 import Default from "@astrojs/starlight/components/TableOfContents.astro";
+import { Icon } from "@astrojs/starlight/components";
 import Version from "../Version.astro";
-
-const { version } = Astro.locals.starlightRoute.entry.data;
+const { version, description } = Astro.locals.starlightRoute.entry.data;
 ---
 
 {version && <Version {version} />}
+{
+  description && (
+    <div class="page-description">
+      <div class="page-description-icon-wrap">
+        <Icon name="open-book" class="page-description-icon" />
+      </div>
+      <p>{description}</p>
+    </div>
+  )
+}
 <Default><slot /></Default>
+
+<style>
+  .page-description {
+    --_accent: oklch(0.65 0.25 300);
+    --_bg: oklch(from var(--_accent) l c h / 0.06);
+    --_border: oklch(from var(--_accent) l c h / 0.15);
+    --_icon-bg: oklch(from var(--_accent) l c h / 0.1);
+
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: 0.625rem;
+    font-size: var(--sl-text-sm);
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.5rem;
+    background: var(--_bg);
+    border: 1px solid var(--_border);
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .page-description::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--_accent);
+    border-radius: 3px 0 0 3px;
+    opacity: 0.6;
+  }
+
+  .page-description-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.375rem;
+    background: var(--_icon-bg);
+  }
+
+  .page-description-icon {
+    font-size: 1rem;
+    color: var(--_accent);
+  }
+
+  .page-description p {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--sl-color-gray-2);
+  }
+</style>
