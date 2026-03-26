@@ -6,7 +6,8 @@ tableOfContents: false
 
 :::caution
 
-This is slightly outdated, using an old format that will be deprecated with https://github.com/CraftCanvasMC/Website/pull/42
+The `v2` format has recently undergone some changes due to https://github.com/CraftCanvasMC/Website/pull/42
+A thorough overview of the changes can be found in our [discord announcement](https://discord.com/channels/1168986665038127205/1168996244430004324/1484956127190978813)
 
 :::
 
@@ -28,13 +29,46 @@ Currently, only the v2 API version is available.
 Base URL: `https://canvasmc.io/api/v2`
 
 <details>
+    <summary><code>GET /projects</code></summary>
+    <div>
+        Returns a list of all available projects and information about them.
+
+        #### Response
+
+        ```jsonc title="Example Response"
+        {
+          "projects": [
+            {
+              "slug": "canvas",
+              "ciJob": "Canvas",
+              "ciJobUrl": "https://jenkins.canvasmc.io/job/Canvas/",
+              "javadocBaseUrl": "https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api"
+           },
+           {
+             "slug": "horizon",
+             "ciJob": "Horizon",
+             "ciJobUrl": "https://jenkins.canvasmc.io/job/Horizon/",
+             "javadocBaseUrl": "https://maven.canvasmc.io/javadoc/releases/io/canvasmc/horizon/core"
+          }
+        ]
+      }
+      ```
+    </div>
+</details>
+<details>
     <summary><code>GET /builds</code></summary>
     <div>
         Returns a list of all recent builds.
 
         #### Query Parameters
 
-        - `minecraft_version` (string) - Filter builds by Minecraft version
+        ##### Required
+
+        - `project` (string) - The project slug for which to display builds
+
+        ##### Optional
+
+        - `channel` (string) - Filter builds by channel version
         - `experimental` (boolean) - Include experimental builds
 
         #### Response
@@ -45,7 +79,7 @@ Base URL: `https://canvasmc.io/api/v2`
             "buildNumber": 1337,
             "url": "https://jenkins.canvasmc.io/job/Canvas/1337/",
             "downloadUrl": "https://jenkins.canvasmc.io/job/Canvas/1337/artifact/canvas-server/build/libs/canvas-build.1337.jar",
-            "minecraftVersion": "1.21.4",
+            "channelVersion": "1.21.4",
             "timestamp": 1739339329161,
             "isExperimental": true,
             "commit": { // [!code --]
@@ -81,6 +115,13 @@ Base URL: `https://canvasmc.io/api/v2`
 
         #### Query Parameters
 
+        ##### Required
+
+        - `project` (string) - The project slug for which to display the build
+
+        ##### Optional
+
+        - `channel` (string) - Filter builds by channel version
         - `experimental` (boolean) - Include experimental builds
 
         #### Response
@@ -90,7 +131,7 @@ Base URL: `https://canvasmc.io/api/v2`
           "buildNumber": 1337,
           "url": "https://jenkins.canvasmc.io/job/Canvas/1337/",
           "downloadUrl": "https://jenkins.canvasmc.io/job/Canvas/1337/artifact/canvas-server/build/libs/canvas-build.1337.jar",
-          "minecraftVersion": "1.21.4",
+          "channelVersion": "1.21.4",
           "timestamp": 1739339329161,
           "isExperimental": true,
           "commit": { // [!code --]
@@ -124,21 +165,25 @@ Base URL: `https://canvasmc.io/api/v2`
 
         #### Query Parameters
 
-        - `version` (string, optional) – The Minecraft version to use. Defaults to the version of the latest build.
-        - `experimental` (boolean, optional) – Include experimental builds (`true` or `false`). Defaults to `false`.
+        ##### Required
 
-        The query parameters are optional, and with no params specified, it defaults to the latest stable API version.
+        - `project` (string) - The project slug for which to display JDs
+
+        ##### Optional
+
+        - `channel` (string) – The channel version to use. Defaults to latest.
+        - `experimental` (boolean) – Include experimental builds (`true` or `false`). Defaults to `false`.
 
         #### Response
 
-        Example redirect URL if `version=1.21.8` and `experimental=false`:
+        Example redirect URL if `project=canvas`, `channel=1.21.8` and `experimental=false`:
         ```
         https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.8-R0.1-SNAPSHOT
         ```
 
         #### Notes
 
-        - If version is not provided, the endpoint uses the Minecraft version from the latest build (respecting the experimental flag to allow experimental versions).
+        - If version is not provided, the endpoint uses the channel version from the latest build (respecting the experimental flag to allow experimental versions).
         - This endpoint does not return JSON; it performs an HTTP redirect to the Javadocs page.
         - Use this endpoint to quickly navigate to the Javadocs without manually looking up the build number.
     </div>
@@ -175,7 +220,19 @@ public final class ApiClient {
     /**
      * The HTTP client
      */
-    private final HttpClient CLIENT = HttpClient.newHttpClient();
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
+
+    private final String project;
+
+    /**
+     * Constructs a new API client for a provided project
+     *
+     * @param project
+     *     the project id
+     */
+    public ApiClient(final @NonNull String project) {
+        this.project = project.toLowerCase();
+    }
 
     /**
      * Fetches all builds for a specific Minecraft version.
@@ -196,15 +253,13 @@ public final class ApiClient {
      *     if the HTTP request is interrupted
      */
     public @NonNull List<Build> getAllBuilds(String minecraftVersion, boolean experimental) throws IOException, InterruptedException {
-        StringBuilder url = new StringBuilder(BASE_URL + "/builds");
+        StringBuilder url = new StringBuilder(BASE_URL + "/builds?project=" + project);
 
-        boolean hasQuery = false;
         if (minecraftVersion != null && !minecraftVersion.isBlank()) {
-            url.append("?minecraft_version=").append(minecraftVersion);
-            hasQuery = true;
+            url.append("&channel=").append(minecraftVersion);
         }
         if (experimental) {
-            url.append(hasQuery ? "&" : "?").append("experimental=true");
+            url.append("&experimental=true");
         }
 
         String json = sendRequest(url.toString());
@@ -279,7 +334,7 @@ public final class ApiClient {
      *     if the HTTP request is interrupted
      */
     public @NonNull Build getLatestBuild(boolean experimental) throws IOException, InterruptedException {
-        String url = BASE_URL + "/builds/latest" + (experimental ? "?experimental=true" : "");
+        String url = BASE_URL + "/builds/latest?project=" + project + (experimental ? "&experimental=true" : "");
         String json = sendRequest(url);
         return parseSingleBuild(json);
     }
@@ -298,7 +353,7 @@ public final class ApiClient {
      *     if the HTTP request is interrupted
      */
     public @Nullable Build getBuild(int buildNum) throws IOException, InterruptedException {
-        String json = sendRequest(BASE_URL + "/builds?experimental=true");
+        String json = sendRequest(BASE_URL + "/builds?project=" + project + "&experimental=true");
         List<Build> builds = parseBuildsArray(json);
         builds.sort(Comparator.comparingInt(Build::buildNumber));
         return builds.stream()
@@ -343,12 +398,13 @@ public final class ApiClient {
         int buildNumber = extractIntElse(json, "buildNumber", -1);
         String url = extractString(json, "url");
         String downloadUrl = extractString(json, "downloadUrl");
-        String mcVersion = extractString(json, "minecraftVersion");
+        String channelVersion = extractString(json, "channelVersion");
         long timestamp = extractLong(json, "timestamp");
         boolean experimental = extractBoolean(json, "isExperimental");
+        ChannelType channelType = buildNumber == -1 ? ChannelType.LOCAL : experimental ? ChannelType.BETA : ChannelType.STABLE;
 
         List<Commit> commits = parseCommits(json);
-        return new Build(buildNumber, url, downloadUrl, mcVersion, timestamp, buildNumber == -1 ? Channel.LOCAL : experimental ? Channel.BETA : Channel.STABLE, commits.toArray(new Commit[0]));
+        return new Build(buildNumber, url, downloadUrl, channelVersion, timestamp, channelType, commits.toArray(new Commit[0]));
     }
 
     private @NonNull List<Commit> parseCommits(@NonNull String json) {
@@ -450,20 +506,14 @@ public final class ApiClient {
     /**
      * The release channel of this build
      */
-    public enum Channel {
-        STABLE(NamedTextColor.GREEN),
-        BETA(NamedTextColor.YELLOW),
-        LOCAL(NamedTextColor.RED),
-        UNKNOWN(NamedTextColor.GOLD);
+    // note: modified from original form to remove text color refs
+    public enum ChannelType {
+        STABLE(),
+        BETA(),
+        LOCAL(),
+        UNKNOWN();
 
-        private final TextColor color;
-
-        Channel(TextColor color) {
-            this.color = color;
-        }
-
-        public @Nullable TextColor color() {
-            return color;
+        ChannelType() {
         }
     }
 
@@ -476,11 +526,11 @@ public final class ApiClient {
      *     the URL for this associated build
      * @param downloadUrl
      *     the download URL
-     * @param minecraftVersion
-     *     the Minecraft version for this build
+     * @param channelVersion
+     *     the channel version for this build
      * @param timestamp
      *     the timestamp of the associated build
-     * @param channel
+     * @param channelType
      *     the channel of this build
      * @param commits
      *     an array of commits in this build, can be empty
@@ -489,9 +539,9 @@ public final class ApiClient {
         int buildNumber,
         String url,
         String downloadUrl,
-        String minecraftVersion,
+        String channelVersion,
         long timestamp,
-        Channel channel,
+        ChannelType channelType,
         Commit[] commits
     ) {
         public boolean hasChanges() {
