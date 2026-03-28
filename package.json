@@ -14,7 +14,7 @@
   "dependencies": {
     "@astrojs/markdown-remark": "^6.3.10",
     "@astrojs/node": "^10.0.0",
-    "@astrojs/starlight": "^0.37.1",
+    "@astrojs/starlight": "^0.38.0",
     "@astrojs/svelte": "^7.2.3",
     "@expressive-code/plugin-collapsible-sections": "^0.41.4",
     "@expressive-code/plugin-line-numbers": "^0.41.4",
