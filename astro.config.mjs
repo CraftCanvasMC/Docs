@@ -23,6 +23,7 @@ export default defineConfig({
       ],
 
       social: [
+        { icon: "heart", label: "Donate", href: "https://ko-fi.com/dueris" },
         { icon: "github", label: "GitHub", href: "https://github.com/CraftCanvasMC" },
         { icon: "discord", label: "Discord", href: "https://canvasmc.io/discord" },
       ],
