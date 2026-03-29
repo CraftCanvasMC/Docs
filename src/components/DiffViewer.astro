@@ -1,0 +1,165 @@
+---
+interface DiffSection {
+  label: string;
+  body: string;
+}
+
+interface Props {
+  first: DiffSection;
+  same: DiffSection;
+  second: DiffSection;
+  firstColor?: string;
+  sameColor?: string;
+  secondColor?: string;
+}
+
+const {
+  first,
+  same,
+  second,
+  firstColor = '239, 68, 68',
+  sameColor = '156, 163, 175',
+  secondColor = '34, 197, 94',
+} = Astro.props;
+
+function parseBody(body: string): string {
+  const lines = body.trim().split('\n');
+  let html = '';
+  let inList = false;
+
+  for (const raw of lines) {
+    const trimmed = raw.trim();
+    if (!trimmed) continue;
+
+    const listMatch = trimmed.match(/^[-*]\s+(.*)/);
+    if (listMatch) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += `<li>${applyInline(listMatch[1])}</li>`;
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<p>${applyInline(trimmed)}</p>`;
+    }
+  }
+  if (inList) html += '</ul>';
+  return html;
+}
+
+function applyInline(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>');
+}
+
+const firstHtml = parseBody(first.body);
+const sameHtml = parseBody(same.body);
+const secondHtml = parseBody(second.body);
+---
+
+<div class="dv-root">
+  <div
+    class="dv-card dv-first"
+    style={`--dv-color: ${firstColor}; border-color: rgb(${firstColor}); background: rgba(${firstColor}, 0.08);`}
+  >
+    <span class="dv-label" style={`color: rgb(${firstColor});`}>{first.label}</span>
+    <div class="dv-body" set:html={firstHtml} />
+  </div>
+
+  <div
+    class="dv-card dv-same"
+    style={`--dv-color: ${sameColor}; border-color: rgb(${sameColor}); background: rgba(${sameColor}, 0.08);`}
+  >
+    <span class="dv-label" style={`color: rgb(${sameColor});`}>{same.label}</span>
+    <div class="dv-body" set:html={sameHtml} />
+  </div>
+
+  <div
+    class="dv-card dv-second"
+    style={`--dv-color: ${secondColor}; border-color: rgb(${secondColor}); background: rgba(${secondColor}, 0.08);`}
+  >
+    <span class="dv-label" style={`color: rgb(${secondColor});`}>{second.label}</span>
+    <div class="dv-body" set:html={secondHtml} />
+  </div>
+</div>
+
+<style>
+  .dv-root {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-code, 0.875rem);
+  }
+  .dv-card {
+    position: relative;
+    padding: 28px 16px 16px;
+    border-style: solid;
+    border-width: 2px;
+  }
+  .dv-first {
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+  }
+  .dv-same {
+    margin-top: 0px;
+    margin-bottom: -16px;
+  }
+  .dv-second {
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+  }
+  .dv-label {
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    font-family: var(--sl-font, sans-serif);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    opacity: 0.9;
+    padding-top: 5px;
+  }
+  .dv-body {
+    color: var(--sl-color-white);
+    font: inherit;
+    line-height: 1.7;
+  }
+  .dv-body :global(ul) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .dv-body :global(li) {
+    position: relative;
+    padding-left: 1.25em;
+    margin-bottom: 0.35em;
+  }
+  .dv-body :global(li:last-child) {
+    margin-bottom: 0;
+  }
+  .dv-body :global(li::before) {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: rgb(var(--dv-color));
+    font-weight: 700;
+  }
+  .dv-body :global(p) {
+    margin: 0 0 0.35em;
+  }
+  .dv-body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+  .dv-body :global(strong) {
+    font-weight: 700;
+    color: var(--sl-color-white);
+  }
+  .dv-body :global(code) {
+    font-family: var(--sl-font-mono);
+    font-size: 0.9em;
+    padding: 0.15em 0.35em;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+</style>

@@ -1,0 +1,133 @@
+---
+import { Code } from '@astrojs/starlight/components';
+const { tabs } = Astro.props;
+---
+
+<div class="code-tabs">
+  <div class="code-tabs-header">
+    {tabs.map((tab: { id: unknown; label: unknown; }, i: number) => (
+      <button
+        class={`code-tab ${i === 0 ? 'active' : ''}`}
+        data-tab={tab.id}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+  <div class="code-tabs-body">
+    {tabs.map((tab: { id: unknown; sections: any[]; }, i: number) => (
+      <div
+        class={`code-panel ${i === 0 ? 'active' : ''}`}
+        data-panel={tab.id}
+      >
+        {tab.sections.map((section, index: number) => (
+        <div style={`margin-top: ${index === 0 ? '0' : '8px'}`}>
+            <Code code={section.code} lang={section.lang} />
+        </div>
+        ))}
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.code-tabs').forEach((root) => {
+    const tabs = root.querySelectorAll('.code-tab');
+    const panels = root.querySelectorAll('.code-panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const id = tab.dataset.tab;
+
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+
+        tab.classList.add('active');
+        root.querySelector(`[data-panel="${id}"]`)?.classList.add('active');
+      });
+    });
+  });
+</script>
+
+<style>
+  .code-tabs {
+    border-radius: 12px;
+    border: 2px solid var(--sl-color-gray-5);
+    overflow: hidden;
+  }
+
+  .code-tabs-body {
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-bottom: 6px;
+  }
+
+  .code-tabs-header {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-2);
+    border-radius: 12px;
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
+  .code-tab:hover {
+    background: var(--sl-color-gray-3);
+    border-radius: 12px;
+  }
+
+  .code-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 12px;
+    margin: 0;
+
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    color: var(--sl-color-gray-5);
+  }
+
+  .code-tab.active {
+    background: var(--sl-color-gray-5);
+    color: var(--sl-color-white);
+
+    border-radius: 6px;
+  }
+
+  .code-panel {
+    display: none;
+  }
+
+  .code-panel.active {
+    display: block;
+  }
+
+  pre {
+    margin: 0;
+    padding: 16px;
+    overflow-x: auto;
+  }
+
+  .code-panel pre {
+    margin: 0;
+    padding: 16px;
+    background: "#2a2c2e" !important;
+    border-radius: 12px;
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
+  .code-panel pre code {
+    padding: 0 !important;
+    margin: 0;
+    display: block;
+  }
+</style>

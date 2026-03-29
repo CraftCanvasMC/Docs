@@ -1,0 +1,79 @@
+---
+const { title, align = "left" } = Astro.props;
+const isRight = align === "right";
+---
+
+{isRight ? (
+  <div class="wrapper right">
+    <div class="body">
+      <slot />
+    </div>
+
+    <div class="divider">
+      <div class="line"></div>
+    </div>
+
+    <div class="title">
+      {title}
+    </div>
+  </div>
+) : (
+  <div class="wrapper left">
+    <div class="title">
+      {title}
+    </div>
+
+    <div class="divider">
+      <div class="line"></div>
+    </div>
+
+    <div class="body">
+      <slot />
+    </div>
+  </div>
+)}
+
+<style>
+.wrapper {
+  display: grid;
+  grid-template-columns: auto 24px 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title {
+    align-content: space-around;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.divider {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: auto 28px 1fr;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.divider {
+  position: relative;
+  height: 98%;
+  display: flex;
+  justify-content: center;
+}
+
+.line {
+  width: 3px;
+  height: 100%;
+  background: var(--sl-color-gray-4);
+}
+
+.body {
+    align-content: space-around;
+}
+</style>
