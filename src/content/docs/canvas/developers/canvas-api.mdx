@@ -4,8 +4,8 @@ description: Learn how to use the Canvas API to enhance your plugin interactions
 version: 1.21.11
 ---
 
-import CodeTabs from '../../../../components/CodeTabs.astro';
-import DiffViewer from '../../../../components/DiffViewer.astro';
+import CodeTabs from '@/components/CodeTabs.astro';
+import DiffViewer from '@/components/DiffViewer.astro';
 
 The core Canvas team has done extensive research and dived deep into Folias internals in an attempt to understand the API Folia has broken,
 why it's broken, and how to fix it. This has lead to the documented API fixes provided in this page. Here you will learn the API changes Canvas
@@ -99,7 +99,7 @@ You must specially develop your plugin with the intent of supporting Folia or Ca
 
 Canvas is a fork of Folia, as such we require plugins to explicitly declare themselves as supporting Folia.
 **Canvas will only attempt to load plugins that have the `folia-supported` or `canvas-supported` keys marked as true
-in their `plugin.yml` or `paper-plugin.yml`**
+in their `plugin.yml` or `paper-plugin.yml`**.
 
 If your plugin uses API that is exclusive to Canvas and cannot function properly on base Folia,
 you are encouraged to use the `canvas-supported` tag.

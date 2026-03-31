@@ -3,9 +3,18 @@ import starlight from "@astrojs/starlight";
 import svelte from "@astrojs/svelte";
 import UnoCSS from "unocss/astro";
 import starlightSidebarTopics from "starlight-sidebar-topics";
+import { fileURLToPath } from "node:url";
 
 export default defineConfig({
   site: "https://docs.canvasmc.io",
+
+  vite: {
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+      },
+    },
+  },
 
   integrations: [
     svelte(),
