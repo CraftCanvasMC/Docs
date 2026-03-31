@@ -1,76 +1,287 @@
 ---
-const { githubRepo } = Astro.props;
-
-let contributors = [];
+const { githubRepo, speed = 0.5 } = Astro.props;
+let contributors: any[] = [];
 try {
-  const response = await fetch(`https://api.github.com/repos/${githubRepo}/contributors`);
+  const response = await fetch(
+    `https://api.github.com/repos/${githubRepo}/contributors`
+  );
   if (response.ok) {
     contributors = await response.json();
   }
 } catch (error) {
-  console.error('Failed to fetch contributors:', error);
+  console.error("Failed to fetch contributors:", error);
 }
+
+const loopedContributors = [...contributors, ...contributors, ...contributors];
 ---
 
-<div class="contributor-grid">
-  {contributors.map((contributor) => (
-    <a
-      href={contributor.html_url}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="contributor-item"
-      title={contributor.login}
-    >
-      <img
-        src={contributor.avatar_url}
-        alt={contributor.login}
-        width="32"
-        height="32"
-        loading="lazy"
-      />
-      <span class="contributor-name">{contributor.login}</span>
-      <span class="contributor-contributions">{contributor.contributions} commits</span>
-    </a>
-  ))}
-</div>
+<section class="contributors-carousel-section" data-speed={speed}>
+  <div class="carousel-header">
+    <div class="header-text">
+      <p class="section-label">Built by</p>
+      <h2 class="section-title">Contributors</h2>
+      <p class="section-subtitle">
+        {contributors.length} people have shaped this project
+      </p>
+    </div>
+  </div>
+
+  <div class="carousel-viewport">
+    <div class="carousel-track">
+      {loopedContributors.map((contributor) => (
+        <a
+          href={contributor.html_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class:list={["contributor-card"]}
+          title={`${contributor.login} — ${contributor.contributions} commits`}
+        >
+          <div class="avatar-ring">
+            <img
+              src={contributor.avatar_url}
+              alt={contributor.login}
+              width="56"
+              height="56"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <span class="contributor-name">{contributor.login}</span>
+          <span class="contributor-commits">
+            {contributor.contributions}
+            <span class="commits-label">commits</span>
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
 
 <style>
-  .contributor-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0;
+  .contributors-carousel-section {
+    --card-bg: color-mix(in srgb, var(--sl-color-bg-nav, #1e1e2e) 60%, transparent);
+    --card-border: color-mix(in srgb, var(--sl-color-gray-5, #444) 40%, transparent);
+    --card-hover-border: color-mix(in srgb, var(--sl-color-accent, #7c6ef6) 50%, transparent);
+    --card-width: 120px;
+    --card-gap: 14px;
+
+    margin: 3rem 0;
   }
 
-  .contributor-item {
+  .carousel-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sl-color-accent, #7c6ef6);
+    margin: 0 0 0.35rem;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--sl-color-white, #e2e8f0);
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.02em;
+  }
+
+  .section-subtitle {
+    font-size: 0.85rem;
+    color: var(--sl-color-gray-3, #888);
+    margin: 0;
+  }
+
+  .carousel-viewport {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 4%,
+      black 96%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 4%,
+      black 96%,
+      transparent
+    );
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: var(--card-gap);
+    width: max-content;
+    will-change: transform;
+  }
+
+  .contributor-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.55rem;
+    padding: 2.25rem 1.5rem 2rem;
+    border-radius: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     text-decoration: none;
-    transition: transform 0.2s ease;
+    flex: 0 0 var(--card-width);
+    min-width: 0;
+    transition:
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
   }
 
-  .contributor-item:hover {
-    transform: translateY(-4px);
+  .contributor-card:hover {
+    border-color: var(--card-hover-border);
+    box-shadow:
+      0 8px 24px -4px color-mix(in srgb, var(--sl-color-accent, #7c6ef6) 12%, transparent),
+      0 2px 6px -1px rgba(0, 0, 0, 0.15);
   }
 
-  .contributor-item:hover img {
-    border-color: var(--sl-color-accent-high);
+  .avatar-ring {
+    border-radius: 50%;
+    padding: 2px;
+    background: var(--card-border);
+    transition: background 0.3s ease;
+  }
+
+  .contributor-card:hover .avatar-ring {
+    background: var(--sl-color-accent, #7c6ef6);
+  }
+
+  .avatar-ring img {
+    display: block;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--sl-color-bg-nav, #1e1e2e);
+    transition: filter 0.25s ease;
+    pointer-events: none;
+  }
+
+  .contributor-card:hover .avatar-ring img {
+    filter: brightness(1.08);
   }
 
   .contributor-name {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--sl-color-text);
+    font-size: 0.8rem;
+    font-weight: 650;
+    color: var(--sl-color-text, #e2e8f0);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+    text-align: center;
   }
 
-  .contributor-contributions {
-    font-size: 0.75rem;
-    color: var(--sl-color-gray-3);
+  .contributor-commits {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--sl-color-gray-3, #888);
+    display: flex;
+    align-items: baseline;
+    gap: 0.2em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .commits-label {
+    font-weight: 400;
+    font-size: 0.65rem;
+  }
+
+  @media (max-width: 480px) {
+    .contributors-carousel-section {
+      --card-width: 100px;
+    }
+
+    .avatar-ring img {
+      width: 44px;
+      height: 44px;
+    }
+
+    .contributor-card {
+      padding: 1rem 0.4rem 0.85rem;
+    }
   }
 </style>
+
+<script>
+  function initCarousel() {
+    const sections = document.querySelectorAll('.contributors-carousel-section');
+
+    sections.forEach((section) => {
+      const track = section.querySelector('.carousel-track') as HTMLElement;
+      if (!track) return;
+
+      const cards = Array.from(track.children) as HTMLElement[];
+      if (cards.length === 0) return;
+
+      const speed = parseFloat((section as HTMLElement).dataset.speed || '0.5');
+      const gap = parseFloat(getComputedStyle(track).gap) || 14;
+
+      const originalCount = Math.round(cards.length / 3);
+      const cardW = cards[0].offsetWidth + gap;
+      const singleSetWidth = originalCount * cardW;
+
+      let offset = singleSetWidth;
+      track.style.transform = `translateX(${-offset}px)`;
+
+      let animId: number;
+      let paused = false;
+      let lastTime: number | null = null;
+
+      function tick(now: number) {
+        if (!paused) {
+          if (lastTime !== null) {
+            const dt = now - lastTime;
+            offset += speed * (dt / 16);
+
+            if (offset >= singleSetWidth * 2) {
+              offset -= singleSetWidth;
+            }
+            if (offset < 0) {
+              offset += singleSetWidth;
+            }
+
+            track.style.transform = `translateX(${-offset}px)`;
+          }
+          lastTime = now;
+        } else {
+          lastTime = null;
+        }
+        animId = requestAnimationFrame(tick);
+      }
+
+      animId = requestAnimationFrame(tick);
+
+      section.addEventListener('mouseenter', () => { paused = true; });
+      section.addEventListener('mouseleave', () => { paused = false; });
+
+      const observer = new IntersectionObserver(
+        ([entry]) => { paused = !entry.isIntersecting; },
+        { threshold: 0 }
+      );
+      observer.observe(section);
+
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (motionQuery.matches) paused = true;
+      motionQuery.addEventListener('change', (e) => { paused = e.matches; });
+
+      document.addEventListener('astro:before-swap', () => {
+        cancelAnimationFrame(animId);
+        observer.disconnect();
+      }, { once: true });
+    });
+  }
+
+  initCarousel();
+  document.addEventListener('astro:after-swap', initCarousel);
+</script>
