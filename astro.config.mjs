@@ -34,6 +34,7 @@ export default defineConfig({
 
       plugins: [
         starlightSidebarTopics(
+          // FYI: Items will autosort themselves by alpabetical order. Use sidebar.order to change the index.
           [
             {
               label: "Horizon",
@@ -42,20 +43,15 @@ export default defineConfig({
                 "horizon/introduction",
                 {
                   label: "Information",
-                  items: [
-                    "horizon/info/breaks",
-                    "horizon/info/installing"
-                  ]
+                  autogenerate: { 
+                    directory: "horizon/info" 
+                  }
                 },
                 {
                   label: "Development",
-                  items: [
-                    "horizon/dev/intro",
-                    "horizon/dev/classloader",
-                    "horizon/dev/objecttree",
-                    "horizon/dev/mixins",
-                    "horizon/dev/api"
-                  ]
+                  autogenerate: { 
+                    directory: "horizon/dev" 
+                  }
                 }
               ]
             },
@@ -63,45 +59,40 @@ export default defineConfig({
               label: "Canvas",
               link: "/canvas/introduction/",
               items: [
+                // Into and LTS up top
                 "canvas/introduction",
+                "canvas/lts",
                 {
                   label: "Getting Started",
-                  items: [
-                    "canvas/getting-started/installation",
-                    "canvas/getting-started/plugins",
-                  ],
+                  autogenerate: {
+                    directory: "canvas/getting-started"
+                  }
                 },
                 {
                   label: "Developers",
-                  items: [
-                    {
-                      label: "Contributing",
-                      items: [
-                        "canvas/developers/contributing/canvas",
-                        "canvas/developers/contributing/docs",
-                      ]
-                    },
-                    "canvas/developers/rest-api",
-                    "canvas/developers/canvas-api"
-                  ],
+                    // Have to manually list these for styling
+                    items: [
+                      {
+                        label: "Contributing",
+                        autogenerate: { 
+                          directory: "canvas/developers/contributing" 
+                        },
+                      },
+                      "canvas/developers/rest-api",
+                      "canvas/developers/canvas-api",
+                    ],
                 },
                 {
                   label: "Folia",
-                  items: [
-                    "canvas/info/folia/overview",
-                    "canvas/info/folia/fixes",
-                    "canvas/info/folia/region-logic",
-                  ],
+                  autogenerate: {
+                    directory: "canvas/info/folia"
+                  }
                 },
-                "canvas/lts",
                 {
                   label: "Schedulers",
-                  items: [
-                    "canvas/scheduler/edf",
-                    "canvas/scheduler/work-stealing",
-                    "canvas/scheduler/affinity",
-                    "canvas/scheduler/beta-scheduler"
-                  ]
+                  autogenerate: {
+                    directory: "canvas/scheduler"
+                  }
                 },
               ],
             },
