@@ -29,7 +29,7 @@ bun run dev
 
 This will start a local development server at `http://localhost:3000` where you can view your changes in real time.
 
-## 🏕️Building
+## 🏕 Building
 
 To build the documentation for production, run the following command in your terminal:
 
@@ -40,7 +40,7 @@ bun run build
 This will create a production-ready build of the documentation in the `dist/` directory that
 can be hosted on any static hosting server.
 
-## 📚License
+## 📚 License
 
 The documentation is licensed under the [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html).
 
