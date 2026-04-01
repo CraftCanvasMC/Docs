@@ -7,7 +7,7 @@ version: 1.21.11
 import CodeTabs from '../../../../components/CodeTabs.astro';
 import DiffViewer from '../../../../components/DiffViewer.astro';
 
-The core Canvas team has done extensive research and dived deep into Folias internals in an attempt to understand the API Folia has broken,
+The core Canvas team has done extensive research and dived deep into Folia's internals in an attempt to understand the API Folia has broken,
 why it's broken, and how to fix it. This has lead to the documented API fixes provided in this page. Here you will learn the API changes Canvas
 has made to the dedicated server to provide further support for region threading in existing and new plugins.
 
@@ -31,14 +31,14 @@ To get started, you need to add the Canvas API to your build script, like so:
         lang: 'groovy',
         code:
 `dependencies {
-    compileOnly "io.canvasmc:canvas-api:<version>"
+    compileOnly "io.canvasmc:canvas-api:1.21.11-R0.1-SNAPSHOT"
 }`,
       },
     ],
   },
   {
     id: 'kotlin',
-    label: 'Gradle (Kotlin-DSL)',
+    label: 'Gradle (Kotlin DSL)',
     sections: [
       {
         lang: 'kotlin',
@@ -54,7 +54,7 @@ To get started, you need to add the Canvas API to your build script, like so:
         lang: 'kotlin',
         code:
 `dependencies {
-    compileOnly("io.canvasmc:canvas-api:<version>")
+    compileOnly("io.canvasmc:canvas-api:1.21.11-R0.1-SNAPSHOT")
 }`,
       },
     ],
@@ -80,7 +80,7 @@ To get started, you need to add the Canvas API to your build script, like so:
     <dependency>
         <groupId>io.canvasmc</groupId>
         <artifactId>canvas-api</artifactId>
-        <version>VERSION</version>
+        <version>1.21.11-R0.1-SNAPSHOT</version>
     </dependency>
 </dependencies>`,
       },
