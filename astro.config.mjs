@@ -78,6 +78,12 @@ export default defineConfig({
                           directory: "canvas/developers/contributing" 
                         },
                       },
+                      {
+                        label: "Project",
+                        autogenerate: {
+                          directory: "canvas/developers/project"
+                        },
+                      },
                       "canvas/developers/rest-api",
                       "canvas/developers/canvas-api",
                     ],
