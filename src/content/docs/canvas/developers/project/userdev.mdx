@@ -11,6 +11,10 @@ import CodeTabs from '../../../../../components/CodeTabs.astro';
 This guide assumes you are able to use a Gradle wrapper of some capacity, either Gradle Kotlin DSL
 or Gradle Groovy DSL. We do not include guides for getting weaver setup on Maven.
 
+In addition to this, we provide guides for using **weaver** through `paperweight-userdev` but we do not
+maintain or directly support `paperweight-userdev`. When possible, we recommend using our **weaver-userdev**
+Gradle plugin especially when requesting support.
+
 :::
 
 **weaver** is a fork of **paperweight** used for custom Canvas build tooling.
@@ -55,7 +59,7 @@ For this guide, we'll be using gradle 9.+. If your Gradle wrapper version starts
         lang: 'bash',
         code:
 `# Run this if your Gradle wrapper is using an older version
-./gradlew wrapper --gradle-version 9.2.0`,
+./gradlew wrapper --gradle-version latest`,
       },
     ],
   },
@@ -73,7 +77,7 @@ gradlew --version`,
         lang: 'powershell',
         code:
 `# Run this if your Gradle wrapper is using an older version
-gradlew wrapper --gradle-version 9.2.0`,
+gradlew wrapper --gradle-version latest`,
       },
     ],
   },
@@ -90,9 +94,9 @@ For IntelliJ IDEA users, you can change your JDK by going to **Project** > **Pro
 - **Minecraft 26.1+**: Java 25
 
 
-### weaver Setup
+### Weaver Setup
 
-There are two ways to go about adding **weaver-userdev** to your project. Both methods will work just fine!
+There are two ways to go about adding Canvas' dev bundle to your project. Both methods will work just fine!
 
 <CodeTabs tabs={[
   {
@@ -112,7 +116,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21)) // Change this to 25 if you are targetting MC 26.1+!
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }`
       }
     ],
@@ -145,7 +149,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21)) // Change this to 25 if you are targetting MC 26.1+!
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }`
       },
     ],
