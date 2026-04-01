@@ -124,6 +124,10 @@
   --sl-color-orange-high: #b45309;
 }
 
+.hero {
+  display: none;
+}
+
 header svg,
 header .starlight-icon,
 header .starlight-site-title a {

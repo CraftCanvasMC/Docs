@@ -1,0 +1,463 @@
+---
+interface Card {
+  image: string;
+  title: string;
+  description: string;
+  docsUrl: string;
+}
+
+interface Props {
+  sectionTitle?: string;
+  sectionDescription?: string;
+  cards?: Card[];
+}
+
+const {
+  sectionTitle = "",
+  sectionDescription = "",
+  cards = [],
+} = Astro.props;
+---
+
+<section class="card-cycle-section not-content">
+  <div class="card-cycle-layout">
+    <div class="section-text">
+      <h2 class="section-title">{sectionTitle}</h2>
+      <p class="section-description">{sectionDescription}</p>
+      <div class="card-counter">
+        <span class="counter-current">01</span>
+        <span class="counter-sep">/</span>
+        <span class="counter-total">{String(cards.length).padStart(2, "0")}</span>
+      </div>
+    </div>
+    <div class="card-stack-wrapper">
+      <button class="nav-arrow nav-prev" aria-label="Previous card">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <div class="card-stack">
+        {cards.map((card, i) => (
+          <article
+            class={`cycle-card ${i === 0 ? "active" : ""}`}
+            data-index={i}
+          >
+            <div class="card-image-wrap">
+              <img src={card.image} alt={card.title} loading="lazy" />
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">{card.title}</h3>
+              <p class="card-desc">{card.description}</p>
+              <a href={card.docsUrl} class="card-link">
+                Click here to access the docs!
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <button class="nav-arrow nav-next" aria-label="Next card">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .card-cycle-section {
+    --cc-surface: var(--sl-color-gray-6, #181a1b);
+    --cc-border: var(--sl-color-hairline, rgba(255, 255, 255, 0.06));
+    --cc-bg: var(--sl-color-black, #111111);
+    --cc-text: var(--sl-color-white, #e8eaed);
+    --cc-text-muted: var(--sl-color-gray-3, #9fa5af);
+    --cc-accent: var(--sl-color-accent, #8b5cf6);
+    --cc-accent-high: var(--sl-color-accent-high, #c4b5fd);
+    --cc-accent-glow: color-mix(in srgb, var(--cc-accent) 18%, transparent);
+    --cc-radius: 20px;
+
+    padding: 0 0 3rem 0;
+    display: flex;
+    align-items: flex-start;
+    color: var(--cc-text);
+    overflow: visible;
+    font-family: var(--sl-font, system-ui, sans-serif);
+  }
+
+  .card-cycle-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 4rem;
+    align-items: center;
+    padding: 0 2rem;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 1.25rem 0;
+    color: var(--cc-text);
+  }
+
+  .section-description {
+    font-size: 1.05rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--cc-text-muted);
+    margin: 0 0 2.5rem 0;
+    max-width: 420px;
+  }
+
+  .card-counter {
+    font-size: 1.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+  }
+
+  .counter-current {
+    color: var(--cc-accent);
+    transition: opacity 0.3s;
+  }
+
+  .counter-sep {
+    color: var(--cc-text-muted);
+    font-size: 1.2rem;
+    margin: 0 0.15rem;
+  }
+
+  .counter-total {
+    color: var(--cc-text-muted);
+    font-size: 1.2rem;
+  }
+
+  .card-stack-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    position: relative;
+  }
+
+  .nav-arrow {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--cc-border);
+    background: var(--cc-surface);
+    color: var(--cc-text-muted);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+  }
+
+  .nav-arrow:hover {
+    background: var(--cc-accent);
+    color: var(--cc-bg);
+    border-color: var(--cc-accent);
+    transform: scale(1.08);
+    box-shadow: 0 0 20px var(--cc-accent-glow);
+  }
+
+  .nav-arrow:active {
+    transform: scale(0.95);
+  }
+
+  .card-stack {
+    position: relative;
+    width: 380px;
+    height: 480px;
+    flex-shrink: 0;
+  }
+
+  .cycle-card {
+    position: absolute;
+    inset: 0;
+    background: var(--cc-surface);
+    border-radius: var(--cc-radius);
+    border: 1px solid var(--cc-border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cycle-card.active {
+    opacity: 1;
+    pointer-events: auto;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .cycle-card.slide-out-left {
+    animation: slideOutLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .cycle-card.slide-out-right {
+    animation: slideOutRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes slideOutLeft {
+    0% {
+      transform: translateX(0) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-120%) scale(0.92) rotate(-6deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes slideOutRight {
+    0% {
+      transform: translateX(0) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(120%) scale(0.92) rotate(6deg);
+      opacity: 0;
+    }
+  }
+
+  .card-image-wrap {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-image-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 60%, var(--cc-surface));
+    pointer-events: none;
+  }
+
+  .card-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cycle-card.active:hover .card-image-wrap img {
+    transform: scale(1.05);
+  }
+
+  .card-body {
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card-title {
+    font-size: 1.45rem;
+    font-weight: 600;
+    margin: 0 0 0.6rem 0;
+    color: var(--cc-text);
+  }
+
+  .card-desc {
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--cc-text-muted);
+    margin: 0;
+    flex: 1;
+  }
+
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cc-accent);
+    text-decoration: none;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--cc-border);
+    transition: gap 0.3s, color 0.3s;
+  }
+
+  .card-link:hover {
+    gap: 0.85rem;
+    color: var(--cc-accent-high);
+  }
+
+  @media (max-width: 900px) {
+    .card-cycle-layout {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding: 0 1.5rem;
+    }
+
+    .section-text {
+      text-align: center;
+    }
+
+    .section-description {
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .card-counter {
+      justify-content: center;
+    }
+
+    .card-stack-wrapper {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .card-cycle-section {
+      padding-bottom: 2rem;
+    }
+
+    .card-cycle-layout {
+      gap: 1.5rem;
+      padding: 0 1rem;
+    }
+
+    .card-stack-wrapper {
+      width: 100%;
+    }
+
+    .card-stack {
+      width: 100%;
+      max-width: 340px;
+      height: auto;
+      aspect-ratio: 4 / 5;
+    }
+
+    .nav-arrow {
+      width: 40px;
+      height: 40px;
+    }
+
+    .card-stack-wrapper {
+      gap: 0.75rem;
+    }
+
+    .card-image-wrap {
+      height: 160px;
+    }
+
+    .card-body {
+      padding: 1.1rem 1.25rem;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+    }
+
+    .section-description {
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-counter {
+      font-size: 1.4rem;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .card-stack-wrapper {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .card-stack {
+      order: 1;
+      max-width: 100%;
+    }
+
+    .nav-prev {
+      order: 2;
+    }
+
+    .nav-next {
+      order: 3;
+    }
+  }
+</style>
+
+<script define:vars={{ cardCount: cards.length }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const section = document.querySelector('.card-cycle-section');
+    if (!section) return;
+
+    const allCards = Array.from(section.querySelectorAll('.cycle-card'));
+    const prevBtn = section.querySelector('.nav-prev');
+    const nextBtn = section.querySelector('.nav-next');
+    const counterCurrent = section.querySelector('.counter-current');
+    const total = cardCount;
+
+    let currentIndex = 0;
+    let animating = false;
+
+    function updateStack(direction) {
+      if (animating) return;
+      animating = true;
+
+      const outgoingIndex = currentIndex;
+      const outgoing = allCards[outgoingIndex];
+
+      const nextIndex = direction === 'next'
+        ? (currentIndex + 1) % total
+        : (currentIndex - 1 + total) % total;
+
+      const incoming = allCards[nextIndex];
+
+      incoming.removeAttribute('style');
+
+      incoming.classList.add('active');
+
+      outgoing.style.zIndex = '999';
+
+      const animClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
+      outgoing.classList.add(animClass);
+
+      currentIndex = nextIndex;
+      counterCurrent.textContent = String(currentIndex + 1).padStart(2, '0');
+
+      function onEnd() {
+        outgoing.removeEventListener('animationend', onEnd);
+        outgoing.classList.remove('slide-out-left', 'slide-out-right', 'active');
+        outgoing.removeAttribute('style');
+        incoming.removeAttribute('style');
+        animating = false;
+      }
+      outgoing.addEventListener('animationend', onEnd);
+    }
+
+    nextBtn.addEventListener('click', () => updateStack('next'));
+    prevBtn.addEventListener('click', () => updateStack('prev'));
+  });
+</script>

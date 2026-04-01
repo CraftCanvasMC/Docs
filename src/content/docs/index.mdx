@@ -1,37 +1,35 @@
 ---
-title: Welcome
+title: CanvasMC Project Documentation
 description: Documentation for the CanvasMC organization and its software
-template: splash
 editUrl: false
 lastUpdated: false
+template: splash
 hero:
-  title: CanvasMC Docs
-  tagline: Documentation for the CanvasMC organization and its software, like Canvas and Horizon.
-  image:
-    file: "/public/logo.png"
+  title: ""
 ---
 
-import { CardGrid } from "@astrojs/starlight/components";
 import ContributorGrid from '@/components/ContributorGrid.astro';
-import LinkCard from "/src/components/LinkCard.astro";
+import CardCycle from '@/components/CardCycle.astro';
 
-<CardGrid>
-  <LinkCard title="Introduction to Canvas" href="/canvas/introduction" src="/canvas_icon.png" color="blue">
-    Fork of the Folia Minecraft server software that fixes gameplay inconsistencies, bugs, and introduces further performance enhancements to the dedicated server.
-    <br></br>
-    <span style="font-size: 0.9em; text-decoration: underline;">Click here to access the docs!</span>
-  </LinkCard>
-  <LinkCard title="Introduction to Horizon" href="/horizon/introduction" src="/horizon_icon.png" color="orange">
-    Horizon is a MIXIN wrapper for PaperMC servers and forks, expanding plugin capabilities to allow for further customization and enhancements.
-    <br></br>
-    <span style="font-size: 0.9em; text-decoration: underline;">Click here to access the docs!</span>
-  </LinkCard>
-</CardGrid>
-
-## [Contribute](https://github.com/CraftCanvasMC/docs)
-
-We extend our sincere thanks to all the people who helped shape our documentation page so it could look its best!
-
-If it weren't for you, we might never have reached this far.
+<CardCycle
+  sectionTitle='CanvasMC Projects'
+  sectionDescription='Read up on the documentation CanvasMC provides for some of its projects'
+  cards={
+    [
+      {
+        image: "/canvas-title.png",
+        title: "Canvas",
+        description: "A fork of Folia intending to provide a stable and reliable region threading experience for both server owners and developers",
+        docsUrl: "/canvas/introduction",
+      },
+      {
+        image: "/horizon-title.png",
+        title: "Horizon",
+        description: "Horizon is a Mixin wrapper for PaperMC servers and forks, expanding plugin capabilities to allow for further customization and enhancements",
+        docsUrl: "/horizon/introduction",
+      },
+    ]
+  }
+/>
 
 <ContributorGrid githubRepo="CraftCanvasMC/Docs" />
