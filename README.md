@@ -1,49 +1,47 @@
-# Starlight Starter Kit: Basics
+# Docs [![Discord](https://img.shields.io/discord/1168986665038127205.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/ySfW4QZsRV) [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+This repository is for documentation under CanvasMC's organization.
 
-```
-npm create astro@latest -- --template starlight
-```
+## 🚀 Getting Started
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Let's get these docs running on your local machine.
+To get started, you'll need to have [Bun](https://bun.sh/) installed.
 
-## 🚀 Project Structure
+**Assuming you're on macOS or Linux, run the following command in your terminal:**
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+```bash
+curl -fsSL https://bun.com/install | bash
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+**For Windows users, you can run this in your PowerShell instead:**
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+```powershell
+powershell -c "irm bun.sh/install.ps1|iex"
+```
 
-Static assets, like favicons, can be placed in the `public/` directory.
 
-## 🧞 Commands
+Once you have Bun installed, you can make any changes to our docs directly in the `src/content/docs/` directory.
+To see your changes live, run the following command in your terminal:
 
-All commands are run from the root of the project, from a terminal:
+```bash
+bun run dev
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+This will start a local development server at `http://localhost:3000` where you can view your changes in real time.
 
-## 👀 Want to learn more?
+## 🏕️Building
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+To build the documentation for production, run the following command in your terminal:
+
+```bash
+bun run build
+```
+
+This will create a production-ready build of the documentation in the `dist/` directory that
+can be hosted on any static hosting server.
+
+## 📚License
+
+The documentation is licensed under the [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html).
+
+You are free to use, modify, and distribute the documentation as long as you comply with the terms of the license.
