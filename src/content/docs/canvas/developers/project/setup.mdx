@@ -72,20 +72,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-// An example of what a simple plugin's main class could look like.
+// An example of what a simple plugin's main class could look like
 public class ExamplePlugin extends JavaPlugin implements Listener {
-  @Override
-  public void onEnable() {
-      getServer().getPluginManager().registerEvents(this, this);
-  }
+    @Override
+    public void onEnable() {
+        getServer().getPluginManager().registerEvents(this, this);
+    }
 
-  @EventHandler
-  public void onPlayerJoin(PlayerJoinEvent event) {
-      // Change the message shown to everyone online when someone joins.
-      Player player = event.getPlayer();
-      Component newMessage = MiniMessage.minimessage().deserialize("<green>Welcome to Canvas, " + player.getName() + "!");
-      event.joinMessage(newMessage);
-  }
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        // Change the message shown to everyone online when someone joins
+        Player player = event.getPlayer();
+        Component newMessage = MiniMessage.minimessage().deserialize("<green>Welcome to Canvas, " + player.getName() + "!");
+        event.joinMessage(newMessage);
+    }
 }
 ```
 
