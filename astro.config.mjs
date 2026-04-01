@@ -109,6 +109,7 @@ export default defineConfig({
           {
             topics: {
               canvas: ["/canvas"],
+              horizon: ["/horizon"],
             },
           }
         ),
