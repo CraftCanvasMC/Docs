@@ -5,6 +5,7 @@ version: 1.21.11
 ---
 
 import CodeTabs from '../../../../../components/CodeTabs.astro';
+import { Code } from '@astrojs/starlight/components';
 
 :::note
 
@@ -94,64 +95,60 @@ For IntelliJ IDEA users, you can change your JDK by going to **Project** > **Pro
 - **Minecraft 26.1+**: Java 25
 
 
-### Weaver Setup
+### Weaver-Userdev Setup
 
-There are two ways to go about adding Canvas' dev bundle to your project. Both methods will work just fine!
+This portion will show you how to add **weaver-userdev** and the Canvas devBundle to your Gradle project.
 
-<CodeTabs tabs={[
-  {
-    id: 'paperweight-userdev',
-    label: 'Using paperweight',
-    sections: [
-      {
-        lang: 'kotlin',
-        code:
-`// build.gradle.kts / build.gradle
-plugins {
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
-}
+In your `settings.gradle.kts` or `settings.gradle` file...
 
-dependencies {
-    paperweight.devBundle("io.canvasmc.canvas", "1.21.11-R0.1-SNAPSHOT")
-}
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
-}`
-      }
-    ],
-  },
-  {
-    id: 'weaver-userdev',
-    label: 'Using weaver',
-    sections: [
-      {
-        lang: 'kotlin',
-        code:
-`// settings.gradle.kts / settings.gradle
+```kotlin title="settings.gradle.kts"
 pluginManagement {
     repositories {
         gradlePluginPortal()
         maven("https://maven.canvasmc.io/releases")
     }
-}`
-      },
-      {
-        lang: 'kotlin',
-        code:
-`// build.gradle.kts / build.gradle
+}
+```
+
+In your `build.gradle.kts` or `build.gradle` file...
+
+```kotlin title="build.gradle.kts"
 plugins {
     id("io.canvasmc.weaver.userdev") version "2.3.12"
 }
 
 dependencies {
+    // Other dependencies...
     paperweight.canvasDevBundle("1.21.11-R0.1-SNAPSHOT")
 }
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
-}`
-      },
-    ],
-  },
-]} />
+}
+```
+
+
+### Paperweight-Userdev Setup
+
+:::note
+
+This is an alternative method for adding Canvas devBundles to your Gradle project.
+`paperweight-userdev` is not developed, nor maintained by CanvasMC. [**weaver-userdev**](/canvas/developers/project/userdev/#weaver-userdev-setup) should always be preferred!
+
+:::
+
+
+```kotlin title="build.gradle.kts"
+plugins {
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
+}
+
+dependencies {
+    // Other dependencies...
+    paperweight.devBundle("io.canvasmc.canvas", "1.21.11-R0.1-SNAPSHOT")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+```
