@@ -31,10 +31,18 @@ Using the Canvas API or the one of the APIs of our upstream projects (i.e. Paper
 In some situations, the Canvas API may not be enough and you may need to access server internals directly.
 **weaver-userdev** serves as a EULA and license safe way for us to provide you with Minecraft server internals bundled with Canvas' patches and API.
 
-As of **Minecraft 26.1**, Minecraft internals are no longer obfuscated so class names from **weaver-userdev** will be exactly as they appear at runtime.
-
-
 ## Getting Started
+
+:::danger
+
+The Canvas API should **always** be preferred over internals.
+Minecraft and Canvas internals change *very* frequently and your plugin **will break** upon every new Minecraft release.
+If your code can be written using Canvas' API, [use the API](/canvas/developers/canvas-api/)!
+
+If you're not sure whether your plugin requires access to Minecraft internals, join our [Discord](https://discord.gg/ySfW4QZsRV)!
+We're happy to give feedback and help you where we can.
+
+:::
 
 If you've decided that you must use Minecraft internals for your project, this guide is here to assist you in adding **weaver-userdev** to your Gradle build script.
 
