@@ -43,14 +43,14 @@ export default defineConfig({
                 "horizon/introduction",
                 {
                   label: "Information",
-                  autogenerate: { 
-                    directory: "horizon/info" 
+                  autogenerate: {
+                    directory: "horizon/info"
                   }
                 },
                 {
                   label: "Development",
-                  autogenerate: { 
-                    directory: "horizon/dev" 
+                  autogenerate: {
+                    directory: "horizon/dev"
                   }
                 }
               ]
@@ -74,14 +74,14 @@ export default defineConfig({
                     items: [
                       {
                         label: "Contributing",
-                        autogenerate: { 
-                          directory: "canvas/developers/contributing" 
+                        autogenerate: {
+                          directory: "canvas/developers/contributing"
                         },
                       },
                       {
                         label: "Project",
                         autogenerate: {
-                          directory: "canvas/developers/project"
+                          directory: "canvas/developers/plugins"
                         },
                       },
                       "canvas/developers/rest-api",
