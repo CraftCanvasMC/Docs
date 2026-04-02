@@ -227,13 +227,14 @@ Base URL: `https://canvasmc.io/api/v2`
         ##### Optional
 
         - `channel` (string) – The channel version to use. Defaults to latest.
+        - `redirect` (string) - What page should be opened. Defaults to none.
         - `experimental` (boolean) – Include experimental builds (`true` or `false`). Defaults to `false`.
 
         #### Response
 
-        Example redirect URL if `project=canvas`, `channel=1.21.8` and `experimental=false`:
+        Example redirect URL if `project=canvas`, `channel=1.21.8`, `experimental=false` and `redirect=org/bukkit/plugin/java/JavaPlugin.html`:
         ```
-        https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.8-R0.1-SNAPSHOT
+        https://maven.canvasmc.io/javadoc/snapshots/io/canvasmc/canvas/canvas-api/1.21.8-R0.1-SNAPSHOT/.cache/unpack/org/bukkit/plugin/java/JavaPlugin.html
         ```
 
         #### Notes
