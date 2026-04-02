@@ -1,0 +1,158 @@
+---
+title: weaver-userdev
+description: Accessing Canvas' internals in plugin development
+version: 1.21.11
+---
+
+import CodeTabs from '../../../../../components/CodeTabs.astro';
+import { Code } from '@astrojs/starlight/components';
+
+:::note
+
+This guide assumes you are able to use a Gradle wrapper of some capacity, either Gradle Kotlin DSL
+or Gradle Groovy DSL. We do not include guides for getting weaver setup on Maven.
+If you would like to access Canvas' internals with Maven, there are community made plugins [available](https://github.com/Alvinn8/paper-nms-maven-plugin).
+
+In addition to this, we provide guides for using **weaver** through `paperweight-userdev` but we do not
+maintain or directly support `paperweight-userdev`. When possible, we recommend using our **weaver-userdev**
+Gradle plugin especially when requesting support.
+
+:::
+
+**weaver** is a fork of **paperweight** used for custom Canvas build tooling.
+**weaver** includes 3 modules, one of them being **weaver-userdev**.
+This module provides easy access to Mincraft server internals (NMS) using Gradle.
+
+## Is This Important to You?
+
+Accessing server internals is not necessary for majority of Canvas plugins.
+Using the Canvas API or the one of the APIs of our upstream projects (i.e. Paper or Folia) is always preferrable when it can be used.
+
+
+In some situations, the Canvas API may not be enough and you may need to access server internals directly.
+**weaver-userdev** serves as a EULA and license safe way for us to provide you with Minecraft server internals bundled with Canvas' patches and API.
+
+## Getting Started
+
+:::danger
+
+The Canvas API should **always** be preferred over internals.
+Minecraft and Canvas internals change *very* frequently and your plugin **is likely to break** upon every new Minecraft release.
+If your code can be written using Canvas' API, [use the API](/canvas/developers/canvas-api/)!
+
+If you're not sure whether your plugin requires access to Minecraft internals, join our [Discord](https://canvasmc.io/discord)!
+We're happy to give feedback and help you where we can.
+
+:::
+
+If you've decided that you must use Minecraft internals for your project, this guide is here to assist you in adding **weaver-userdev** to your Gradle build script.
+
+
+### Prerequisites
+
+#### Gradle 9.+
+
+For this guide, we'll be using gradle 9.+. If your Gradle wrapper version starts with the number **9**, you're good to go and you can skip this part!
+
+<CodeTabs tabs={[
+  {
+    id: 'bash',
+    label: 'macOS & Linux',
+    sections: [
+      {
+        lang: 'bash',
+        code:
+`# First, check your Gradle version
+./gradlew --version`,
+      },
+      {
+        lang: 'bash',
+        code:
+`# Run this if your Gradle wrapper is using an older version
+./gradlew wrapper --gradle-version latest`,
+      },
+    ],
+  },
+  {
+    id: 'powershell',
+    label: 'Windows',
+    sections: [
+      {
+        lang: 'powershell',
+        code:
+`# First, check your Gradle version
+gradlew --version`,
+      },
+      {
+        lang: 'powershell',
+        code:
+`# Run this if your Gradle wrapper is using an older version
+gradlew wrapper --gradle-version latest`,
+      },
+    ],
+  },
+]} />
+
+
+### Weaver-Userdev Setup
+
+This portion will show you how to add **weaver-userdev** and the Canvas dev bundle to your Gradle project.
+
+In your `settings.gradle.kts` or `settings.gradle` file...
+
+```kotlin title="settings.gradle.kts"
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven("https://maven.canvasmc.io/releases")
+    }
+}
+```
+
+In your `build.gradle.kts` or `build.gradle` file...
+
+```kotlin title="build.gradle.kts"
+plugins {
+    id("io.canvasmc.weaver.userdev") version "2.3.12"
+}
+
+dependencies {
+    // Other dependencies...
+    paperweight.canvasDevBundle("1.21.11-R0.1-SNAPSHOT")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+```
+
+
+### Paperweight-Userdev Setup
+
+:::note
+
+This is an alternative method for adding Canvas dev bundles to your Gradle project.
+`paperweight-userdev` is not developed, nor maintained by CanvasMC. [**weaver-userdev**](/canvas/developers/project/userdev/#weaver-userdev-setup) should always be preferred!
+
+:::
+
+
+```kotlin title="build.gradle.kts"
+plugins {
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
+}
+
+repositories {
+    // Other respositories...
+    maven("https://maven.canvasmc.io/snapshots")
+}
+
+dependencies {
+    // Other dependencies...
+    paperweight.devBundle("io.canvasmc.canvas", "1.21.11-R0.1-SNAPSHOT")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+```

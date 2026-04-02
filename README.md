@@ -1,4 +1,4 @@
-# Docs [![Discord](https://img.shields.io/discord/1168986665038127205.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/ySfW4QZsRV) [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+# Docs [![Discord](https://img.shields.io/discord/1168986665038127205.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://canvasmc.io/discord) [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
 This repository is for documentation under CanvasMC's organization.
 

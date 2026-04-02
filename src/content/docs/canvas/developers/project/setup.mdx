@@ -1,0 +1,189 @@
+---
+title: Project Setup
+description: Learn how to setup a project using the Canvas API
+version: 1.21.11
+---
+
+import { FileTree } from '@astrojs/starlight/components';
+import CodeTabs from '../../../../../components/CodeTabs.astro';
+
+The the Bukkit community as a whole commonly use [IntelliJ IDEA](https://www.jetbrains.com/idea/) as the editor of choice for Java development.
+As such, the tutorials on this page will assume you are using IntelliJ IDEA.
+Although, the tutorial below should work with any IDE albeit slight changes.
+
+
+## Creating Your Project
+
+Open IntelliJ IDEA and select the option to create a new project. 
+You will get the option to select the type of project you want to create - select `New Project` > `Java`. 
+
+- Select `Gradle - Kotlin DSL`.
+- **Ensure your JDK is 21**. The JDK brand doesn't matter, but the version does!
+
+Give your project a name and click `+ Advanced Settings`.
+
+- Select Gradle distribution `Wrapper`.
+- Set your group id to `me.<your_username>.exampleplugin`.
+- Set your artifact id to `ExamplePlugin`.
+
+Finally, click **create**. You will land into the `build.gradle.kts` file where you can add your dependencies.
+
+
+## Project Structure
+
+A file tree overview of what folders and files are necessary for a Canvas plugin project.
+
+<FileTree>
+
+- ExamplePlugin/
+  - build/
+    - libs/
+      - [ExamplePlugin-1.0.jar](#building)
+  - gradle/
+  - src/
+    - main/
+      - java/
+        - io.canvasmc.exampleplugin
+          - [ExamplePlugin.java](#your-plugins-main-class)
+      - resources/
+        - [plugin.yml](#the-pluginyml)
+  - [build.gradle.kts](#your-build-file)
+  - [settings.gradle.kts](#project-settings)
+  - gradlew
+  - gradlew.bat
+
+
+</FileTree>
+
+
+## Your Plugin's Main Class
+
+This will be Canvas' entry point to your plugin and the only class that will extend `JavaPlugin`.
+In this class, you should register your commands, listeners, and any other code that your plugin needs immediately after server startup.
+
+
+```java title="CanvasPlugin.java"
+package io.canvasmc.exampleplugin;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+
+// An example of what a simple plugin's main class could look like
+public class ExamplePlugin extends JavaPlugin implements Listener {
+    @Override
+    public void onEnable() {
+        getServer().getPluginManager().registerEvents(this, this);
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        // Change the message shown to everyone online when someone joins
+        Player player = event.getPlayer();
+        Component newMessage = MiniMessage.minimessage().deserialize("<red>Welcome to Canvas, " + player.getName() + "!");
+        event.joinMessage(newMessage);
+    }
+}
+```
+
+
+## The plugin.yml
+
+The `plugin.yml` is the descriptor file for your plugin.
+It's necessary for Canvas to get important information about your plugin at runtime.
+In this example, we'll be using the simple `plugin.yml`, but Canvas also supports [`paper-plugin.yml`](https://docs.papermc.io/paper/dev/getting-started/paper-plugins) files too!
+
+```yaml title="plugin.yml"
+name: ExamplePlugin
+version: '$version' # Controlled by your build.gradle.kts
+main: io.canvasmc.exampleplugin.ExamplePlugin
+description: An example plugin
+author: CanvasMC
+website: https://canvasmc.io
+api-version: '1.21.11'
+canvas-supported: true # If your plugin is compatible with standard Folia servers, use `folia-supported: true` instead!
+```
+
+## Your Build File
+
+The `build.gradle.kts` will be your build script for your plugin.
+This can be used to add hooks for other plugins, add weaver, and other utilities.
+In this tutorial we'll just be showing a basic build script that also automatically fills in the `version` key in your `plugin.yml`
+
+```kotlin title="build.gradle.kts"
+plugins {
+    id("java")
+}
+
+group = "io.canvasmc.exampleplugin"
+version = "1.0"
+
+repositories {
+    mavenCentral()
+    maven("https://maven.canvasmc.io/snapshots")
+}
+
+dependencies {
+    compileOnly("io.canvasmc:canvas-api:1.21.11-R0.1-SNAPSHOT")
+}
+
+tasks.processResources {
+    // Replaces `$version` in your `plugin.yml` with the `version` field in this file
+    val props = mapOf("version" to project.version)
+    filesMatching("plugin.yml") {
+      expand(props)
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    // Ensures special characters don't get malformed when compiling
+    options.encoding = "UTF-8"
+}
+
+java {
+    // Enforces JDK 21 (required for Minecraft 1.21.11)
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+```
+
+
+## Project Settings
+
+Your `settings.gradle.kts` controls your project's name and a few other miscellaneous things.
+
+```kotlin title="settings.gradle.kts"
+// Controls the name of your project
+rootProject.name = "ExamplePlugin"
+```
+
+
+## Building
+
+Assuming you've setup your project correctly, you should be able to build it and get a runnable jar file!
+This jar should be placed in the `~/plugins` directory of your Canvas server.
+
+<CodeTabs tabs={[
+  {
+    id: 'bash',
+    label: 'macOS & Linux',
+    sections: [
+      {
+        lang: 'bash',
+        code: `./gradlew clean build`,
+      },
+    ],
+  },
+  {
+    id: 'powershell',
+    label: 'Windows',
+    sections: [
+      {
+        lang: 'powershell',
+        code: `gradlew clean build`,
+      },
+    ],
+  },
+]} />
