@@ -1,8 +1,8 @@
-import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import svelte from "@astrojs/svelte";
-import UnoCSS from "unocss/astro";
+import { defineConfig } from "astro/config";
 import starlightSidebarTopics from "starlight-sidebar-topics";
+import UnoCSS from "unocss/astro";
 
 export default defineConfig({
   site: "https://docs.canvasmc.io",
@@ -44,16 +44,16 @@ export default defineConfig({
                 {
                   label: "Information",
                   autogenerate: {
-                    directory: "horizon/info"
-                  }
+                    directory: "horizon/info",
+                  },
                 },
                 {
                   label: "Development",
                   autogenerate: {
-                    directory: "horizon/dev"
-                  }
-                }
-              ]
+                    directory: "horizon/dev",
+                  },
+                },
+              ],
             },
             {
               label: "Canvas",
@@ -65,40 +65,40 @@ export default defineConfig({
                 {
                   label: "Getting Started",
                   autogenerate: {
-                    directory: "canvas/getting-started"
-                  }
+                    directory: "canvas/getting-started",
+                  },
                 },
                 {
                   label: "Developers",
-                    // Have to manually list these for styling
-                    items: [
-                      {
-                        label: "Contributing",
-                        autogenerate: {
-                          directory: "canvas/developers/contributing"
-                        },
+                  // Have to manually list these for styling
+                  items: [
+                    {
+                      label: "Contributing",
+                      autogenerate: {
+                        directory: "canvas/developers/contributing",
                       },
-                      {
-                        label: "Project",
-                        autogenerate: {
-                          directory: "canvas/developers/plugins"
-                        },
+                    },
+                    {
+                      label: "Plugins",
+                      autogenerate: {
+                        directory: "canvas/developers/plugins",
                       },
-                      "canvas/developers/rest-api",
-                      "canvas/developers/canvas-api",
-                    ],
+                    },
+                    "canvas/developers/rest-api",
+                    "canvas/developers/canvas-api",
+                  ],
                 },
                 {
                   label: "Folia",
                   autogenerate: {
-                    directory: "canvas/info/folia"
-                  }
+                    directory: "canvas/info/folia",
+                  },
                 },
                 {
                   label: "Schedulers",
                   autogenerate: {
-                    directory: "canvas/scheduler"
-                  }
+                    directory: "canvas/scheduler",
+                  },
                 },
               ],
             },
