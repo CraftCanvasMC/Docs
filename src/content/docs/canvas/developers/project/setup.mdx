@@ -83,7 +83,7 @@ public class ExamplePlugin extends JavaPlugin implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         // Change the message shown to everyone online when someone joins
         Player player = event.getPlayer();
-        Component newMessage = MiniMessage.minimessage().deserialize("<green>Welcome to Canvas, " + player.getName() + "!");
+        Component newMessage = MiniMessage.minimessage().deserialize("<red>Welcome to Canvas, " + player.getName() + "!");
         event.joinMessage(newMessage);
     }
 }
@@ -98,7 +98,7 @@ In this example, we'll be using the simple `plugin.yml`, but Canvas also support
 
 ```yaml title="plugin.yml"
 name: ExamplePlugin
-version: '${version}' # Controlled by your build.gradle.kts
+version: '$version' # Controlled by your build.gradle.kts
 main: io.canvasmc.exampleplugin.ExamplePlugin
 description: An example plugin
 author: CanvasMC
@@ -114,8 +114,6 @@ This can be used to add hooks for other plugins, add weaver, and other utilities
 In this tutorial we'll just be showing a basic build script that also automatically fills in the `version` key in your `plugin.yml`
 
 ```kotlin title="build.gradle.kts"
-import org.apache.tools.ant.filters.ReplaceTokens
-
 plugins {
     id("java")
 }
@@ -132,21 +130,17 @@ dependencies {
     compileOnly("io.canvasmc:canvas-api:1.21.11-R0.1-SNAPSHOT")
 }
 
-tasks {
-    processResources {
-        // Replaces `${version}` in your `plugin.yml` with the `version` field in this file
-        outputs.upToDateWhen { false }
-        filter<ReplaceTokens>(mapOf(
-            "tokens" to mapOf("version" to project.version),
-            "beginToken" to "\${",
-            "endToken" to "}"
-        )).filteringCharset = "UTF-8"
+tasks.processResources {
+    // Replaces `$version` in your `plugin.yml` with the `version` field in this file
+    val props = mapOf("version" to project.version)
+    filesMatching("plugin.yml") {
+      expand(props)
     }
+}
 
-    withType<JavaCompile>().configureEach {
-        // Ensures special characters don't get malformed when compiling
-        options.encoding = "UTF-8"
-    }
+tasks.withType<JavaCompile>().configureEach {
+    // Ensures special characters don't get malformed when compiling
+    options.encoding = "UTF-8"
 }
 
 java {
