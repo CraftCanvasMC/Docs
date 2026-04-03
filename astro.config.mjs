@@ -7,6 +7,14 @@ import UnoCSS from "unocss/astro";
 export default defineConfig({
   site: "https://docs.canvasmc.io",
 
+  vite: {
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+      },
+    },
+  },
+
   integrations: [
     svelte(),
     UnoCSS(),
