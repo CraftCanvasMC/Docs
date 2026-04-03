@@ -1,0 +1,123 @@
+---
+title: Scheduling
+description: Learn how to use the various schedulers in Canvas
+version: 1.21.11
+sidebar:
+order: 5
+---
+
+:::caution
+
+On Folia based servers such as Canvas, the [`BukkitScheduler`](https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/scheduler/BukkitScheduler.html) is entirely removed and cannot be used.
+
+:::
+
+## Minecraft ticks
+
+Minecraft's sandbox engine is entirely tick based.
+This means that the game loop executes at specific intervals rather than every single frame like other games.
+There are 20 ticks per second or 50 milliseconds per tick.
+
+
+## The Schedulers
+
+In Canvas' API, there are **four** different schedulers available.
+Please keep in mind that although these objects share the same name, they are not the same as [Canvas' configurable schedulers](/canvas/scheduler/edf/).
+
+
+:::note
+
+It is seen time and time again that plugins are incorrectly utilizing the provided schedulers for Folia, so this section is to clarify exactly what each
+scheduler should be used for.
+
+:::
+
+### The Global Region Scheduler
+
+The [global region](/canvas/info/folia/overview/#global-region) is a single internal scheduled task that is not controlled by a specific region.
+This is strictly for things that are **not** tied to a specific location, and are server-wide or world-wide. Things like time,
+weather, tick rate changing, raids, world border, etc, should all be scheduled here. Anything that is tied to a location or entity should never be scheduled here.
+
+```java
+Plugin plugin = ...;
+// Obtaining the global region scheduler
+GlobalRegionScheduler globalScheduler = Bukkit.getGlobalRegionScheduler();
+
+// Scheduling a task
+globalScheduler.run(plugin, task -> {
+    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "say Hello, world!")
+});
+```
+
+### The Region Scheduler
+
+The region scheduler executes tasks on specific regions.
+This is for scheduling things specifically tied to a `Location` in a world. Things like dropping items at a specified location and
+such should be scheduled here. This should never be used for global operations. This should not be used for entity-specific or global operations.
+
+```java
+Plugin plugin = ...;
+Location locationToChange = ...;
+// Obtaining the region scheduler
+RegionScheduler regionScheduler = Bukkit.getRegionScheduler();
+
+// Scheduling a task
+regionScheduler.execute(plugin, locationToChange, () -> {
+    locationToChange.getBlock().setType(Material.DIAMOND_BLOCK);
+});
+```
+
+### The Entity Scheduler
+
+This is for scheduling things specifically tied to an **entity**. Not locations, not global operations, **entities**. The entity state
+can change for any number of reasons, and as such, Paper/Folia provides the entity scheduler so that you can schedule things to the entity specifically, and
+it will handle states and edge cases with those states like teleporting, being removed, etc. Anything location-specific should not be scheduled here, as the
+entity position can change after scheduling for any reason. Things like changing the entity health or setting it on fire should be scheduled here.
+
+```java
+Plugin plugin = ...;
+Entity entity = ...;
+// Obtaining an entity's scheduler
+EntityScheduler entityScheduler = entity.getScheduler();
+
+// Scheduling a task
+entityScheduler.execute(plugin, (task) -> {
+    entity.setHealth(0);
+}, null);
+```
+
+### The Async Scheduler
+
+The async scheduler should be used for scheduling tasks that do not interact with the Bukkit API
+or for other intensive tasks that can be done off the main thread of a region or the global region scheduler.
+
+```java
+Plugin plugin = ...;
+// Obtaining the async scheduler
+AsyncScheduler asyncScheduler = Bukkit.getAsyncScheduler();
+
+// Schediling a task
+asyncScheduler.runNow(plugin, (task) -> {
+    // Writing to a file or something that can be done asynchronously.
+})
+```
+
+
+## Tick Thread Check API
+
+Paper provides an API for Folia that introduces tick thread checking to see if an object or location is owned by the current ticking region, or if
+the current thread is ticking the global tick thread. This can assist with scheduling things and ensuring that all operations are executed on the
+proper scheduling context. The available tick thread checks are:
+
+- `isOwnedByCurrentRegion(World, Position)` -- Returns if the current tick handle owns the position in the provided world
+- `isOwnedByCurrentRegion(World, Position, radius in chunks)` -- Returns if the current tick handle owns the position in the provided world and the surrounding chunks in a provided radius
+- `isOwnedByCurrentRegion(Location)` -- Returns if the current tick handle owns the location provided
+- `isOwnedByCurrentRegion(Location, radius in chunks)` -- Returns if the current tick handle owns the location provided and the surrounding chunks in a provided radius
+- `isOwnedByCurrentRegion(Block)` -- Returns if the current tick handle owns the position of the block provided
+- `isOwnedByCurrentRegion(World, chunk x, chunk z)` -- Returns if the current tick handle owns the chunk coords in the provided world
+- `isOwnedByCurrentRegion(World, chunk x, chunk z, radius in chunks)` -- Returns if the current tick handle owns the chunk coords in the provided world and the surrounding chunks in a provided radius
+- `isOwnedByCurrentRegion(World, from chunk x, from chunk z, to chunk x, to chunk z)` -- Returns if the current tick handle owns the area of chunks specified in the provided world
+- `isOwnedByCurrentRegion(Entity)` -- Returns if the current tick handle owns the entity provided
+- `isOwnedByCurrentRegion(World, BoundingBox)` -- **Canvas exclusive** -- Returns if the current tick handle owns the specified bounding box in the world provided
+- `isOwnedByCurrentRegion(Location, Vector, chunk buffer)` -- **Canvas exclusive** -- Returns if the current tick handle owns the specfied location, adjusted by the provided velocity with a provided chunk radius buffer
+- `isGlobalTickThread` -- Returns if the current tick handle is the global tick

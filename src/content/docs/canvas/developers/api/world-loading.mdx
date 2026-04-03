@@ -1,0 +1,114 @@
+---
+title: World Loading
+description: Learn how to use Canvas' world loading API
+version: 1.21.11
+sidebar:
+order: 3
+---
+
+## World Loading & Unloading API
+
+Another API Folia breaks and outright removes is runtime world loading and unloading. This API allows the creation and unloading of worlds while the
+server is running. This was disabled due to a lot of complications with them like how to unload worlds effectively with there being region threading,
+and how to create worlds correctly.
+
+Canvas fixes and restores this API, while also providing a replacement API for unloading.
+
+### World Loading
+
+Fixing world loading is actually relatively simple. World creation is already something that is technically region-threading safe with little to no
+modifications. Before `1.21.11`, Folia required loading a certain area of chunks to run spawn selection, however this is no longer required post `1.21.11`.
+
+:::caution
+
+The world creation call must be run on the **global tick thread**. To schedule this to the global tick, use:
+```java
+Bukkit.getServer().getGlobalRegionScheduler().run(plugin, (task) -> {
+    Bukkit.getServer().createWorld(WorldCreator.name("example"));
+});
+```
+
+:::
+
+### World Unloading
+
+World unloading is extremely complex in comparison to fixing world loading. This required a full rewrite and Canvas provides a new API for this,
+since the old API was not something we could entirely keep compatible with. The new API returns `void`, and now also requires a callback argument passed.
+
+:::caution
+
+The world unload call must be run on the **global tick thread**. To schedule this to the global tick, use:
+```java
+Server server = Bukkit.getServer();
+server.getGlobalRegionScheduler().run(plugin, (task) -> {
+    server.unloadWorldAsync(world, save, (result) -> {
+        getLogger().info("Resulted in " + result);
+    });
+});
+```
+
+:::
+
+The callback provides an enum `WorldUnloadResult`, which says if it succeded or not, and if not, then why.
+
+#### Preconditions
+
+The original Bukkit API version of unloading has a few requirements
+for the world before being allowed to unload:
+- The world is loaded and present in the server
+- The world is **not** the overworld
+- The world has no players
+- The `WorldUnloadEvent` is not canceled
+
+For Folia, this is relatively the same except for checking that the world has no players.
+
+With region threading, any operation involving entities moving between regions, or being placed in regions, is rewritten to some degree.
+For players, this means players can be removed from a world at any time, even if they are just teleporting between 2 regions on the same world.
+If we just simply check the way Bukkit does, we actually can cause race conditions with players being mid-teleport on same-world teleports,
+or players logging into the server. If say, the world is unloaded while a player is attempting to teleport between regions, or a player is joining
+the server, the player could be stuck in limbo until the server restarts. As an example, when the player is "removed" from the world for teleporting,
+they are removed from the list `players` in `ServerLevel`, which in Bukkit, is what is ensured empty before allowing the unload. This creates
+a lot of room for issues and race conditions causing players to be stuck in a state where they cannot even leave the server properly.
+
+To combat this, Canvas changes how we check for teleporting players, and joining players, to ensure the unload preconditions are accurate and
+players remain in a consistent and correct state.
+
+##### Teleporting & Joining Preconditions
+
+For **teleporting**, Canvas checks every player on the server and checks if their current world is the same as the one we are attempting to unload.
+This fixes cross-region teleports on the world we are trying to unload, since if the player is mid-teleport, they will be "removed" from the world,
+but still have the world reference in the player object, so checking that is the most accurate way to check if there are players actively present
+in the world, whether they are placed in a region already, or currently in-flight to another region.
+
+For **joining**, Canvas adds a new "world stage lock", which is used to synchronize players deciding the world they are joining in to, and world unload
+calls. We then increment/decrement a value in the `ServerLevel` object to track how many players are currently in-flight to joining the world. This way,
+we can check during unload calls that there are no actively joining players. The fallback for joining if it is unloading though is always the **overworld**,
+matching Vanilla for when a world is unknown/not present in the server for any reason.
+
+#### Unloading Process
+
+The unload process is a bit lengthy, but is made this way to ensure the optimal performance and setup for region-threading.
+
+1. Once all preconditions are passed, the "unload ticket" is propagated to the world. At the start of each region tick, this ticket is checked to see
+if it is present. If the ticket is present, the region saves and begins to unload itself. The reason we do it this way is because a region can be
+created for any variety of reasons, and if we just run on all the regions present in the unload call, we may have edge cases where a region just never
+gets properly unloaded. This also allows us to ensure we properly shut down and unload the world.
+
+2. Each region follows a very similar process to the shutdown thread for individual regions. First, we check for pending teleports and complete
+the pending teleports for entities, but add them to the world as if the server is shutting down. If there is a player present during this, we can
+guarantee it is most likely due to **portaling** or **cross-dimensional teleporting**, since same-dimension cross-region teleports are already
+covered by the preconditions.
+
+3. After pending teleports are completed, we check the local players to ensure that there are none, and if there are any, we send them back to their previous
+position. The players can only enter here via teleporting cross-dimensionally or portaling, meaning we can send them back to their original teleport
+position to ensure the player doesn't get stuck in limbo.
+
+4. After pending teleports and cleaning up players, we save all chunks in the region, and then we deschedule the current region from the server, so it will no
+longer process any further ticks.
+
+5. On the global tick, if the world unload ticket is present, during the entire unload process it will not process the global tick for that world.
+
+6. Once all regions are descheduled, the global tick handles cleanup, where it finalizes the world save, closes the chunk manager, halts the chunk system
+executors for that world, closes the level storage access, and then removes the world from the Bukkit worlds, regionized server worlds, and Minecraft levels map
+
+7. The unload callback is executed for reason `SUCCESS` if all goes correctly.

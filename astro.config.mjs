@@ -73,9 +73,9 @@ export default defineConfig({
                   // Have to manually list these for styling
                   items: [
                     {
-                      label: "Contributing",
+                      label: "API",
                       autogenerate: {
-                        directory: "canvas/developers/contributing",
+                        directory: "canvas/developers/api",
                       },
                     },
                     {
@@ -84,8 +84,13 @@ export default defineConfig({
                         directory: "canvas/developers/plugins",
                       },
                     },
+                    {
+                      label: "Contributing",
+                      autogenerate: {
+                        directory: "canvas/developers/contributing",
+                      },
+                    },
                     "canvas/developers/rest-api",
-                    "canvas/developers/canvas-api",
                   ],
                 },
                 {
