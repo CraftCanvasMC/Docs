@@ -133,6 +133,7 @@ proper scheduling context. The available tick thread checks are:
 
 It's important to always dispatch commands on the right thread when working in Folia environments such as Canvas.
 There is no main thread so you need to ensure you're on the proper thread when calling `dispatchCommand`.
+Dispatching a command from the wrong thread will throw an [UnsupportedOperationException](https://docs.oracle.com/javase/8/docs/api/java/lang/UnsupportedOperationException.html).
 
 #### For the Console Sender
 
