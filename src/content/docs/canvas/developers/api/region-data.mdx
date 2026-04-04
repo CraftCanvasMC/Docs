@@ -73,7 +73,7 @@ The term `(currentTickTo - currentTickFrom)` is constant for a given pair of reg
 deadlineTo = deadlineFrom + fromTickOffset
 ```
 
-* You wont need to calculate the `fromTickOffset` as Canvas provides this for you in the merge method, which is the only place this value is utilized.
+* You won't need to calculate the `fromTickOffset` as Canvas provides this for you in the merge method, which is the only place this value is utilized.
 
 This is used internally for things that store a tick-based deadline, and should be used as described above to maintain consistency of regionized data when
 conducting merge operations.

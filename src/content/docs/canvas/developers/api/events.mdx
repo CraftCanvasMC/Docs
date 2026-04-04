@@ -62,7 +62,7 @@ these states during the *pre* events, as this will result in Canvas throwing a `
 Canvas throws this exception because if the event calls, then these states have already been verified. If the state changes unexpectedly after calling, the
 entity no longer is valid for teleport, so we shouldn't teleport and should immediately throw to prevent unsafe operations.
 
-Plugins should **never** modify the entity state in the `EntityTeleportAsyncEvent`, `EntityPortalAsyncEvent`, or `PlayerViewEndCreditsEvent` events.
+Plugins should **never** modify the entity state in the [`EntityTeleportAsyncEvent`](https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/event/EntityTeleportAsyncEvent.html), [`EntityPortalAsyncEvent`](https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/event/EntityPortalAsyncEvent.html), or [`PlayerViewEndCreditsEvent`](https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/event/PlayerViewEndCreditsEvent.html) events.
 In the "post" events, plugins are allowed to modify the state of the entity in that manner, since this is immediately after the placement for the entity is called.
 
 :::note

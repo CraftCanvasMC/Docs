@@ -6,6 +6,8 @@ sidebar:
   order: 5
 ---
 
+export const bukkit = (anchor) => `https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/Bukkit.html${anchor ? `#${anchor}` : ""}`;
+
 :::caution
 
 On Folia based servers such as Canvas, the [`BukkitScheduler`](https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/scheduler/BukkitScheduler.html) should not be used.
@@ -102,7 +104,7 @@ Plugin plugin = ...;
 // Obtaining the async scheduler
 AsyncScheduler asyncScheduler = Bukkit.getAsyncScheduler();
 
-// Schediling a task
+// Scheduling a task
 asyncScheduler.runNow(plugin, (task) -> {
     // Writing to a file or something that can be done asynchronously.
 })
@@ -115,19 +117,18 @@ Paper (Moonrise) provides an API for Folia that introduces tick thread checking 
 the current thread is ticking the global tick thread. This can assist with scheduling things and ensuring that all operations are executed on the
 proper scheduling context. The available tick thread checks are:
 
-- `isOwnedByCurrentRegion(World, Position)` -- Returns if the current tick handle owns the position in the provided world
-- `isOwnedByCurrentRegion(World, Position, radius in chunks)` -- Returns if the current tick handle owns the position in the provided world and the surrounding chunks in a provided radius
-- `isOwnedByCurrentRegion(Location)` -- Returns if the current tick handle owns the location provided
-- `isOwnedByCurrentRegion(Location, radius in chunks)` -- Returns if the current tick handle owns the location provided and the surrounding chunks in a provided radius
-- `isOwnedByCurrentRegion(Block)` -- Returns if the current tick handle owns the position of the block provided
-- `isOwnedByCurrentRegion(World, chunk x, chunk z)` -- Returns if the current tick handle owns the chunk coords in the provided world
-- `isOwnedByCurrentRegion(World, chunk x, chunk z, radius in chunks)` -- Returns if the current tick handle owns the chunk coords in the provided world and the surrounding chunks in a provided radius
-- `isOwnedByCurrentRegion(World, from chunk x, from chunk z, to chunk x, to chunk z)` -- Returns if the current tick handle owns the area of chunks specified in the provided world
-- `isOwnedByCurrentRegion(Entity)` -- Returns if the current tick handle owns the entity provided
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.World,io.papermc.paper.math.Position)")}>`isOwnedByCurrentRegion(World, Position)`</a> -- Returns if the current tick handle owns the position in the provided world
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.World,io.papermc.paper.math.Position,int)")}>`isOwnedByCurrentRegion(World, Position, radius in chunks)`</a> -- Returns if the current tick handle owns the position in the provided world and the surrounding chunks in a provided radius
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.Location)")}>`isOwnedByCurrentRegion(Location)`</a> -- Returns if the current tick handle owns the location provided
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.Location,int)")}>`isOwnedByCurrentRegion(Location, radius in chunks)`</a> -- Returns if the current tick handle owns the location provided and the surrounding chunks in a provided radius
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.block.Block)")}>`isOwnedByCurrentRegion(Block)`</a> -- Returns if the current tick handle owns the position of the block provided
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.World,int,int)")}>`isOwnedByCurrentRegion(World, chunk x, chunk z)`</a> -- Returns if the current tick handle owns the chunk coords in the provided world
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.World,int,int,int)")}>`isOwnedByCurrentRegion(World, chunk x, chunk z, radius in chunks)`</a> -- Returns if the current tick handle owns the chunk coords in the provided world and the surrounding chunks in a provided radius
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.World,int,int,int,int)")}>`isOwnedByCurrentRegion(World, from chunk x, from chunk z, to chunk x, to chunk z)`</a> -- Returns if the current tick handle owns the area of chunks specified in the provided world
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.entity.Entity)")}>`isOwnedByCurrentRegion(Entity)`</a> -- Returns if the current tick handle owns the entity provided
 - `isOwnedByCurrentRegion(World, BoundingBox)` -- **Canvas exclusive** -- Returns if the current tick handle owns the specified bounding box in the world provided
 - `isOwnedByCurrentRegion(Location, Vector, chunk buffer)` -- **Canvas exclusive** -- Returns if the current tick handle owns the specfied location, adjusted by the provided velocity with a provided chunk radius buffer
-- `isGlobalTickThread` -- Returns if the current tick handle is the global tick
-
+- <a href={bukkit("isGlobalTickThread()")}>`isGlobalTickThread`</a> -- Returns if the current tick handle is the global tick
 
 ## Dispatching Commands
 
@@ -137,7 +138,7 @@ Dispatching a command from the wrong thread will throw an [UnsupportedOperationE
 
 #### For the Console Sender
 
-The **console sender** must *always* be called on the global region scheduler. Access the global region scheduler as shown [above](#the-global-region-scheduler) and dispatch your commands from that thread.
+The **console sender** and **remote console sender** must *always* be called on the global region scheduler. Access the global region scheduler as shown [above](#the-global-region-scheduler) and dispatch your commands from that thread.
 
 #### For Entities
 
