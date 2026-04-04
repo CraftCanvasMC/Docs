@@ -8,7 +8,8 @@ sidebar:
 
 :::caution
 
-On Folia based servers such as Canvas, the [`BukkitScheduler`](https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/scheduler/BukkitScheduler.html) is entirely removed and cannot be used.
+On Folia based servers such as Canvas, the [`BukkitScheduler`](https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/scheduler/BukkitScheduler.html) should not be used.
+Accessing this scheduler will throw an [UnsupportedOperationException](https://docs.oracle.com/javase/8/docs/api/java/lang/UnsupportedOperationException.html) when calling.
 
 :::
 
@@ -16,13 +17,15 @@ On Folia based servers such as Canvas, the [`BukkitScheduler`](https://canvasmc.
 
 Minecraft's sandbox engine is entirely tick based.
 This means that the game loop executes at specific intervals rather than every single frame like other games.
-There are 20 ticks per second or 50 milliseconds per tick.
+When the game is running normally*, there are 20 ticks per second or 50 milliseconds per tick.
+
+\* The set tickrate can be changed using commands or internals.
 
 
 ## The Schedulers
 
-In Canvas' API, there are **four** different schedulers available.
-Please keep in mind that although these objects share the same name, they are not the same as [Canvas' configurable schedulers](/canvas/scheduler/edf/).
+Canvas' API is a superset of Paper's API which means we include the **four** schedulers provided by them.
+Please keep in mind that although these objects share the same name, they are not the same as [Folia's configurable schedulers](/canvas/scheduler/edf/).
 
 
 :::note
@@ -36,7 +39,7 @@ scheduler should be used for.
 
 The [global region](/canvas/info/folia/overview/#global-region) is a single internal scheduled task that is not controlled by a specific region.
 This is strictly for things that are **not** tied to a specific location, and are server-wide or world-wide. Things like time,
-weather, tick rate changing, raids, world border, etc, should all be scheduled here. Anything that is tied to a location or entity should never be scheduled here.
+weather, tick rate changing, raids, world border, console sender, etc, should all be scheduled here. Anything that is tied to a location or entity should never be scheduled here.
 
 ```java
 Plugin plugin = ...;
@@ -74,6 +77,9 @@ can change for any number of reasons, and as such, Paper/Folia provides the enti
 it will handle states and edge cases with those states like teleporting, being removed, etc. Anything location-specific should not be scheduled here, as the
 entity position can change after scheduling for any reason. Things like changing the entity health or setting it on fire should be scheduled here.
 
+* Just because something doesn't throw an exception when working with the schedulers doesn't mean it's perfectly scheduled. 
+Always extensively debug for any edge cases and ensure you're using the proper scheduler!
+
 ```java
 Plugin plugin = ...;
 Entity entity = ...;
@@ -105,7 +111,7 @@ asyncScheduler.runNow(plugin, (task) -> {
 
 ## Tick Thread Check API
 
-Paper provides an API for Folia that introduces tick thread checking to see if an object or location is owned by the current ticking region, or if
+Paper (Moonrise) provides an API for Folia that introduces tick thread checking to see if an object or location is owned by the current ticking region, or if
 the current thread is ticking the global tick thread. This can assist with scheduling things and ensuring that all operations are executed on the
 proper scheduling context. The available tick thread checks are:
 
@@ -121,3 +127,17 @@ proper scheduling context. The available tick thread checks are:
 - `isOwnedByCurrentRegion(World, BoundingBox)` -- **Canvas exclusive** -- Returns if the current tick handle owns the specified bounding box in the world provided
 - `isOwnedByCurrentRegion(Location, Vector, chunk buffer)` -- **Canvas exclusive** -- Returns if the current tick handle owns the specfied location, adjusted by the provided velocity with a provided chunk radius buffer
 - `isGlobalTickThread` -- Returns if the current tick handle is the global tick
+
+
+## Dispatching Commands
+
+It's important to always dispatch commands on the right thread when working in Folia environments such as Canvas.
+There is no main thread so you need to ensure you're on the proper thread when calling `dispatchCommand`.
+
+#### For the Console Sender
+
+The **console sender** must *always* be called on the global region scheduler. Access the global region scheduler as shown [above](#the-global-region-scheduler) and dispatch your commands from that thread.
+
+#### For Entities
+
+Entities dispatching commands should be run on **the entity's scheduler**. Access the entity scheduler as shown [above](#the-entity-scheduler) and dispatch your commands from that thread.

@@ -8,8 +8,6 @@ sidebar:
 
 import DiffViewer from '../../../../../components/DiffViewer.astro';
 
-## Added
-
 Folia breaks a few very important events with its rewrites of some Vanilla systems like login, teleport, etc. As such, Canvas provides
 new API to replace the old API, since simply adding back the old API actually can create a lot of issues with plugins that support *both*
 Folia and Paper.
@@ -69,22 +67,7 @@ In the "post" events, plugins are allowed to modify the state of the entity in t
 
 :::note
 
-The `PlayerViewEndCreditsEvent` was added as a way to allow plugins to check when a player was going through the end portal back to the overworld, since
+The [PlayerViewEndCreditsEvent](https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/event/PlayerViewEndCreditsEvent.html) was added as a way to allow plugins to check when a player was going through the end portal back to the overworld, since
 this calls respawn, not teleport or portal. This also allows you to force open the end credits screen, or force it to not open
 
 :::
-
-## Fixed
-
-A list of various events that do not fire on Folia but **do** fire on Canvas.
-
-:::caution
-
-This list is not exhaustive!
-
-:::
-
-- [PlayerRespawnEvent](https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/event/player/PlayerRespawnEvent.html)
-- [WorldUnloadEvent](https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/event/world/WorldUnloadEvent.html)
-- [WorldLoadEvent](https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/event/world/WorldLoadEvent.html)
-- [WorldSaveEvent](https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/event/world/WorldSaveEvent.html)
