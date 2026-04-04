@@ -21,6 +21,8 @@ To start profiling your server, run this command:
 
 Canvas' ships with a built in spark profiler that includes a few custom flags you can use in the `/spark profiler start` command.
 Please note that in order to use Canvas' custom spark flags, you'll need to use our [Affinity](/canvas/scheduler/affinity/) scheduler.
+Please also note that you will need at least 1 thread allocated to region threading.
+That means you'll need `threaded-regions.threads` set to *at least* **3**.
 
 ### The `--global-tick` Flag
 
@@ -43,3 +45,17 @@ The region flag pins a specific [region](/canvas/info/folia/region-logic/#region
 /spark profiler start --region ~ ~ --timeout 300 # Start a new profiler while pinning the region you are located in to a thread.
 /spark profiler open # Open up spark to view the profiler
 ```
+
+## What is Pinning?
+
+Pinning is the process of taking a specific task and forcing a specific thread to handle the execution of it every time the task needs to run.
+Normally, tasks are never pinned to a specific thread. A random thread that is available will pick up the task as soon as it needs to be called.
+
+
+In the context of Minecraft and Folia environments these tasks are the **global region** and other **regions**.
+All regions, including the global region must be ticked at a specific rate (usually every 50ms).
+When 50ms have passed, a random thread that is not busy ticking another region will handle the process of ticking the region.
+
+
+When we **pin** a region to a thread, we are forcing the ticking and execution of that region to happen only on that thread.
+The reason we do this is to...
