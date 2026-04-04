@@ -69,6 +69,12 @@ export default defineConfig({
                   },
                 },
                 {
+                  label: "Guides",
+                  autogenerate: {
+                    directory: "canvas/guides",
+                  },
+                },
+                {
                   label: "Developers",
                   // Have to manually list these for styling
                   items: [

@@ -1,0 +1,45 @@
+---
+title: Profiling
+description: Learn how to diagnose performance issues on your Canvas server
+version: 1.21.11
+---
+
+Profiling is a commong practice in Java applications to diagnose performance issues.
+In the context of Minecraft, we profile our servers to determine what's causing lag and dropping TPS.
+
+## spark
+
+On Folia based servers such as Canvas, the process of profiling can get complicated so we've made it easy by bundling in a custom [spark](https://spark.lucko.me/) profiler!
+To start profiling your server, run this command:
+
+```bash
+/spark profiler start --thread * --timeout 300
+```
+
+
+## Canvas' Custom Spark Flags
+
+Canvas' ships with a built in spark profiler that includes a few custom flags you can use in the `/spark profiler start` command.
+Please note that in order to use Canvas' custom spark flags, you'll need to use our [Affinity](/canvas/scheduler/affinity/) scheduler.
+
+### The `--global-tick` Flag
+
+The global tick flag pins the [global region](/canvas/info/folia/overview/#global-region) to a specific thread in order to be profiled.
+
+* Usage: `/spark profiler start --global-tick`
+
+```bash
+/spark profiler start --global-tick --timeout 300 # Start a new profiler while pinning the global tick task to a thread.
+/spark profiler open # Open up spark to view the profiler
+```
+
+### The `--region` Flag
+
+The region flag pins a specific [region](/canvas/info/folia/region-logic/#region) to a thread in order to be profiled.
+
+* Usage: `/spark profiler start --region <chunkX> <chunkZ>`
+
+```bash
+/spark profiler start --region ~ ~ --timeout 300 # Start a new profiler while pinning the region you are located in to a thread.
+/spark profiler open # Open up spark to view the profiler
+```
