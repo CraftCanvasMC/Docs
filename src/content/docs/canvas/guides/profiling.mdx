@@ -33,7 +33,7 @@ To combat this, Canvas' affinity scheduler includes a ***task pinning*** system 
 for a specified task to be profiled. This is utilized by spark to specifically track and profile schedulable handles
 
 
-This does include some performance penalties, as since the area needs isolation, it cannot be utilized in scaling the
+This does include a performance drawback, as since the area needs isolation, it cannot be utilized in scaling the
 server, so other tasks cannot use the thread for task processing while a region is pinned to it. For the spark report
 to be accurate, we need to make the area completely isolated. Which means other regions cannot utilize the pinned thread.
 
