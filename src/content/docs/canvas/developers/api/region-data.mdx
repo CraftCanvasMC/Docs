@@ -81,9 +81,9 @@ conducting merge operations.
 #### Splitting
 
 Splitting is hanlded via the `split` method, which provides `T from`, `int chunkToRegionShift`, `L2RMap regionToData`, and `RefSet dataSet`.
-In this operation, we are splitting the `T from`, into the `ReferenceOpenHashSet dataSet`.
+In this operation, we are splitting the `T from`, into the <a href={"https://javadoc.io/doc/it.unimi.dsi/fastutil/latest/it/unimi/dsi/fastutil/objects/ReferenceOpenHashSet.html"}>`ReferenceOpenHashSet dataSet`</a>.
 
-Folia provides us with two utilities to help split this data, the `int chunkToRegionShift`, and the `Long2ReferenceOpenHashMap regionToData`.
+Folia provides us with two utilities to help split this data, the `int chunkToRegionShift`, and the <a href={"https://javadoc.io/doc/it.unimi.dsi/fastutil/latest/it/unimi/dsi/fastutil/longs/Long2ReferenceOpenHashMap.html"}>`Long2ReferenceOpenHashMap regionToData`</a>.
 The `chunkToRegionShift` is the signed right-shift value used to convert chunk coordinates into region section coordinates.
 
 The `regiontoData` map is a map of region section coordinates to the data that is owned by the region which
@@ -106,7 +106,7 @@ default long getRegionSectionCoordinates(final int chunkX, final int chunkZ, fin
 
 :::
 
-You can utilize them like so, using an `Entity` as an example:
+You can utilize them like so, using an <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/entity/Entity.html"}>`Entity`</a> as an example:
 
 ```java
 Entity entity = ...;
@@ -128,5 +128,5 @@ and concurrency issues depending on what you are trying to do. To fetch the curr
 T localData = Bukkit.getServer().getLocalRegionizedData(EXAMPLE_REGION_DATA);
 ```
 
-This **will** throw an `IllegalStateException` if called on a thread that doesn't own a region. This could be because the current thread isn't
+This **will** throw an [IllegalStateException](https://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html) if called on a thread that doesn't own a region. This could be because the current thread isn't
 a region tick runner, or the current thread is processing the global tick.
