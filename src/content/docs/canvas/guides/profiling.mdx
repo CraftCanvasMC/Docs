@@ -18,7 +18,7 @@ If you need help with analyzing a performance issue, please bring a spark report
 ## spark
 
 On Folia based servers such as Canvas, the process of profiling can is very complicated.
-**spark**, a popular Java profiler built into Paper servers.
+**spark**, is a popular Java profiler built into Paper servers and is what has been chosen by the CanvasMC team to profile Canvas servers.
 spark on it's own cannot profile regions on it's own.
 Canvas ships with a custom built version of spark that is able to pin regions to specific threads in order to profile them effectively.
 The CanvasMC team chose spark over Folia's default profiler because the standard profiler does not contain enough information in order to effectively assist server admins in determining sources of lag.
