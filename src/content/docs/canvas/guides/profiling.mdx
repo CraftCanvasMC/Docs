@@ -23,7 +23,7 @@ Canvas removes Folia's built in profiler **and** the vanilla profiler.
 
 :::
 
-**spark* is the builtin profiler for Paper, upstream of Folia, and gives a perfect amount of data to help diagnose
+**spark** is the builtin profiler for Paper, upstream of Folia, and gives a perfect amount of data to help diagnose
 issues and performance problems. However, the way spark works prevents us from being able to track regions
 independently. **spark** has the capability of tracking specific ***threads***, not ***regions***, as
 regions are tasked based on a scheduled task thread pool.
@@ -38,7 +38,8 @@ server, so other tasks cannot use the thread for task processing while a region 
 to be accurate, we need to make the area completely isolated. Which means other regions cannot utilize the pinned thread.
 
 
-**Staring the spark profiler:**
+**Canvas automatically sets the spark target to the region scheduler threads when no region is specifically set.
+Here's how to start it:**
 
 ```bash
 /spark profiler start --timeout 300
