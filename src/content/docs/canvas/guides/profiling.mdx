@@ -4,8 +4,16 @@ description: Learn how to diagnose performance issues on your Canvas server
 version: 1.21.11
 ---
 
-Profiling is a commong practice in Java applications to diagnose performance issues.
+Profiling is a common practice in Java applications to diagnose performance issues.
 In the context of Minecraft, we profile our servers to determine what's causing lag and dropping TPS.
+
+:::caution
+
+*For profiling to be effective, the issue you are diagnosing should be actively occurring.*
+
+:::
+
+If you need help with analyzing a performance issue, please bring a spark report to the [Canvas Discord server](https://canvasmc.io/discord) (`#canvas-help`) for assistance.
 
 ## spark
 
@@ -16,8 +24,19 @@ To start profiling your server, run this command:
 /spark profiler start --thread * --timeout 300
 ```
 
+:::tip
 
-## Canvas' Custom Spark Flags
+If you'd like to use [PlaceholderAPI](https://placeholderapi.com) placeholders from the bundled spark version, you'll need to install the spark expansion from PAPI's eCloud.
+
+```bash
+/papi ecloud download spark # Download the PAPI spark expansion
+/papi reload # Reload PAPI
+```
+
+:::
+
+
+## Canvas' Custom spark Flags
 
 Canvas' ships with a built in spark profiler that includes a few custom flags you can use in the `/spark profiler start` command.
 Please note that in order to use Canvas' custom spark flags, you'll need to use our [Affinity](/canvas/scheduler/affinity/) scheduler.
@@ -58,4 +77,4 @@ When 50ms have passed, a random thread that is not busy ticking another region w
 
 
 When we **pin** a region to a thread, we are forcing the ticking and execution of that region to happen only on that thread.
-The reason we do this is to...
+The reason we do this is to profile the region with spark.
