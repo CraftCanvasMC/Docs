@@ -38,8 +38,8 @@ server, so other tasks cannot use the thread for task processing while a region 
 to be accurate, we need to make the area completely isolated. Which means other regions cannot utilize the pinned thread.
 
 
-**Canvas automatically sets the spark target to the region scheduler threads when no region is specifically set.
-Here's how to start it:**
+**Canvas automatically sets the spark target to the region scheduler threads when no task is specifically targetted.
+This means all scheduler runners will be profiled, and all schedulable tasks will be profiled. Here's how to start it:**
 
 ```bash
 /spark profiler start --timeout 300
@@ -61,7 +61,7 @@ If you'd like to use [PlaceholderAPI](https://placeholderapi.com) placeholders f
 
 Canvas ships with a built in spark profiler that includes a few custom flags you can use in the `/spark profiler start` command.
 Please note that in order to use Canvas' custom spark flags, you'll need to use our [Affinity](/canvas/scheduler/affinity/) scheduler.
-Please also note that you will need at least 1 thread allocated to region threading.
+Please also note that you will need at least 2 threads allocated to region threading.
 That means you'll need `threaded-regions.threads` set to *at least* **2**.
 
 ### The `--global-tick` Flag
