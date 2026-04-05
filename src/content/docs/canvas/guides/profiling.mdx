@@ -17,11 +17,15 @@ If you need help with analyzing a performance issue, please bring a spark report
 
 ## spark
 
-On Folia based servers such as Canvas, the process of profiling can get complicated so we've made it easy by bundling in a custom [spark](https://spark.lucko.me/) profiler!
-To start profiling your server, run this command:
+On Folia based servers such as Canvas, the process of profiling can is very complicated.
+**spark**, a popular Java profiler built into Paper servers.
+spark on it's own cannot profile regions on it's own.
+Canvas ships with a custom built version of spark that is able to pin regions to specific threads in order to profile them effectively.
+The CanvasMC team chose spark over Folia's default profiler because the standard profiler does not contain enough information in order to effectively assist server admins in determining sources of lag.
+Canvas removes Folia's built in profiler **and** the vanilla profiler.
 
 ```bash
-/spark profiler start --thread * --timeout 300
+/spark profiler start --timeout 300
 ```
 
 :::tip
@@ -38,10 +42,10 @@ If you'd like to use [PlaceholderAPI](https://placeholderapi.com) placeholders f
 
 ## Canvas' Custom spark Flags
 
-Canvas' ships with a built in spark profiler that includes a few custom flags you can use in the `/spark profiler start` command.
+Canvas ships with a built in spark profiler that includes a few custom flags you can use in the `/spark profiler start` command.
 Please note that in order to use Canvas' custom spark flags, you'll need to use our [Affinity](/canvas/scheduler/affinity/) scheduler.
 Please also note that you will need at least 1 thread allocated to region threading.
-That means you'll need `threaded-regions.threads` set to *at least* **3**.
+That means you'll need `threaded-regions.threads` set to *at least* **2**.
 
 ### The `--global-tick` Flag
 
@@ -58,7 +62,7 @@ The global tick flag pins the [global region](/canvas/info/folia/overview/#globa
 
 The region flag pins a specific [region](/canvas/info/folia/region-logic/#region) to a thread in order to be profiled.
 
-* Usage: `/spark profiler start --region <chunkX> <chunkZ>`
+* Usage: `/spark profiler start --region <x> <z>` or `/spark profiler start --region <fromX> <fromZ> <toX> <toZ>`
 
 ```bash
 /spark profiler start --region ~ ~ --timeout 300 # Start a new profiler while pinning the region you are located in to a thread.
@@ -67,14 +71,16 @@ The region flag pins a specific [region](/canvas/info/folia/region-logic/#region
 
 ## What is Pinning?
 
-Pinning is the process of taking a specific task and forcing a specific thread to handle the execution of it every time the task needs to run.
-Normally, tasks are never pinned to a specific thread. A random thread that is available will pick up the task as soon as it needs to be called.
+Pinning is the process of which the active region scheduler will dedicate a tick runner to a specific task, isolating the task on that singular processor.
+The tick runner that has been **"pinned to"** will only run that task unless the task is told to deschedule or the runner is unpinned.
+This is a performance tradeoff of sorts, given the scheduler must allocate **1** thread to run the pin, which is why Canvas servers must have at least **2** threads allocated for region profiling to be supported.
 
 
 In the context of Minecraft and Folia environments these tasks are the **global region** and other **regions**.
-All regions, including the global region must be ticked at a specific rate (usually every 50ms).
-When 50ms have passed, a random thread that is not busy ticking another region will handle the process of ticking the region.
+All regions, including the global region, must be ticked at a specific rate (usually every 50ms).
+When 50ms have passed, the next thread that is not busy ticking another region will handle the process of ticking the region.
 
 
 When we **pin** a region to a thread, we are forcing the ticking and execution of that region to happen only on that thread.
 The reason we do this is to profile the region with spark.
+As stated above, spark cannot profile regions itself, but spark *can* profile specific threads or groups of threads; which is the reason we do this.
