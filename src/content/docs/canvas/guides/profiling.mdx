@@ -29,8 +29,8 @@ independently. **spark** has the capability of tracking specific ***threads***, 
 regions are tasked based on a scheduled task thread pool.
 
 
-To combat this, Canvas has modified the spark profiler to include a ***task pinning*** system that allows runners to become marked as dedicated
-processors for a selected area of chunks to be profiled.
+To combat this, Canvas' affinity scheduler includes a ***task pinning*** system that allows runners to become marked as dedicated
+for a specified task to be profiled. This is utilized by spark to specifically track and profile schedulable handles
 
 
 This does include some performance penalties, as since the area needs isolation, it cannot be utilized in scaling the
@@ -94,12 +94,12 @@ While a region is being profiled, Canvas will force-load the chunks around where
 
 :::
 
-Pinning is the process of which the active region scheduler will dedicate a tick runner to a specific task, isolating the task on that singular processor.
+Pinning is the process of which the active region scheduler will dedicate a tick runner to a specific task, isolating the task on that singular runner.
 The tick runner that has been **"pinned to"** will only run that task unless the task is told to deschedule or the runner is unpinned.
 This is a performance tradeoff of sorts, given the scheduler must allocate **1** thread to run the pin, which is why Canvas servers must have at least **2** threads allocated for region profiling to be supported.
 
 
-In the context of Minecraft and Folia environments these tasks are the **global region** and other **regions**.
+In the context of Folia environments, these tasks are the **global region** and other **regions**.
 All regions, including the global region, must be ticked at a specific rate (usually every 50ms).
 When 50ms have passed, the next thread that is not busy ticking another region will handle the process of ticking the region.
 
