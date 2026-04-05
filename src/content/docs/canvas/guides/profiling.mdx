@@ -7,9 +7,9 @@ version: 1.21.11
 Profiling is a common practice in Java applications to diagnose performance issues.
 In the context of Minecraft, we profile our servers to determine what's causing lag and dropping TPS.
 
-:::caution
+:::note
 
-*For profiling to be effective, the issue you are diagnosing should be actively occurring.*
+For profiling to be effective, the issue you are diagnosing should be actively occurring.
 
 :::
 
@@ -69,6 +69,12 @@ The region flag pins a specific [region](/canvas/info/folia/region-logic/#region
 ```
 
 ## What is Pinning?
+
+:::note
+
+While a region is being profiled, Canvas will force-load the chunks around where the profile was started and keep them loaded until the profile has stopped.
+
+:::
 
 Pinning is the process of which the active region scheduler will dedicate a tick runner to a specific task, isolating the task on that singular processor.
 The tick runner that has been **"pinned to"** will only run that task unless the task is told to deschedule or the runner is unpinned.
