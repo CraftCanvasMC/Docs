@@ -31,7 +31,7 @@ static final RegionTickData.IRegionizedData<TestRegionData> EXAMPLE_REGION_DATA 
 );
 ```
 
-The `createRegionizedData` method takes 2 arguments. The first, a bi-function constructor that takes the region tick data that the instance is being created
+The <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/Server.html#createRegionizedData(java.util.function.BiFunction,io.canvasmc.canvas.region.RegionTickData.IRegionizedData.IRegionizedCallback)"}>`createRegionizedData`</a> method takes 2 arguments. The first, a bi-function constructor that takes the region tick data that the instance is being created
 for, and the world it belongs to, and returns a new object of the generic type `T`. The second argument, is the regionized callback. The regionized callback
 is an interface that defines the logic for merging and splitting region data when a region splits or merges. On region creation, the constructor is called, and
 on region death(from unload or something), nothing happens.
