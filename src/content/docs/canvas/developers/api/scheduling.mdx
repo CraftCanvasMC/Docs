@@ -6,7 +6,7 @@ sidebar:
   order: 5
 ---
 
-export const bukkit = (anchor) => `https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/Bukkit.html${anchor ? `#${anchor}` : ""}`;
+export const bukkit = (anchor) => `https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/Server.html${anchor ? `#${anchor}` : ""}`;
 
 :::caution
 
@@ -126,8 +126,8 @@ proper scheduling context. The available tick thread checks are:
 - <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.World,int,int,int)")}>`isOwnedByCurrentRegion(World, chunk x, chunk z, radius in chunks)`</a> -- Returns if the current tick handle owns the chunk coords in the provided world and the surrounding chunks in a provided radius
 - <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.World,int,int,int,int)")}>`isOwnedByCurrentRegion(World, from chunk x, from chunk z, to chunk x, to chunk z)`</a> -- Returns if the current tick handle owns the area of chunks specified in the provided world
 - <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.entity.Entity)")}>`isOwnedByCurrentRegion(Entity)`</a> -- Returns if the current tick handle owns the entity provided
-- `isOwnedByCurrentRegion(World, BoundingBox)` -- **Canvas exclusive** -- Returns if the current tick handle owns the specified bounding box in the world provided
-- `isOwnedByCurrentRegion(Location, Vector, chunk buffer)` -- **Canvas exclusive** -- Returns if the current tick handle owns the specfied location, adjusted by the provided velocity with a provided chunk radius buffer
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.World,org.bukkit.util.BoundingBox)")}>`isOwnedByCurrentRegion(World, BoundingBox)`</a> -- **Canvas exclusive** -- Returns if the current tick handle owns the specified bounding box in the world provided
+- <a href={bukkit("isOwnedByCurrentRegion(org.bukkit.Location,org.bukkit.util.Vector,int)")}>`isOwnedByCurrentRegion(Location, Vector, chunk buffer)`</a> -- **Canvas exclusive** -- Returns if the current tick handle owns the specfied location, adjusted by the provided velocity with a provided chunk radius buffer
 - <a href={bukkit("isGlobalTickThread()")}>`isGlobalTickThread`</a> -- Returns if the current tick handle is the global tick
 
 ## Dispatching Commands
