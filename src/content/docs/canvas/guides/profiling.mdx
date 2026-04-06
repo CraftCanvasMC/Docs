@@ -1,0 +1,105 @@
+---
+title: Profiling
+description: Learn how to diagnose performance issues on Canvas servers
+version: 1.21.11
+---
+
+Profiling is a common practice in Java applications to diagnose performance issues.
+In the context of Minecraft, we profile our servers to determine what's causing lag and dropping TPS.
+
+:::note
+
+For profiling to be effective, the issue you are diagnosing should be actively occurring.
+
+:::
+
+If you need help with analyzing a performance issue, please bring a spark report to the [Canvas Discord server](https://canvasmc.io/discord) (`#canvas-help`) for assistance.
+
+## Spark
+
+:::caution
+
+Canvas removes Folia's built in profiler **and** the vanilla profiler.
+
+:::
+
+**spark** is the builtin profiler for Paper, upstream of Folia, and gives a perfect amount of data to help diagnose
+issues and performance problems. However, the way spark works prevents us from being able to track regions
+independently. **spark** has the capability of tracking specific ***threads***, not ***regions***, as
+regions are tasked based on a scheduled task thread pool.
+
+
+To combat this, Canvas' affinity scheduler includes a ***task pinning*** system that allows runners to become marked as dedicated
+for a specified task to be profiled. This is utilized by spark to specifically track and profile schedulable handles
+
+
+This does include a performance drawback, as since the area needs isolation, it cannot be utilized in scaling the
+server, so other tasks cannot use the thread for task processing while a region is pinned to it. For the spark report
+to be accurate, we need to make the area completely isolated. Which means other regions cannot utilize the pinned thread.
+
+
+**Canvas automatically sets the spark target to the region scheduler threads when no task is specifically targetted.
+This means all tick runners will be profiled, and all schedulable tasks will be profiled. Here's how to start it:**
+
+```bash
+/spark profiler start --timeout 300
+```
+
+:::tip
+
+If you'd like to use [PlaceholderAPI](https://placeholderapi.com) placeholders from the bundled spark version, you'll need to install the spark expansion from PAPI's eCloud.
+
+```bash
+/papi ecloud download spark # Download the PAPI spark expansion
+/papi reload # Reload PAPI
+```
+
+:::
+
+
+## Canvas' Custom spark Flags
+
+Canvas ships with a built in spark profiler that includes a few custom flags you can use in the `/spark profiler start` command.
+Please note that in order to use Canvas' custom spark flags, you'll need to use our [Affinity](/canvas/scheduler/affinity/) scheduler.
+Please also note that you will need at least 2 threads allocated to region threading.
+That means you'll need `threaded-regions.threads` set to *at least* **2**.
+
+### The `--global-tick` Flag
+
+The global tick flag pins the [global region](/canvas/info/folia/overview/#global-region) to a specific thread in order to be profiled.
+
+* Usage: `/spark profiler start --global-tick`
+
+```bash
+/spark profiler start --global-tick --timeout 300 # Start a new profiler while pinning the global tick task to a thread.
+/spark profiler open # Open up spark to view the profiler
+```
+
+### The `--region` Flag
+
+The region flag pins a specific [region](/canvas/info/folia/region-logic/#region) to a thread in order to be profiled.
+
+* Usage: `/spark profiler start --region <x> <z>` or `/spark profiler start --region <fromX> <fromZ> <toX> <toZ>`
+
+```bash
+/spark profiler start --region ~ ~ --timeout 300 # Start a new profiler while pinning the region you are located in to a thread.
+/spark profiler open # Open up spark to view the profiler
+```
+
+## What is Pinning?
+
+:::note
+
+While a region is being profiled, Canvas will force-load the chunks around where the profile was started and keep them loaded until the profile has stopped.
+
+:::
+
+Pinning is the process of which the active region scheduler will dedicate a tick runner to a specific task, isolating the task on that singular runner.
+The tick runner that has been **"pinned to"** will only run that task unless the task is told to deschedule or the runner is unpinned.
+This is a performance tradeoff of sorts, given the scheduler must allocate **1** thread to run the pin, which is why Canvas servers must have at least **2**
+threads allocated for region profiling to be supported.
+
+
+When we **pin** a region to a thread, we are forcing the ticking and execution of that region to happen only on that thread.
+The reason we do this is to profile the region with spark.
+As stated above, spark cannot profile regions itself, but spark *can* profile specific threads or groups of threads; which is the reason we do this.
