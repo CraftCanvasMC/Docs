@@ -69,21 +69,6 @@ https://github.com/PaperMC/Folia/pull/419
 
 :::
 
-### Waypoints & The Locator Bar
-
-The locator bar shows the position of other players as colored indicators, known as **waypoints**. The waypoint's icon changes based on the player's
-distance to its location. The further the player is from the waypoint, the smaller the icon visually is shown on the locator bar. Several sprites
-of the icon can be observed based on the distance:
-
-| Sprite | Range          |
-|--------|----------------|
-| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_0.png" width="36" height="36" alt="Locator Bar Pos-0" /> </span> | (0–179 blocks, 11 chunks) |
-| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_1.png" width="36" height="36" alt="Locator Bar Pos-1" /> </span> | (179–230 blocks, 14 chunks) |
-| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_2.png" width="36" height="36" alt="Locator Bar Pos-2" /> </span> | (230–281 blocks, 17 chunks) |
-| <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><img src="/sprites/bar_3.png" width="36" height="36" alt="Locator Bar Pos-3" /> </span> | (281+ blocks, 17+ chunks) |
-
-Canvas' implementation works 1:1 with Vanilla, while also including some major optimizations so the global state for this is as fast as possible.
-
 ### Vanilla Ender Pearl Behavior
 
 Vanilla ender pearl behavior is defined as when a player leaves, the in-flight pearls in the server that the player owns will be unloaded along with

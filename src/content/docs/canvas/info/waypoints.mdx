@@ -1,0 +1,109 @@
+---
+title: Waypoints Rewrite
+description: Documentation about the rewrite CanvasMC did to the Vanilla waypoints system
+sidebar:
+  order: 1
+---
+
+import DistanceMarker from '@/components/DistanceMarker.astro';
+import WaypointScaleExplorer from '@/components/WaypointScaleExplorer.astro';
+
+The waypoints system provided by Vanilla is a way to track players in the world, AKA the locator bar. The locator bar shows the position of other players
+in multiplayer servers as colored indicators. It takes place on the experience bar of the player HUD, except when gaining or losing XP. This feature can be
+disabled or enabled with the `locator_bar` game rule, which is set to `true` by default.
+
+Each target is assigned a waypoint, which appears on the locator bar within 120° of the camera view. If the waypoint target is above or below the player
+camera pitch angle, a visual indicator is shown on the locator bar. Note that the color of the waypoint indicator is randomly assigned, but can be modified
+with the `/waypoint` command.
+
+:::tip
+
+Players can prevent their position from being shown by sneaking, wearing a mob head or carved pumpkin, or using the invisibility effect.
+
+:::
+
+The waypoint icon changes based on the player distance to the camera location. The further the camera is from the waypoint, the smaller the icon visually
+is shown on the locator bar, using serveral different sprites. These sprites can be changed by setting the style of the waypoint via the `/waypoint` command,
+and you can add your own waypoint styles via a resource pack. These sprites look like this:
+
+<DistanceMarker
+  min={0}
+  max={352}
+  label="0b - 281+"
+  ranges={[
+    {start: 0, end: 179, icon: "/sprites/bar_0.png", label: "0-179"},
+    {start: 179, end: 230, icon: "/sprites/bar_1.png", label: "179-230"},
+    {start: 230, end: 281, icon: "/sprites/bar_2.png", label: "230-281"},
+    {start: 281, end: 352, icon: "/sprites/bar_3.png", label: "281+"},
+  ]}
+/>
+
+In Vanilla, the waypoint's visibility range is controlled by the `waypoint_transmit_range` and `waypoint_recieve_range` attributes. A player with the recieving
+range of `0` will not recieve any waypoint information. Players with a transmition range of `0` will not send any waypoint information.
+
+Here is an example of what the locator bar looks like:
+
+![waypoints_bar](/waypoints_bar.png)
+
+## Why Did Folia Disable This?
+
+Folia disables the waypoints system and locator bar natively because the design of the server waypoint manager makes it not thread-safe at all, or
+region-threading safe. The Vanilla waypoint system is also a bit slow given the way it's modeled. The `ServerWaypointManager` class contains a few fields:
+
+```java
+Set<WaypointTransmitter> waypoints = new HashSet<>();
+Set<ServerPlayer> players = new HashSet<>();
+Table<ServerPlayer, WaypointTransmitter, WaypointTransmitter.Connection> connections = HashBasedTable.create();
+```
+
+These fields are not thread-safe, and are used per-world, meaning they are not safe for region threading. Canvas rewrites this design to be simpler, faster,
+and safe for region threading. The main issue is with the `connections` table. Table collections are generally slow when compared to other simpler alternatives,
+which is where most of the performance issues with this arise.
+
+For this sort of a system, it needs to be concurrent-safe, meaning threads need to be able to read and write to this class all at the same time. This class
+however isn't thread-safe, and as such, Folia disables this.
+
+## What Canvas Does to Fix It
+
+Canvas fixes this by introducing a new class, `RegionThreadingWaypointManager`. This is a thread-safe reimplementation of Vanilla's `ServerWaypointManager`,
+designed specifically for region-threading.
+
+The Vanilla manager uses a shared `HashBasedTable` to store all player-waypoint connections. Canvas' version removes this entirely and instead stores connections
+in the player object itself, `canvas$activeWaypoints`, an `Object2ObjectMap`. We schedule each access/write to the owning player object, which avoids concurrent modifications. It uses
+a `MultiThreadedQueue` provided by ConcurrentUtil for the `waypoints` and `players` collections, since those need to be accessed on all threads at the same time
+and shouldn't be synchronized, since that can create huge performance issues. It is key that the entirety of the implementation is not synchronized at all, since
+with enough players and regions, this could create huge performance issues server-wide.
+
+The Vanilla manager updates every connection every time. The model provided by Canvas adds a probabilistic throttle(rate limiting that uses randomness). Players
+within 332 blocks of eachother always get updates triggered, but farther players are updated with decreasing probability based on `1 / (1 + (distance/SCALE)^2)`.
+The `SCALE` value can be configured with the `/config/canvas-server.json5:waypointUpdateScale` option. The default value is set to `4000`, as the team found it
+as a good inbetween for optimization and quality. Canvas implements this optimization because of how Vanilla does updates to waypoints.
+It has 3 different "connection implementations":
+
+- `EntityBlockConnection`
+- `EntityChunkConnection`
+- `EntityAzimuthConnection`
+
+These connection implementations help define how often the server updates the client waypoint position. The Azimuth connection is the most utilized in Folia-based
+servers, since Azimuth connections are defined when the distance between the reciever and transmitter is greater than `332.0F`, which is the same as Canvas'
+optimization trigger. Canvas does this because if the distance is cross-region, then we would be scheduling an update to the player every single time
+the other players move, since that's how Vanillas system works.
+
+By doing this, we reduce this in an optimized way that reduces the amount of schedules we do to the player. We **have** to schedule this, because the map
+implementation inside the player object is not thread-safe. With the optimization implemented by Canvas, if the `waypointUpdateScale` option is `1000` and
+the distance between two players is `10_000`, it would be a `0.9%` chance of even *attempting* to update the player when either of them moves. This, combined
+with the Azimuth connection, makes it so updates are very rare cross-region, optimizing both networking and scheduling operations with this implementation.
+You can interact with a modeled example below to help with trying to decide the scale you want.
+
+<WaypointScaleExplorer/>
+
+:::note
+
+In operations involving the removal of a transmitter in a region to be placed in another region, the waypoint is disconnected from all recievers in
+the world until placed again, where it will reconnect to all recievers in the world. This ensures cross-region movement or teleports are correctly handled
+
+:::
+
+To ensure thread-safety, nearly all methods that touch the player connection map are covered with `TickThread.ensureTickThread(player, ...)` to ensure it's
+running on the proper region context. Operations that may be called from a different thread use `player.scheduleToOrRun(...)` to dispatch work to the player
+safely and efficiently, running immediately if the current region context owns the player, and scheduling to the player otherwise.
