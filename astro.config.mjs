@@ -1,9 +1,9 @@
 import starlight from "@astrojs/starlight";
 import svelte from "@astrojs/svelte";
 import { defineConfig } from "astro/config";
+import { fileURLToPath } from "node:url";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 import UnoCSS from "unocss/astro";
-import { fileURLToPath } from "node:url";
 import javadocPlugin from "./src/utils/remark/javadoc";
 
 export default defineConfig({
@@ -88,7 +88,7 @@ export default defineConfig({
                         directory: "canvas/info/folia",
                       },
                     },
-                  ]
+                  ],
                 },
                 {
                   label: "Guides",

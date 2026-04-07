@@ -9,13 +9,13 @@ sidebar:
 Folia uses an internal API it created called `RegionizedData`. This API is what helps manage localized world data per-region. With Canvas, plugins
 are capable of interfacing into this API, creating their own regionized data implementations per region.
 
-The interface provided by Canvas for this is called <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/region/RegionTickData.IRegionizedData.html"}>`IRegionizedData<T>`</a>, which represents a type of region-local data that can be fetched or attached
+The interface provided by Canvas for this is called [`IRegionizedData<T>`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData), which represents a type of region-local data that can be fetched or attached
 to a region through a few different ways. But first, we need to actually dive into how to create this data.
 
 ### Creating IRegionizedData
 
-You can create this data at any point in the server lifecycle. The <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/region/RegionTickData.IRegionizedData.html"}>`IRegionizedData`</a> interface takes a generic type, `T`, for the type of object it is.
-You can create a new regionized data instance via <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/Server.html#createRegionizedData(java.util.function.BiFunction,io.canvasmc.canvas.region.RegionTickData.IRegionizedData.IRegionizedCallback)"}>`Server#createRegionizedData`</a>. Here is an example of how to make a basic <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/region/RegionTickData.IRegionizedData.html"}>`IRegionizedData<T>`</a> implementation:
+You can create this data at any point in the server lifecycle. The [`IRegionizedData`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData) interface takes a generic type, `T`, for the type of object it is.
+You can create a new regionized data instance via [`Server#createRegionizedData`](jd:canvas:org.bukkit.Server#createRegionizedData(java.util.function.BiFunction,io.canvasmc.canvas.region.RegionTickData.IRegionizedData.IRegionizedCallback)). Here is an example of how to make a basic [`IRegionizedData<T>`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData) implementation:
 
 ```java
 static final RegionTickData.IRegionizedData<TestRegionData> EXAMPLE_REGION_DATA = Bukkit.getServer().createRegionizedData(
@@ -31,18 +31,18 @@ static final RegionTickData.IRegionizedData<TestRegionData> EXAMPLE_REGION_DATA 
 );
 ```
 
-The <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/Server.html#createRegionizedData(java.util.function.BiFunction,io.canvasmc.canvas.region.RegionTickData.IRegionizedData.IRegionizedCallback)"}>`createRegionizedData`</a> method takes 2 arguments. The first, a bi-function constructor that takes the region tick data that the instance is being created
+The [`createRegionizedData`](jd:canvas:org.bukkit.Server#createRegionizedData(java.util.function.BiFunction,io.canvasmc.canvas.region.RegionTickData.IRegionizedData.IRegionizedCallback)) method takes 2 arguments. The first, a bi-function constructor that takes the region tick data that the instance is being created
 for, and the world it belongs to, and returns a new object of the generic type `T`. The second argument, is the regionized callback. The regionized callback
 is an interface that defines the logic for merging and splitting region data when a region splits or merges. On region creation, the constructor is called, and
 on region death(from unload or something), nothing happens.
 
 ### IRegionizedCallback
 
-The <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/region/RegionTickData.IRegionizedData.IRegionizedCallback.html"}>`IRegionizedCallback`</a> is the interface that is invoked on region split and merge operations that helps to manage regionized data transferring between regions.
+The [`IRegionizedCallback`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData$IRegionizedCallback) is the interface that is invoked on region split and merge operations that helps to manage regionized data transferring between regions.
 
 :::caution
 
-All the operations called that are implemented from the <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/region/RegionTickData.IRegionizedData.IRegionizedCallback.html"}>`IRegionizedCallback`</a> are held under critical locks. As such, they should not perform any blocking
+All the operations called that are implemented from the [`IRegionizedCallback`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData$IRegionizedCallback) are held under critical locks. As such, they should not perform any blocking
 operations as this could deadlock the whole server. It is also advised to keep all implemented methods tidy and be executed in a timely manner.
 
 The implemented methods may not throw any exceptions, or the server will be left in an unrecoverable state.
@@ -93,7 +93,7 @@ You can utilize these for data that is location-based, like entities and block e
 
 :::note
 
-Canvas provides a default method in <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/region/RegionTickData.IRegionizedData.IRegionizedCallback.html"}>`IRegionizedCallback`</a> called <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/region/RegionTickData.IRegionizedData.IRegionizedCallback.html#getRegionSectionCoordinates(int,int,int)"}>`getRegionSectionCoordinates`</a>, which allows you to get the region coordinates
+Canvas provides a default method in [`IRegionizedCallback`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData$IRegionizedCallback) called [`getRegionSectionCoordinates`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData$IRegionizedCallback#getRegionSectionCoordinates(int,int,int)) which allows you to get the region coordinates
 from the provided chunk `X`, `Z`, and the chunk to region shift. The method is as such:
 
 ```java
@@ -106,7 +106,7 @@ default long getRegionSectionCoordinates(final int chunkX, final int chunkZ, fin
 
 :::
 
-You can utilize them like so, using an <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=org/bukkit/entity/Entity.html"}>`Entity`</a> as an example:
+You can utilize them like so, using an [`Entity`](jd:canvas:org.bukkit.Entity) as an example:
 
 ```java
 Entity entity = ...;
@@ -122,11 +122,11 @@ tick number, and so no adjustment is required.
 
 To fetch regionized data, it is **always** recommended to fetch this on the local region. Regionized data **can** be fetched from other threads
 that don't currently own the region, but this is largely discouraged as this defeats the point of regionized threading, and can cause corruption
-and concurrency issues depending on what you are trying to do. To fetch the current `T` from an <a href={"https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/region/RegionTickData.IRegionizedData.html"}>`IRegionizedData`</a> instance, you can call:
+and concurrency issues depending on what you are trying to do. To fetch the current `T` from an [`IRegionizedData`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData) instance, you can call:
 
 ```java
 T localData = Bukkit.getServer().getLocalRegionizedData(EXAMPLE_REGION_DATA);
 ```
 
-This **will** throw an [IllegalStateException](https://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html) if called on a thread that doesn't own a region. This could be because the current thread isn't
+This **will** throw an [IllegalStateException](jd:java:java.lang.IllegalStateException) if called on a thread that doesn't own a region. This could be because the current thread isn't
 a region tick runner, or the current thread is processing the global tick.
