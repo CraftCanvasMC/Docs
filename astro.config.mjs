@@ -4,6 +4,7 @@ import { defineConfig } from "astro/config";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 import UnoCSS from "unocss/astro";
 import { fileURLToPath } from "node:url";
+import javadocPlugin from "./src/utils/remark/javadoc";
 
 export default defineConfig({
   site: "https://docs.canvasmc.io",
@@ -78,6 +79,18 @@ export default defineConfig({
                   },
                 },
                 {
+                  label: "Info",
+                  items: [
+                    "canvas/info/waypoints",
+                    {
+                      label: "Folia",
+                      autogenerate: {
+                        directory: "canvas/info/folia",
+                      },
+                    },
+                  ]
+                },
+                {
                   label: "Guides",
                   autogenerate: {
                     directory: "canvas/guides",
@@ -109,12 +122,6 @@ export default defineConfig({
                   ],
                 },
                 {
-                  label: "Folia",
-                  autogenerate: {
-                    directory: "canvas/info/folia",
-                  },
-                },
-                {
                   label: "Schedulers",
                   autogenerate: {
                     directory: "canvas/scheduler",
@@ -137,5 +144,19 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+  },
+  markdown: {
+    remarkPlugins: [
+      [
+        javadocPlugin,
+        {
+          targets: {
+            canvas: "https://canvasmc.io/api/v2/jd?project=canvas&redirect=",
+            horizon: "https://canvasmc.io/api/v2/jd?project=horizon&redirect=",
+            java: { url: "https://docs.oracle.com/en/java/javase/25/docs/api", module: "java.base" },
+          },
+        },
+      ],
+    ],
   },
 });

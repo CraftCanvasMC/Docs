@@ -1,0 +1,564 @@
+<div class="wse-root not-content" id="wse">
+  <div class="wse-header">
+    <h3 class="wse-title">Waypoint Update Scale Explorer</h3>
+    <p class="wse-subtitle">
+      Experiment with <code>waypointUpdateScale</code> and player distance to
+      understand how the probabilistic throttle behaves.
+    </p>
+  </div>
+
+  <div class="wse-body">
+    <div class="wse-controls">
+      <div class="wse-control">
+        <div class="wse-label-row">
+          <label for="wse-scale">SCALE</label>
+          <span class="wse-value" id="wse-scale-val">4000</span>
+        </div>
+        <input
+          type="range"
+          id="wse-scale"
+          min="500"
+          max="16000"
+          step="100"
+          value="4000"
+        />
+        <div class="wse-range-labels">
+          <span>500</span><span>16 000</span>
+        </div>
+      </div>
+
+      <div class="wse-control">
+        <div class="wse-label-row">
+          <label for="wse-distance">Distance (blocks)</label>
+          <span class="wse-value" id="wse-dist-val">5000</span>
+        </div>
+        <input
+          type="range"
+          id="wse-distance"
+          min="0"
+          max="30000"
+          step="50"
+          value="5000"
+        />
+        <div class="wse-range-labels">
+          <span>0</span><span>30 000</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wse-result-card" id="wse-result-card">
+      <div class="wse-result-top">
+        <span class="wse-result-label">Update probability</span>
+        <span class="wse-result-percent" id="wse-prob">28.09%</span>
+      </div>
+      <div class="wse-bar-track">
+        <div class="wse-bar-fill" id="wse-bar" style="width:28.09%"></div>
+      </div>
+      <p class="wse-result-note" id="wse-note">
+        On average, roughly <strong id="wse-ratio">1 in 4</strong> movement
+        ticks will schedule an update.
+      </p>
+    </div>
+
+    <div class="wse-chart-wrap">
+      <div class="wse-chart-title">Probability vs Distance</div>
+      <canvas id="wse-canvas" width="700" height="300"></canvas>
+      <div class="wse-chart-x-label">Distance (blocks)</div>
+    </div>
+
+    <div class="wse-presets">
+      <span class="wse-preset-label">Presets:</span>
+      <button class="wse-preset" data-scale="1000" data-dist="10000">
+        Aggressive throttle
+      </button>
+      <button class="wse-preset" data-scale="4000" data-dist="5000">
+        Default
+      </button>
+      <button class="wse-preset" data-scale="8000" data-dist="5000">
+        Relaxed
+      </button>
+      <button class="wse-preset" data-scale="4000" data-dist="332">
+        Near (&le;332)
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wse-root {
+    --wse-accent: var(--sl-color-accent, #8b5cf6);
+    --wse-accent-high: var(--sl-color-accent-high, #c4b5fd);
+    --wse-accent-low: var(--sl-color-accent-low, #3b0764);
+    --wse-bg: var(--sl-color-gray-6, #181a1b);
+    --wse-bg-card: var(--sl-color-gray-5, #2a2c2e);
+    --wse-fg: var(--sl-color-white, #fff);
+    --wse-fg-muted: var(--sl-color-gray-3, #9fa5af);
+    --wse-border: var(--sl-color-gray-4, #3f4347);
+    --wse-font: var(--sl-font, "Poppins", sans-serif);
+    --wse-font-mono: var(--sl-font-mono, "JetBrains Mono", monospace);
+
+    font-family: var(--wse-font);
+    color: var(--wse-fg);
+    background: var(--wse-bg);
+    border: 1px solid var(--wse-border);
+    border-radius: 0.75rem;
+    padding: 1.75rem 2rem 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .wse-title {
+    margin: 0 0 0.25rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--wse-accent-high);
+    letter-spacing: -0.01em;
+  }
+
+  .wse-subtitle {
+    margin: 0 0 1.5rem;
+    font-size: 0.85rem;
+    color: var(--wse-fg-muted);
+    line-height: 1.5;
+  }
+
+  .wse-subtitle code {
+    font-family: var(--wse-font-mono);
+    font-size: 0.8rem;
+    background: var(--wse-bg-card);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    color: var(--wse-accent-high);
+  }
+
+  .wse-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .wse-control {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wse-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.35rem;
+  }
+
+  .wse-label-row label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--wse-fg-muted);
+  }
+
+  .wse-value {
+    font-family: var(--wse-font-mono);
+    font-size: 0.85rem;
+    color: var(--wse-accent-high);
+    min-width: 4.5rem;
+    text-align: right;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--wse-bg-card);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--wse-accent);
+    border: 2px solid var(--wse-accent-high);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 14px rgba(139, 92, 246, 0.6);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--wse-accent);
+    border: 2px solid var(--wse-accent-high);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+    cursor: pointer;
+  }
+
+  .wse-range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--wse-fg-muted);
+    margin-top: 0.2rem;
+    font-family: var(--wse-font-mono);
+    opacity: 0.6;
+  }
+
+  .wse-result-card {
+    background: var(--wse-bg-card);
+    border: 1px solid var(--wse-border);
+    border-radius: 0.6rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .wse-result-card.near {
+    border-color: #22c55e;
+  }
+
+  .wse-result-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.75rem;
+  }
+
+  .wse-result-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--wse-fg-muted);
+    font-weight: 600;
+  }
+
+  .wse-result-percent {
+    font-family: var(--wse-font-mono);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--wse-accent-high);
+    transition: color 0.3s ease;
+  }
+
+  .wse-result-card.near .wse-result-percent {
+    color: #4ade80;
+  }
+
+  .wse-bar-track {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--wse-bg);
+    overflow: hidden;
+    margin-bottom: 0.85rem;
+  }
+
+  .wse-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--wse-accent-low), var(--wse-accent), var(--wse-accent-high));
+    transition: width 0.2s ease;
+  }
+
+  .wse-result-card.near .wse-bar-fill {
+    background: linear-gradient(90deg, #166534, #22c55e, #4ade80);
+  }
+
+  .wse-result-note {
+    font-size: 0.8rem;
+    color: var(--wse-fg-muted);
+    margin: 0;
+    line-height: 1.45;
+  }
+
+  .wse-chart-wrap {
+    margin-bottom: 1.25rem;
+    position: relative;
+  }
+
+  .wse-chart-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--wse-fg-muted);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  #wse-canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 0.5rem;
+    background: var(--wse-bg-card);
+  }
+
+  .wse-chart-x-label {
+    text-align: center;
+    font-size: 0.65rem;
+    color: var(--wse-fg-muted);
+    margin-top: 0.35rem;
+    font-family: var(--wse-font-mono);
+    opacity: 0.6;
+  }
+
+  .wse-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .wse-preset-label {
+    font-size: 0.75rem;
+    color: var(--wse-fg-muted);
+    font-weight: 600;
+    margin-right: 0.25rem;
+  }
+
+  .wse-preset {
+    font-family: var(--wse-font-mono);
+    font-size: 0.7rem;
+    padding: 0.35em 0.8em;
+    border: 1px solid var(--wse-border);
+    border-radius: 5px;
+    background: var(--wse-bg-card);
+    color: var(--wse-fg-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .wse-preset:hover {
+    border-color: var(--wse-accent);
+    color: var(--wse-accent-high);
+    background: var(--wse-accent-low);
+  }
+
+  @media (max-width: 40rem) {
+    .wse-root {
+      padding: 1.25rem 1rem 1.5rem;
+    }
+
+    .wse-result-percent {
+      font-size: 1.3rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener("canvas:update-graph", () => {
+    const $ = (id: string) => document.getElementById(id)!;
+
+    const scaleSlider = $("wse-scale") as HTMLInputElement;
+    const distSlider = $("wse-distance") as HTMLInputElement;
+    const scaleVal = $("wse-scale-val");
+    const distVal = $("wse-dist-val");
+    const probEl = $("wse-prob");
+    const barEl = $("wse-bar");
+    const ratioEl = $("wse-ratio");
+    const noteEl = $("wse-note");
+    const resultCard = $("wse-result-card");
+    const canvas = $("wse-canvas") as HTMLCanvasElement;
+
+    const NEAR_THRESHOLD = 332;
+
+    function probability(distance: number, scale: number): number {
+      const s = distance / scale;
+      return 1 / (1 + s * s);
+    }
+
+    function formatNumber(n: number): string {
+      return n.toLocaleString("en-US");
+    }
+
+    function ratioText(p: number): string {
+      if (p >= 0.999) return "every tick";
+      if (p <= 0.0001) return "virtually never";
+      const inv = Math.round(1 / p);
+      return `1 in ${formatNumber(inv)}`;
+    }
+
+    function getComputedColor(varName: string, fallback: string): string {
+      const root = document.querySelector(".wse-root");
+      if (!root) return fallback;
+      const val = getComputedStyle(root).getPropertyValue(varName).trim();
+      return val || fallback;
+    }
+
+    function drawChart(scale: number, currentDist: number) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+
+      const ctx = canvas.getContext("2d")!;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      const pad = {top: 16, right: 16, bottom: 28, left: 48};
+      const cw = w - pad.left - pad.right;
+      const ch = h - pad.top - pad.bottom;
+
+      const accent = getComputedColor("--wse-accent", "#8b5cf6");
+      const accentHigh = getComputedColor("--wse-accent-high", "#c4b5fd");
+      const muted = getComputedColor("--wse-fg-muted", "#9fa5af");
+      const gridColor = getComputedColor("--wse-border", "#3f4347");
+
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.top + ch - (i / 4) * ch;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(pad.left + cw, y);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = muted;
+      ctx.font = `10px monospace`;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.top + ch - (i / 4) * ch;
+        ctx.fillText(`${(i * 25)}%`, pad.left - 6, y);
+      }
+
+      const maxDist = 30000;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      for (let i = 0; i <= 6; i++) {
+        const d = (i / 6) * maxDist;
+        const x = pad.left + (d / maxDist) * cw;
+        ctx.fillText(`${(d / 1000).toFixed(0)}k`, x, pad.top + ch + 8);
+      }
+
+      const threshX = pad.left + (NEAR_THRESHOLD / maxDist) * cw;
+      ctx.strokeStyle = "#22c55e";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(threshX, pad.top);
+      ctx.lineTo(threshX, pad.top + ch);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#22c55e";
+      ctx.font = `9px monospace`;
+      ctx.textAlign = "left";
+      ctx.fillText("332b", threshX + 3, pad.top + 2);
+
+      ctx.beginPath();
+      const steps = 300;
+      for (let i = 0; i <= steps; i++) {
+        const d = (i / steps) * maxDist;
+        const p = probability(d, scale);
+        const x = pad.left + (d / maxDist) * cw;
+        const y = pad.top + ch - p * ch;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      const lastD = maxDist;
+      const lastP = probability(lastD, scale);
+      ctx.lineTo(pad.left + cw, pad.top + ch);
+      ctx.lineTo(pad.left, pad.top + ch);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+      grad.addColorStop(0, accent + "30");
+      grad.addColorStop(1, accent + "05");
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      if (currentDist <= maxDist) {
+        const cx = pad.left + (currentDist / maxDist) * cw;
+        const cp = probability(currentDist, scale);
+        const cy = pad.top + ch - cp * ch;
+
+        ctx.strokeStyle = accentHigh + "50";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(cx, pad.top + ch);
+        ctx.lineTo(cx, cy);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(pad.left, cy);
+        ctx.lineTo(cx, cy);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = accentHigh;
+        ctx.fill();
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+        ctx.fillStyle = accent + "20";
+        ctx.fill();
+      }
+    }
+
+    function update() {
+      const scale = Number(scaleSlider.value);
+      const dist = Number(distSlider.value);
+      const p = probability(dist, scale);
+      const pct = (p * 100).toFixed(2);
+
+      scaleVal.textContent = formatNumber(scale);
+      distVal.textContent = formatNumber(dist);
+      probEl.textContent = `${pct}%`;
+      barEl.style.width = `${pct}%`;
+      ratioEl.textContent = ratioText(p);
+
+      const isNear = dist <= NEAR_THRESHOLD;
+      resultCard.classList.toggle("near", isNear);
+
+      if (isNear) {
+        noteEl.innerHTML =
+          `Distance ≤ 332 blocks — <strong>always updated</strong> (Azimuth connection not used, throttle bypassed).`;
+      } else {
+        noteEl.innerHTML =
+          `On average, roughly <strong>${ratioText(p)}</strong> movement ticks will schedule an update.`;
+      }
+
+      drawChart(scale, dist);
+    }
+
+    scaleSlider.addEventListener("input", update);
+    distSlider.addEventListener("input", update);
+
+    document.querySelectorAll<HTMLButtonElement>(".wse-preset").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        scaleSlider.value = btn.dataset.scale!;
+        distSlider.value = btn.dataset.dist!;
+        update();
+      });
+    });
+
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(update, 80);
+    });
+
+    update();
+  });
+  document.dispatchEvent(new Event("canvas:update-graph"));
+</script>
