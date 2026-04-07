@@ -1,9 +1,9 @@
 import starlight from "@astrojs/starlight";
 import svelte from "@astrojs/svelte";
 import { defineConfig } from "astro/config";
+import { fileURLToPath } from "node:url";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 import UnoCSS from "unocss/astro";
-import { fileURLToPath } from "node:url";
 import javadocPlugin from "./src/utils/remark/javadoc";
 
 export default defineConfig({
@@ -88,7 +88,7 @@ export default defineConfig({
                         directory: "canvas/info/folia",
                       },
                     },
-                  ]
+                  ],
                 },
                 {
                   label: "Guides",
@@ -101,9 +101,9 @@ export default defineConfig({
                   // Have to manually list these for styling
                   items: [
                     {
-                      label: "Contributing",
+                      label: "API",
                       autogenerate: {
-                        directory: "canvas/developers/contributing",
+                        directory: "canvas/developers/api",
                       },
                     },
                     {
@@ -112,8 +112,13 @@ export default defineConfig({
                         directory: "canvas/developers/plugins",
                       },
                     },
+                    {
+                      label: "Contributing",
+                      autogenerate: {
+                        directory: "canvas/developers/contributing",
+                      },
+                    },
                     "canvas/developers/rest-api",
-                    "canvas/developers/canvas-api",
                   ],
                 },
                 {

@@ -1,0 +1,132 @@
+---
+title: Regionized Data
+description: Learn how to use Canvas' Region Data API
+version: 1.21.11
+sidebar:
+  order: 4
+---
+
+Folia uses an internal API it created called `RegionizedData`. This API is what helps manage localized world data per-region. With Canvas, plugins
+are capable of interfacing into this API, creating their own regionized data implementations per region.
+
+The interface provided by Canvas for this is called [`IRegionizedData<T>`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData), which represents a type of region-local data that can be fetched or attached
+to a region through a few different ways. But first, we need to actually dive into how to create this data.
+
+### Creating IRegionizedData
+
+You can create this data at any point in the server lifecycle. The [`IRegionizedData`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData) interface takes a generic type, `T`, for the type of object it is.
+You can create a new regionized data instance via [`Server#createRegionizedData`](jd:canvas:org.bukkit.Server#createRegionizedData(java.util.function.BiFunction,io.canvasmc.canvas.region.RegionTickData.IRegionizedData.IRegionizedCallback)). Here is an example of how to make a basic [`IRegionizedData<T>`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData) implementation:
+
+```java
+static final RegionTickData.IRegionizedData<TestRegionData> EXAMPLE_REGION_DATA = Bukkit.getServer().createRegionizedData(
+    (tickData, world) -> new TestRegionData(tickData, world), new RegionTickData.IRegionizedData.IRegionizedCallback<>() {
+        @Override
+        public void merge(final TestRegionData from, final TestRegionData into, final long fromTickOffset) {
+        }
+
+        @Override
+        public void split(final TestRegionData from, final int chunkToRegionShift, final Long2ReferenceOpenHashMap<TestRegionData> regionToData, final ReferenceOpenHashSet<TestRegionData> dataSet) {
+        }
+    }
+);
+```
+
+The [`createRegionizedData`](jd:canvas:org.bukkit.Server#createRegionizedData(java.util.function.BiFunction,io.canvasmc.canvas.region.RegionTickData.IRegionizedData.IRegionizedCallback)) method takes 2 arguments. The first, a bi-function constructor that takes the region tick data that the instance is being created
+for, and the world it belongs to, and returns a new object of the generic type `T`. The second argument, is the regionized callback. The regionized callback
+is an interface that defines the logic for merging and splitting region data when a region splits or merges. On region creation, the constructor is called, and
+on region death(from unload or something), nothing happens.
+
+### IRegionizedCallback
+
+The [`IRegionizedCallback`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData$IRegionizedCallback) is the interface that is invoked on region split and merge operations that helps to manage regionized data transferring between regions.
+
+:::caution
+
+All the operations called that are implemented from the [`IRegionizedCallback`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData$IRegionizedCallback) are held under critical locks. As such, they should not perform any blocking
+operations as this could deadlock the whole server. It is also advised to keep all implemented methods tidy and be executed in a timely manner.
+
+The implemented methods may not throw any exceptions, or the server will be left in an unrecoverable state.
+
+:::
+
+#### Merging
+
+Merging is handled via the `merge` method, which provides the `T from`, `T into`, and `long fromTickOffset`. During this operation, all data from one region
+should be merged into the other region, combining the two regions. All data should be combined to the `into` argument, as the `from` region is dead now, and
+is descheduled. The `fromTickOffset` is the addend to absolute tick deadlines stored in the `from` region to adjust to the into region.
+
+#### Calculating Tick Offsets
+
+Each region ticks independently, so absolute tick deadlines can't be compared directly across regions. To convert a deadline from one region to another, we
+need to account for the difference in their current ticks.
+
+Say we have an absolute deadline, `deadlineFrom`, in region `from`, and we want the equivalent deadline in region `into`. The key here is that the **relative**
+deadline(how many ticks remain) should be the same in both regions.
+
+Starting from that idea:
+1. The relative deadline in `from` is `deadlineFrom - currentTickFrom` (ticks remaining)
+2. To get the equivalent absolute deadline in `into`, we add those remaining ticks to `into`s current tick: `deadlineTo = (deadlineFrom - currentTickFrom) + currentTickTo`
+3. So, `deadlineTo = deadlineFrom + (currentTickTo - currentTickFrom)`
+
+The term `(currentTickTo - currentTickFrom)` is constant for a given pair of regions at a given moment, so we can precompute it as `fromTickOffset` and simply write:
+```
+deadlineTo = deadlineFrom + fromTickOffset
+```
+
+* You won't need to calculate the `fromTickOffset` as Canvas provides this for you in the merge method, which is the only place this value is utilized.
+
+This is used internally for things that store a tick-based deadline, and should be used as described above to maintain consistency of regionized data when
+conducting merge operations.
+
+#### Splitting
+
+Splitting is hanlded via the `split` method, which provides `T from`, `int chunkToRegionShift`, `L2RMap regionToData`, and `RefSet dataSet`.
+In this operation, we are splitting the `T from`, into the <a href={"https://javadoc.io/doc/it.unimi.dsi/fastutil/latest/it/unimi/dsi/fastutil/objects/ReferenceOpenHashSet.html"}>`ReferenceOpenHashSet dataSet`</a>.
+
+Folia provides us with two utilities to help split this data, the `int chunkToRegionShift`, and the <a href={"https://javadoc.io/doc/it.unimi.dsi/fastutil/latest/it/unimi/dsi/fastutil/longs/Long2ReferenceOpenHashMap.html"}>`Long2ReferenceOpenHashMap regionToData`</a>.
+The `chunkToRegionShift` is the signed right-shift value used to convert chunk coordinates into region section coordinates.
+
+The `regiontoData` map is a map of region section coordinates to the data that is owned by the region which
+occupies the region section. Note that all sections are strictly only in the region from the `from` region, meaning attempting to fetch data from another region
+not part of the split via this map will result in `null` returned. This is strictly containing owned sections from the original region to the new split regions.
+You can utilize these for data that is location-based, like entities and block entities for example.
+
+:::note
+
+Canvas provides a default method in [`IRegionizedCallback`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData$IRegionizedCallback) called [`getRegionSectionCoordinates`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData$IRegionizedCallback#getRegionSectionCoordinates(int,int,int)) which allows you to get the region coordinates
+from the provided chunk `X`, `Z`, and the chunk to region shift. The method is as such:
+
+```java
+default long getRegionSectionCoordinates(final int chunkX, final int chunkZ, final int chunkToRegionShift) {
+    final int regionSectionX = chunkX >> chunkToRegionShift;
+    final int regionSectionZ = chunkZ >> chunkToRegionShift;
+    return ((long) regionSectionZ << 32) | (regionSectionX & 0xFFFFFFFFL);
+}
+```
+
+:::
+
+You can utilize them like so, using an [`Entity`](jd:canvas:org.bukkit.Entity) as an example:
+
+```java
+Entity entity = ...;
+Chunk chunkAt = entity.getChunk();
+long sectionKey = getRegionSectionCoordinates(chunkAt.getX(), chunkAt.getZ(), chunkToRegionShift);
+T dataAtEntityPosition = regionToData.get(sectionKey);
+```
+
+Unlike merging, there is no absolute tick offset provided. This is because the new regions formed from the split will start at the same
+tick number, and so no adjustment is required.
+
+### Fetching Regionized Data
+
+To fetch regionized data, it is **always** recommended to fetch this on the local region. Regionized data **can** be fetched from other threads
+that don't currently own the region, but this is largely discouraged as this defeats the point of regionized threading, and can cause corruption
+and concurrency issues depending on what you are trying to do. To fetch the current `T` from an [`IRegionizedData`](jd:canvas:io.canvasmc.canvas.region.RegionTickData$IRegionizedData) instance, you can call:
+
+```java
+T localData = Bukkit.getServer().getLocalRegionizedData(EXAMPLE_REGION_DATA);
+```
+
+This **will** throw an [IllegalStateException](jd:java:java.lang.IllegalStateException) if called on a thread that doesn't own a region. This could be because the current thread isn't
+a region tick runner, or the current thread is processing the global tick.

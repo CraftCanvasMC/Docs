@@ -1,0 +1,75 @@
+---
+title: Events
+description: Learn about the events fixed and added by Canvas
+version: 1.21.11
+sidebar:
+  order: 2
+---
+
+import DiffViewer from '@/components/DiffViewer.astro';
+
+Folia breaks a few very important events with its rewrites of some Vanilla systems like login, teleport, etc. As such, Canvas provides
+new API to replace the old API, since simply adding back the old API actually can create a lot of issues with plugins that support *both*
+Folia and Paper.
+
+Some plugins, like one of the Chunky addons for example(stating because this is where the problem was initally found), still
+listen to the teleport API events at the time of the issue, while supporting both Folia and Paper. Those teleport events don't function on
+Folia, and as such weren't updated to support region threading properly, thus creating a compatibility layer. To combat this, the Canvas team
+decided to steer towards adding our own API, instead of trying to fix the old API, ensuring plugins that are compatible with Folia stay
+compatible on Canvas, with the option of implementing directly into Canvas for further enhancements and hooks if required.
+
+Canvas adds a few events for region threading:
+- [EntityTeleportAsyncEvent](jd:canvas:io.canvasmc.canvas.event.EntityTeleportAsyncEvent)
+- [EntityPostTeleportAsyncEvent](jd:canvas:io.canvasmc.canvas.event.EntityPostTeleportAsyncEvent)
+- [EntityPostPortalAsyncEvent](jd:canvas:io.canvasmc.canvas.event.EntityPostPortalAsyncEvent)
+- [EntityPortalAsyncEvent](jd:canvas:io.canvasmc.canvas.event.EntityPortalAsyncEvent)
+- [PlayerViewEndCreditsEvent](jd:canvas:io.canvasmc.canvas.event.PlayerViewEndCreditsEvent)
+- [WorldUnloadAsyncEvent](jd:canvas:io.canvasmc.canvas.event.world.WorldLoadAsyncEvent)
+- [PlayerRespawnAsyncEvent](jd:canvas:io.canvasmc.canvas.event.PlayerRespawnAsyncEvent)
+
+The `Post` events are always called immediately after the entity being teleported/portaled is placed into the new region.
+It is guarenteed that the teleport/portal related events provided by Canvas are run on the owning context of the entity.
+
+Folia requires a few states before being allowed to teleport or portal. Plugins utilizing these events should never modify one of
+these states during the *pre* events, as this will result in Canvas throwing a `TeleportValidationException`. These states are:
+
+<DiffViewer
+  first={{ label: "Teleport", body:
+      `
+  - The teleport position is in **spawnable bounds**. This means that the teleport is within **-30mil/30mil** on the **X** and **Z** axis, and **-20mil/20mil** on the **Y** axis
+  - If the **TELEPORT_FLAG_UNMOUNT(1L << 2)** flag is present, it will unmount the entity during checks, otherwise, it will validate each passenger entity, and they will need to pass these checks too
+  - If the **TELEPORT_FLAG_TELEPORT_PASSENGERS(1L << 1)** flag is present, the entity can teleport if it is not a passenger, but it can be a vehicle. If not set, it both cannot be a passenger or vehicle
+  `
+  }}
+  same={{ label: "Same", body:
+      `
+  - The destination world does not have an unload ticket present
+  - The entity is not removed
+  - The entity is alive
+  - If the entity instanceof **LivingEntity**, the living entity is not sleeping
+  `
+  }}
+  second={{ label: "Portaling", body:
+      `
+  - If it **should** consider passengers and if it **should** run the passenger check and the entity is a passenger, the portal attempt fails
+  - If it **shouldn't** consider passengers, the entity must not be a vehicle, and if it **shouldn't** skip the passenger check, the entity must not be a passenger
+  - If it **should** consider passengers, **all** passenger entities must recursively pass the same portaling checks
+  `
+  }}
+  firstColor='3, 132, 252'
+  sameColor='0, 204, 255'
+  secondColor='3, 252, 157'
+/>
+
+Canvas throws this exception because if the event calls, then these states have already been verified. If the state changes unexpectedly after calling, the
+entity no longer is valid for teleport, so we shouldn't teleport and should immediately throw to prevent unsafe operations.
+
+Plugins should **never** modify the entity state in the [`EntityTeleportAsyncEvent`](jd:canvas:io.canvasmc.canvas.event.EntityTeleportAsyncEvent), [`EntityPortalAsyncEvent`](jd:canvas:io.canvasmc.canvas.event.EntityPortalAsyncEvent), or [`PlayerViewEndCreditsEvent`](jd:canvas:io.canvasmc.canvas.event.PlayerViewEndCreditsEvent) events.
+In the "post" events, plugins are allowed to modify the state of the entity in that manner, since this is immediately after the placement for the entity is called.
+
+:::note
+
+The [PlayerViewEndCreditsEvent](jd:canvas:io.canvasmc.canvas.event.PlayerViewEndCreditsEvent) was added as a way to allow plugins to check when a player was going through the end portal back to the overworld, since
+this calls respawn, not teleport or portal. This also allows you to force open the end credits screen, or force it to not open
+
+:::

@@ -1,0 +1,152 @@
+---
+title: Overview
+description: A quick overview on Canvas' API
+version: 1.21.11
+sidebar:
+  order: 1
+---
+
+import CodeTabs from '@/components/CodeTabs.astro';
+
+The core Canvas team has done extensive research and dived deep into Folia's internals in an attempt to understand the API Folia has broken,
+why it's broken, and how to fix it. This has lead to the documented API fixes provided in this page. Here you will learn the API changes Canvas
+has made to the dedicated server to provide further support for region threading in existing and new plugins.
+
+## Adding the API
+
+To get started, you need to add the Canvas API to your build script, like so:
+
+<CodeTabs tabs={[
+  {
+    id: 'kotlin',
+    label: 'Gradle (Kotlin)',
+    sections: [
+      {
+        lang: 'kotlin',
+        code:
+          `repositories {
+    maven {
+        name = "canvasmc-repo"
+        url = uri("https://maven.canvasmc.io/snapshots")
+    }
+}`,
+      },
+      {
+        lang: 'kotlin',
+        code:
+          `dependencies {
+    compileOnly("io.canvasmc:canvas-api:1.21.11-R0.1-SNAPSHOT")
+}`,
+      },
+    ],
+  },
+  {
+    id: 'groovy',
+    label: 'Gradle (Groovy)',
+    sections: [
+      {
+        lang: 'groovy',
+        code:
+          `repositories {
+    maven {
+        name = "canvasmc-repo"
+        url = "https://maven.canvasmc.io/snapshots"
+    }
+}`,
+      },
+      {
+        lang: 'groovy',
+        code:
+          `dependencies {
+    compileOnly "io.canvasmc:canvas-api:1.21.11-R0.1-SNAPSHOT"
+}`,
+      },
+    ],
+  },
+  {
+    id: 'maven',
+    label: 'Maven',
+    sections: [
+      {
+        lang: 'xml',
+        code:
+          `<repositories>
+    <repository>
+        <id>canvasmc-repo</id>
+        <url>https://maven.canvasmc.io/snapshots</url>
+    </repository>
+</repositories>`,
+      },
+      {
+        lang: 'xml',
+        code:
+          `<dependencies>
+    <dependency>
+        <groupId>io.canvasmc</groupId>
+        <artifactId>canvas-api</artifactId>
+        <version>1.21.11-R0.1-SNAPSHOT</version>
+    </dependency>
+</dependencies>`,
+      },
+    ],
+  },
+]} />
+
+## Adding Canvas Support
+
+:::note
+
+Adding the `folia-supported` or `canvas-supported` tags to your plugin is **not** enough to make it Canvas compatible!
+You must specially develop your plugin with the intent of supporting Folia or Canvas.
+
+:::
+
+Canvas is a fork of Folia, as such we require plugins to explicitly declare themselves as supporting Folia.
+**Canvas will only attempt to load plugins that have the `folia-supported` or `canvas-supported` keys marked as true
+in their `plugin.yml` or `paper-plugin.yml`**.
+
+If your plugin uses API that is exclusive to Canvas and cannot function properly on base Folia,
+you are encouraged to use the `canvas-supported` tag instead of the `folia-supported` tag.
+
+<CodeTabs tabs={[
+  {
+    id: 'plugin.yml',
+    label: 'plugin.yml',
+    sections: [
+      {
+        lang: 'yaml',
+        code:
+          `name: ExamplePlugin
+version: 1.0.0
+main: io.canvasmc.testplugin.ExamplePlugin
+description: An example plugin
+author: CanvasMC
+website: https://canvasmc.io
+api-version: '1.21.11'
+# Although Canvas will read both tags just fine, you should only ever use one at a time as they serve different purposes!
+folia-supported: true # If your plugin supports both Canvas & Folia
+canvas-supported: true # If your plugin only supports Canvas due to Canvas-specific API`,
+      }
+    ],
+  },
+  {
+    id: 'paper-plugin.yml',
+    label: 'paper-plugin.yml',
+    sections: [
+      {
+        lang: 'yaml',
+        code:
+          `name: Paper-Test-Plugin
+version: '1.0'
+main: io.canvasmc.testplugin.TestPlugin
+description: Paper Test Plugin
+api-version: '1.21.11'
+bootstrapper: io.canvasmc.testplugin.TestPluginBootstrap
+loader: io.canvasmc.testplugin.TestPluginLoader
+# Although Canvas will read both tags just fine, you should only ever use one at a time as they serve different purposes!
+folia-supported: true # If your plugin supports both Canvas & Folia
+canvas-supported: true # If your plugin only supports Canvas due to Canvas-specific API`,
+      }
+    ],
+  },
+]} />
