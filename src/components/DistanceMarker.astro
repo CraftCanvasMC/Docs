@@ -1,0 +1,181 @@
+---
+interface Range {
+  start: number;
+  end: number;
+  icon: string;
+  label?: string;
+}
+
+interface Props {
+  min?: number;
+  max?: number;
+  label?: string;
+  ranges: Range[];
+}
+
+const {
+  min,
+  max,
+  label,
+  ranges,
+} = Astro.props;
+
+const totalSpan = max - min;
+---
+
+<div class="dm-wrapper not-content">
+  <div class="dm-header">
+    <span class="dm-title">Distance</span>
+    <span class="dm-range-label">{label}</span>
+  </div>
+
+  <div class="dm-bar-container">
+
+    <div class="dm-track">
+      {ranges.map((range) => {
+        const leftPct = ((range.start - min) / totalSpan) * 100;
+        const widthPct = ((range.end - range.start) / totalSpan) * 100;
+
+        return (
+          <div
+            class="dm-segment"
+            style={`left: ${leftPct}%; width: ${widthPct}%;`}
+          >
+            <div class="dm-segment-fill"/>
+
+            <div class="dm-connector dm-connector-start"/>
+            <div class="dm-connector dm-connector-end"/>
+
+            {range.label && (
+              <span class="dm-segment-label">{range.label}</span>
+            )}
+
+            <div class="dm-icon-badge">
+              <img src={range.icon} alt={range.label || ""} width="48" height="48"/>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+<style>
+  .dm-wrapper {
+    font-family: var(--sl-font), system-ui, sans-serif;
+    padding: 14px 0 44px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 28px;
+  }
+
+  .dm-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--sl-color-gray-3);
+  }
+
+  .dm-range-label {
+    font-size: 12px;
+    font-family: var(--sl-font-mono), monospace;
+    color: var(--sl-color-gray-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dm-bar-container {
+    position: relative;
+    width: 100%;
+  }
+
+  .dm-track {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    background: var(--sl-color-gray-5);
+    border-radius: 999px;
+  }
+
+  .dm-segment {
+    position: absolute;
+    top: 0;
+    height: 100%;
+  }
+
+  .dm-segment-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--sl-color-accent);
+    border-radius: 999px;
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+  }
+
+  .dm-segment:hover .dm-segment-fill {
+    opacity: 0.85;
+  }
+
+  .dm-icon-badge {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    border-radius: 8px;
+    background: var(--sl-color-black);
+    border: 2px solid var(--sl-color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .dm-segment:hover .dm-icon-badge {
+    transform: translateX(-50%) scale(1.15);
+    border-color: var(--sl-color-accent-high);
+  }
+
+  .dm-icon-badge img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .dm-connector {
+    position: absolute;
+    top: -6px;
+    width: 1px;
+    height: calc(100% + 12px);
+    background: var(--sl-color-accent);
+    opacity: 0.25;
+  }
+
+  .dm-connector-start {
+    left: 0;
+  }
+
+  .dm-connector-end {
+    right: 0;
+  }
+
+  .dm-segment-label {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sl-color-white);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+</style>

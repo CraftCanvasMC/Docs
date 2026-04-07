@@ -78,6 +78,18 @@ export default defineConfig({
                   },
                 },
                 {
+                  label: "Info",
+                  items: [
+                    "canvas/info/waypoints",
+                    {
+                      label: "Folia",
+                      autogenerate: {
+                        directory: "canvas/info/folia",
+                      },
+                    },
+                  ]
+                },
+                {
                   label: "Guides",
                   autogenerate: {
                     directory: "canvas/guides",
@@ -102,12 +114,6 @@ export default defineConfig({
                     "canvas/developers/rest-api",
                     "canvas/developers/canvas-api",
                   ],
-                },
-                {
-                  label: "Folia",
-                  autogenerate: {
-                    directory: "canvas/info/folia",
-                  },
                 },
                 {
                   label: "Schedulers",
