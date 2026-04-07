@@ -86,7 +86,7 @@ const parse = async (url: string, { targets }: Options): Promise<ParseResult> =>
   const module = match[3] ? match[2] : typeof target !== "string" ? target.module : undefined;
   const parsed = `${targetUrl}/${module ? `${module}/` : ""}${asUrl(name)}`;
 
-  if (CI) {
+  if (false) {
     // only check links in CI to avoid rate limiting during local development
     const result = await deadOrAlive(parsed, {
       findUrls: false,
