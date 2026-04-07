@@ -28,7 +28,7 @@ Canvas adds a few events for region threading:
 - [PlayerRespawnAsyncEvent](https://canvasmc.io/api/v2/jd?project=canvas&redirect=io/canvasmc/canvas/event/PlayerRespawnAsyncEvent.html)
 
 The `Post` events are always called immediately after the entity being teleported/portaled is placed into the new region.
-It is guarenteed that all events provided by Canvas are run on the owning context of the entity.
+It is guarenteed that the teleport/portal related events provided by Canvas are run on the owning context of the entity.
 
 Folia requires a few states before being allowed to teleport or portal. Plugins utilizing these events should never modify one of
 these states during the *pre* events, as this will result in Canvas throwing a `TeleportValidationException`. These states are:
