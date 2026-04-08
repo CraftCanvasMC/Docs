@@ -81,11 +81,16 @@ export default defineConfig({
                 {
                   label: "Info",
                   items: [
-                    "canvas/info/waypoints",
+                    {
+                      label: "Canvas",
+                      autogenerate: {
+                        directory: "canvas/info",
+                      },
+                    },
                     {
                       label: "Folia",
                       autogenerate: {
-                        directory: "canvas/info/folia",
+                        directory: "canvas/folia",
                       },
                     },
                   ],
