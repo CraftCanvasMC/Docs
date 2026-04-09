@@ -1,0 +1,52 @@
+---
+title: Tick Rate Manager
+description: Learn how to modify the tick state of the regionized server with Canvas' new API
+version: 1.21.11
+sidebar:
+  order: 6
+---
+
+The tick rate manager in Vanilla Minecraft allows the server to modify the tick "state" of the server. This allows multiple
+operations like sprinting, freezing, modifying the tick rate, etc. With Folia, this API still *does* exist, however it doesn't
+entirely work properly, and is discouraged to utilize in Folia because it doesn't work properly.
+
+The tick rate manager allows modifying numerous states of the server and how it ticks, like:
+
+- Modification of the tick *rate*. Minecraft processes ticks at 20 TPS(ticks per second), or 50 milliseconds per tick.
+With the tick rate manager, you can modify this rate to be faster or slower, thus making the server run faster or slower.
+- Tick "sprinting". Sprinting is basically where the server sets a target amount of ticks to run as fast as it can, ignoring
+the tick rate.
+- Tick "freezing" and "unfreezing". This doesn't mean the server stops ticking entirely, it means that it stops running
+game elements like random ticking, entities, chunk ticking, etc. When you "unfreeze" the server, it resumes running game elements.
+
+:::caution
+
+**Never** use the Bukkit API version of the tick rate manager API with Canvas, as it will throw an `UnsupportedOperationException`,
+as you shouldn't be using this with Folia or its forks.
+
+:::
+
+## What Canvas' Implementation Does
+
+Canvas' implementation is actually quite similar, but is split up between a server-wide state, and individual schedule
+handle state. The tick rate for example is a server-wide state, where the tick rate is the same for all schedule handles
+in Folia's scheduler. Meanwhile, sprinting and freezing are specific to individual schedule handles. If the server-wide
+or handle-specific tick state is changed, the server will broadcast the new state for all players.
+
+Internally, these updates are *always* scheduled, no matter what, to the processing queue in each state. Before the next tick
+even starts for the schedule handle, it will process these updates to ensure a consistent time that the state will be updated.
+The tick rate can be set on any thread and will affect all schedule handles immediately after setting.
+
+Canvas provides an alternative API to the tick rate manager, called the [RegionThreadingTickManager](jd:canvas:io.canvasmc.canvas.region.RegionThreadingTickManager),
+which allows modification of these states. This can be fetched with [Bukkit#getRegionThreadingTickRateManager](jd:canvas:org.bukkit.Bukkit#getRegionThreadingTickRateManager())
+
+:::note
+
+Canvas adds a `walk` action, which just informs the schedule handle to stop sprinting, regardless of if it reached its target or not
+
+:::
+
+With this, you can modify the tick rate, or fetch the region handle at a specified chunk to modify the state of that region.
+Do note, when fetching if the region is sprinting or running game elements, the call must be executed on the runner owning
+that schedule handle, otherwise it will throw an `IllegalStateException`. All other actions to modify the state are scheduled
+to the process queue, regardless of if the current runner owns the schedule handle or not.
