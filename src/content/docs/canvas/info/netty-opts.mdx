@@ -1,0 +1,56 @@
+---
+title: Netty Optimizations
+description: Learn what optimizations Canvas does to Netty, Minecrafts networking library
+version: 1.21.11
+sidebar:
+  order: 3
+---
+
+Canvas contains numerous optimizations to Netty, the networking library used in Minecraft, to help lower latency and optimize
+packet throughput and ping, to ensure a stable, consistent, and optimal connection for players of servers running Canvas.
+
+## ClientboundSetEntityMotionPacket
+
+The `ClientboundSetEntityMotionPacket` is part of the entity tracking system that tells the client the current velocity
+of the tracked entity. This packet is sent whenever the velocity of an entity is updated, for all entities. However, this
+packet doesn't actually need to be sent for all entities, and even is the majority of entity packets sent clientbound
+during entity tracking. The only entities needing this packet are as such:
+
+- Squid, the only mobs with 360° range of rotation
+- Item Entities, disabling this causes glitches and often slightly desyncs their position within 0.5 blocks on the client side
+  - For some reason it even sends these packets when the ItemEntity hasn't moved? This is resolved in Canvas
+- Ender Eyes, they depend on their velocity being set because the client doesn't handle the Ender Eye velocity on its own
+because the Ender Eye velocity is in relation to the stronghold structure which the client doesn't have knowledge of
+- Shulker bullets use random to determine where they are going, so we need to send velocity packets to ensure it remains smooth on the client
+
+For all other entities, this packet doesn't need to be sent. Infact, with this packet being disabled, there is 0 visual
+difference from Vanilla in terms of tracking for entities other than the ones listed above.
+
+You can enable filtering of this packet with Canvas with the `/config/canvas-server.json5:networking.filterClientboundSetEntityMotionPacket`
+option. This option filters this packet except for the entity types listed above, optimizing a significant portion of entity
+tracking packets but cutting down on the useless ones without sacrificing the Vanilla visuals.
+
+## Particle Filtering
+
+Canvas also introduces particle filtering options in the `/config/canvas-server.json5:particles` package of the Canvas
+configuration. The options listed in that package disable certain particle packets from being sent to the client. Most
+of the particles listed in the package don't actually need to be sent, since the client renders them on their own, meaning
+the server doesn't actually need to be sending them. Any option in the package that *does* break Vanilla visuals is stated
+as such in the options respective comment.
+
+## Channel Flushing
+
+In Vanilla, during the tick of the server, the server "suspends" flushing for currently joined player connections. Suspending
+these flushes makes it so that the server doesn't call a channel flush on every single packet send. This is actually quite
+good for Netty and TCP connections. Instead, packets are buffered throughout the tick and the server flushes all player connections
+once at the end of the tick. However, if a packet is sent asynchronously, it flushes immediately.
+
+In Folia, they disable this for some reason, making the channels for all player connections in a constant state of flush.
+This means every individual packet send triggers its own channel flush. This is highly inefficient because it effectively
+defeats Nagle-style batching at the Netty level. Each write results in a separate syscall, rather than allowing multiple
+packets to be coalesced. The more packets sent, the more redundant flush calls, increasing CPU usage on Netty I/O threads
+and adding unnecessary network overhead
+
+Canvas fixes this by reintroducing the suspend/resume mechanic from Vanilla, signficantly optimizing network usage.
+Canvas also resumes flushing whenever the player is about to be removed from the world for a cross-region teleport or portaling.
+This has proven to significantly optimize network usage on larger production servers.
