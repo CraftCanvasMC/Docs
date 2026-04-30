@@ -1,7 +1,7 @@
 ---
 title: weaver-userdev
 description: Accessing Canvas's internals in plugin development
-version: 1.21.11
+version: 26.1.2
 ---
 
 import CodeTabs from '@/components/CodeTabs.astro';
@@ -128,11 +128,11 @@ plugins {
 
 dependencies {
     // Other dependencies...
-    paperweight.canvasDevBundle("1.21.11-R0.1-SNAPSHOT")
+    paperweight.canvasDevBundle("26.1.2.build.+")
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 ```
 
@@ -149,7 +149,7 @@ This is an alternative method for adding Canvas dev bundles to your Gradle proje
 
 ```kotlin title="build.gradle.kts"
 plugins {
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.21"
 }
 
 repositories {
@@ -159,11 +159,11 @@ repositories {
 
 dependencies {
     // Other dependencies...
-    paperweight.devBundle("io.canvasmc.canvas", "1.21.11-R0.1-SNAPSHOT")
+    paperweight.devBundle("io.canvasmc.canvas", "26.1.2.build.+")
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 ```
 

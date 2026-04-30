@@ -1,7 +1,7 @@
 ---
 title: Project Setup
 description: Learn how to setup a plugin project using the Canvas API
-version: 1.21.11
+version: 26.1.2
 ---
 
 import { FileTree } from '@astrojs/starlight/components';
@@ -18,7 +18,7 @@ Open IntelliJ IDEA and select the option to create a new project.
 You will get the option to select the type of project you want to create - select `New Project` > `Java`.
 
 - Select `Gradle - Kotlin DSL`.
-- **Ensure your JDK is 21**. The JDK brand doesn't matter, but the version does!
+- **Ensure your JDK is 25**. The JDK brand doesn't matter, but the version does!
 
 Give your project a name and click `+ Advanced Settings`.
 
@@ -103,7 +103,7 @@ main: io.canvasmc.exampleplugin.ExamplePlugin
 description: An example plugin
 author: CanvasMC
 website: https://canvasmc.io
-api-version: '1.21.11'
+api-version: '26.1.2'
 canvas-supported: true # If your plugin is compatible with standard Folia servers, use `folia-supported: true` instead!
 ```
 
@@ -127,7 +127,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.canvasmc.canvas:canvas-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("io.canvasmc.canvas:canvas-api:26.1.2.build.+")
 }
 
 tasks.processResources {
@@ -146,8 +146,8 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 java {
-    // Enforces JDK 21 (required for Minecraft 1.21.11)
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    // Enforces JDK 25 (required for Minecraft 26.1.x)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 ```
 
