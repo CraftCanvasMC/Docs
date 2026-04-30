@@ -114,7 +114,7 @@ In your `settings.gradle.kts` or `settings.gradle` file...
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven("https://maven.canvasmc.io/releases")
+        maven("https://maven.canvasmc.io/public")
     }
 }
 ```
@@ -123,7 +123,7 @@ In your `build.gradle.kts` or `build.gradle` file...
 
 ```kotlin title="build.gradle.kts"
 plugins {
-    id("io.canvasmc.weaver.userdev") version "2.3.12"
+    id("io.canvasmc.weaver.userdev") version "2.4.2"
 }
 
 dependencies {
@@ -154,7 +154,7 @@ plugins {
 
 repositories {
     // Other respositories...
-    maven("https://maven.canvasmc.io/snapshots")
+    maven("https://maven.canvasmc.io/public")
 }
 
 dependencies {
