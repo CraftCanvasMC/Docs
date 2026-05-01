@@ -74,8 +74,8 @@ a `MultiThreadedQueue` provided by ConcurrentUtil for the `waypoints` and `playe
 and shouldn't be synchronized, since that can create huge performance issues. It is key that the entirety of the implementation is not synchronized at all, since
 with enough players and regions, this could create huge performance issues server-wide.
 
-The Vanilla manager updates every connection every time. The model provided by Canvas adds a probabilistic throttle(rate limiting that uses randomness). Players
-within 332 blocks of eachother always get updates triggered, but farther players are updated with decreasing probability based on `1 / (1 + (distance/SCALE)^2)`.
+The Vanilla manager updates every connection every time the player moves. The model provided by Canvas adds a probabilistic throttle(rate limiting that uses randomness).
+Players within 332 blocks of eachother always get updates triggered, but farther players are updated with decreasing probability based on `1 / (1 + (distance/SCALE)^2)`.
 The `SCALE` value can be configured with the `/config/canvas-server.json5:waypointUpdateScale` option. The default value is set to `4000`, as the team found it
 as a good inbetween for optimization and quality. Canvas implements this optimization because of how Vanilla does updates to waypoints.
 It has 3 different "connection implementations":
