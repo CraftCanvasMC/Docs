@@ -92,14 +92,17 @@ HorizonLoader horizon = HorizonLoader.getInstance();
 // This includes *all* Horizon plugins, nested and unnested
 PluginTree plugins = horizon.getPlugins();
 for (HorizonPlugin plugin : plugins.getAll()) {
-    // The HorizonMetadata class acts as an object representation of the
+    // The HorizonPluginMetadata class acts as an object representation of the
     // Horizon plugin json file. It contains the name, version, mixins,
     // ats, api version, etc.
-    HorizonMetadata metadata = plugin.pluginMetadata();
+    HorizonPluginMetadata metadata = plugin.pluginMetadata();
     getLogger().info("Hello " + metadata.name() + "!");
 
-    // The plugin identifier is the same as the 'name' entry in the metadata
-    String id = plugin.identifier();
+    // The plugin identifier is the core plugin ID that is used for things like dependencies, and other plugins to reference it.
+    String id = plugin.id();
+
+    // Identifiers include the main plugin ID and any additional aliases.
+    Set<String> identifiers = plugin.identifiers();
 
     // The HorizonPlugin also provides the FileJar instance that is tied
     // to the plugin, and also a FileSystem via HorizonPlugin#fileSystem()
@@ -211,3 +214,4 @@ provider.invoke("Example!");
 Horizon provides a `"server_main"` entrypoint for plugins, which is executed on startup after the server build
 information impl is created, which is very similar to the fabric loader `"server"` entrypoint. All plugins using this
 must implement the `DedicatedServerInitializer` class.
+Horizon also provides a `"server_postbootstrap"` entrypoint for plugins, which is executed after the server has completed its bootstrap process. Plugins using this must implement the `ServerPostBootstrapEntrypoint` class.
