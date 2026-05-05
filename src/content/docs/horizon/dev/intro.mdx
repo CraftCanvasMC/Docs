@@ -100,6 +100,9 @@ More information on Mixins and ATs is available in the [Mixins && ATs](/horizon/
 
 :::
 
+Plugins dependencies are resolved automatically by Horizon at startup.
+Plugins are loaded in dependency order, and missing or incompatible dependencies will prevent the plugin from loading.
+
 To check if your plugin is loaded as a Horizon plugin successfully, you can read the plugin data tree in the startup
 logs, which will look similar to this:
 
