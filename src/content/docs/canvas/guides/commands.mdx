@@ -1,0 +1,46 @@
+---
+title: Commands
+description: Learn about Canvas' custom commands
+version: 1.21.11
+---
+
+Canvas introduces a variety of quality of life commands for server administrators.
+In this guide, we'll cover the various commands introduced by canvas and what they do.
+
+
+#### `/canvas reload`
+
+* Usage: `/canvas reload`
+
+Reloads Canvas' configuration located at `~/configs/canvas-server.json5`
+
+#### `/canvas help`
+
+* Usage: `/canvas help`
+
+Utility command for showing the other available commands provided by Canvas.
+
+#### `/canvas tpsbar` or `/tpsbar`
+
+* Usage: `/tpsbar <player?> <action_bar|boss_bar?>`
+* Permission: `canvas.command.tpsbar`
+
+The TPS bar *(similar to the bossbar from [TabTPS](https://modrinth.com/plugin/tabtps))* shows constant, realtime information about the region **you are currently in**.
+The TPS bar can be shown via the player's action bar or boss bar.
+
+
+#### `/canvas setmaxplayers` or /setmaxplayers`
+
+* Usage: `/setmaxplayers <count> <persist?>`
+* Permission: `canvas.command.setmaxplayers`
+
+Sets the maximum amount of players that can join the server at a given time.
+
+
+#### `/canvas worlddistance` or `/worlddistance` 
+
+* Usage: `/worlddistance <simulation|view> <world> <distance>`
+* Permission: `canvas.command.worlddistance`
+
+Sets a **permanent** simulation or view distance for a specific world.
+These settings will only persist on Canvas servers and will override the defaults set in the `server.properties` file.
