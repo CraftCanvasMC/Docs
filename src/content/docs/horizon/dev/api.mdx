@@ -214,4 +214,5 @@ provider.invoke("Example!");
 Horizon provides a `"server_main"` entrypoint for plugins, which is executed on startup after the server build
 information impl is created, which is very similar to the fabric loader `"server"` entrypoint. All plugins using this
 must implement the `DedicatedServerInitializer` class.
+
 Horizon also provides a `"server_postbootstrap"` entrypoint for plugins, which is executed after the server has completed its bootstrap process. Plugins using this must implement the `ServerPostBootstrapEntrypoint` class.
