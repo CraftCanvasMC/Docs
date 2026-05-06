@@ -191,8 +191,8 @@ dependencies {
     includePlugin("io.canvasmc:nice-plugin:1.0.0")
     includeLibrary("io.canvasmc:nice-library:1.0.0")
 
-    // You can use this configuration for horizon plugin dependencies that need in compilation, but you don't want to package them into your artifact. This is useful for plugins that are going to be provided in runtime by the server or other plugins.
-    mixinPluginImplementation("io.canvasmc:other-nice-horizon-plugin:1.0.0")
+    // Use this configuration for Horizon plugin dependencies required at compile time but not bundled into the final artifact, as they are automatically added to the development server runtime.
+    pluginImplementation("io.canvasmc:other-nice-horizon-plugin:1.0.0")
 }
 ```
 
