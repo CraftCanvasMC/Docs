@@ -22,6 +22,8 @@ files, but not completely. Here is an example:
 
 ```json5
 {
+  // The plugin ID, which is used for identifying the plugin in the dependency resolution system. If not specified, it will be the same as the name, but with all lowercase and spaces replaced with dashes.
+  "id": "testplugin",
   "name": "TestPlugin",
   "version": "1.0.0-SNAPSHOT",
   "description": "Hello world",
@@ -49,7 +51,7 @@ files, but not completely. Here is an example:
   "wideners": [
     "widener.at"
   ],
-  // This is your dependencies block for Horizon TODO - make this system
+  // Dependencies use semantic versioning (SemVer) for version specification and compatibility.
   "dependencies": {
     /*
       The "minecraft" value is optional. It's a version constraint that
@@ -65,11 +67,20 @@ files, but not completely. Here is an example:
     */
     "java": "25",
     // Literally same thing as the other 2, but for ASM
-    "asm": "9.0"
+    "asm": "9.0",
+
+    /*
+      You may depend on third-party plugins, but they must be Horizon plugins.
+      Dependencies on Paper plugins are not supported due to classloader separation. This is a strict requirement.
+    */
+    "other-plugin": ">=1.0.0"
   }
 }
 ```
 
+- `provides` - This is a `String[]` option that defines additional IDs that this plugin provides. 
+  This allows a plugin to act as a drop-in replacement for another plugin API, making it 
+  interchangeable in dependency resolution.
 - `mixins` - This is a `String[]` option that defines the SpongePowered mixin configuration files in your plugin
   artifact. Like if it were `test.mixins.json`, the entry should be in the root of your resources, named
   `test.mixins.json`
@@ -88,6 +99,9 @@ files, but not completely. Here is an example:
 More information on Mixins and ATs is available in the [Mixins && ATs](/horizon/dev/mixins) section below.
 
 :::
+
+Plugins dependencies are resolved automatically by Horizon at startup.
+Plugins are loaded in dependency order, and missing or incompatible dependencies will prevent the plugin from loading.
 
 To check if your plugin is loaded as a Horizon plugin successfully, you can read the plugin data tree in the startup
 logs, which will look similar to this:
@@ -123,6 +137,7 @@ All Paper plugins will be loaded as usual, and their plugin data folders will re
 will function exactly the same, and will load
 mixins like normal. External libraries will be appended to the game classpath with Ember, as if they were libraries
 added by the server JAR, and will be accessible after Horizon launches the game.
+All plugins packaged using JIJ are treated as a bundle. In the `/plugins` command, only the main plugin will be displayed. To view all plugins within a bundle, use `/plugins <plugin>`.
 
 ### Gradle Plugin
 
@@ -175,6 +190,9 @@ dependencies {
     includeMixinPlugin("io.canvasmc:nice-horizon-plugin:1.0.0")
     includePlugin("io.canvasmc:nice-plugin:1.0.0")
     includeLibrary("io.canvasmc:nice-library:1.0.0")
+
+    // Use this configuration for Horizon plugin dependencies required at compile time but not bundled into the final artifact, as they are automatically added to the development server runtime.
+    runtimePlugin("io.canvasmc:other-nice-horizon-plugin:1.0.0")
 }
 ```
 
