@@ -138,7 +138,7 @@ Sometimes, Vanilla code already contains a field, method, or type you want to ac
 Canvas can use access transformers to change the visibility or remove the final modifier from fields, methods, and classes. Inside the `build-data/canvas.at` file,
 you can add ATs that are applied when you `./gradlew applyAllPatches`. You can read about the format of ATs [here](https://docs.minecraftforge.net/en/latest/advanced/accesstransformers/#access-modifiers).
 
-### Rebuilding Patches
+### Rebuilding Source Patches
 
 After making all of your changes, we need to turn them into per-file patches so they are ready to be PRed to the Canvas repository. Good thing Canvas has a fun script that does
 all of the work for you! Simply run this command in the root of your cloned Canvas repository:
@@ -151,6 +151,107 @@ This script automatically detects changes made to Canvas and runs the necessary 
 then look through the logs of the script, as it runs through gradle so all logs from the gradle tasks will be printed. If you made changes to the `build.gradle.kts` files in `canvas-api`
 or `canvas-server`, then you need to run the script with `--force`. There should be no other reason you are running `--force`, as this just runs all rebuild tasks for all modified
 and unmodified directories. The script is shown bellow to show what it does in more detail
+
+#### Understanding Base Patches
+
+Some changes are best fit for a base patch, especially if they're involved and should be applied before source patches.
+This section will help you with creating new ones and editing already existing ones.
+
+:::info
+The `[source]` placeholder referenced in sections below should be replaced with the name of the patch directory you're editing, so for `paper-server`,
+change it to `PaperServer`, for Minecraft classes, change it to `Minecraft` and so on.info
+:::
+
+### Editing Base Patches
+
+To edit an already existing base patch, you only need to make your changes to the source,
+and finish off with running this task in the root of your cloned Canvas repository:
+
+```bash
+./gradlew fixup[source]BasePatches
+```
+
+This task will prompt you to enter the patch number, into which the current changes should be merged, along with providing the list of possible patches.
+All you need to do is simply enter the patch number like `0001` or `1`, after which you click Enter, and the task proceeds with execution.
+
+:::info
+You can also pass in the patch number through the `--patch-number` CLI arg
+:::
+
+After the task is finished running, simply run `./gradlew rebuild[source]Patches` to save your changes!
+
+### The task failed, what do i do?
+
+What you saw was probably something along those lines:
+
+```bash
+[main e73d7563] fixup! Fix world load and unload API
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+Auto-merging net/minecraft/world/entity/Entity.java
+CONFLICT (content): Merge conflict in net/minecraft/world/entity/Entity.java
+error: could not apply 00c758ea... fixup! Fixup Region Threading
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
+hint: You can instead skip this commit: run "git rebase --skip".
+hint: To abort and get back to the state before "git rebase", run "git rebase --abort".
+Could not apply 00c758ea... fixup! Fixup Region Threading
+```
+
+This happens when the code fragment you modified, was edited in some later patch too (either base or source)
+When it happens, you have to manually resolve those conflicts using Git, following the instructions provided by the hints, and finishing off with a rebuild.Patches
+
+### Creating new base patches
+
+You can create base patches in 2 ways.
+The first way (recommended), is to do it manually, using Git.patches
+
+### The Git way
+
+To create a base patch using Git, you first have to do your changes to the source, after which you run:
+
+```bash
+git add [the file or `.` for all]
+git commit
+```
+
+And then run:
+
+```bash
+git rebase -i base
+```
+
+When you run this, an editor should open with a commit list.
+This can look similar to this:
+
+```txt
+pick 15e1928c Remove Folia Profiler
+pick 8261d9d3 Remove Vanilla Profiler
+pick d7291ad4 canvas Base Patches # empty
+pick 3d689b60 canvas File Patches
+pick 9f748b04 my new base patch
+```
+
+What you want to do, is move your newly created commit *above* the `d7291ad4 canvas Base Patches` commit (or an earlier commit, depending on your goal), so it looks like this:
+
+```txt
+pick 15e1928c Remove Folia Profiler
+pick 8261d9d3 Remove Vanilla Profiler
+pick 9f748b04 my new base patch
+pick d7291ad4 canvas Base Patches # empty
+pick 3d689b60 canvas File Patches
+```
+
+It is possible for conflicts to happen here, in which case you just fix them and follow Git's instructions.
+
+
+### The Gradle way
+
+Weaver provides an *experimental* `./gradlew create[source]BasePatch` task, which automates the above process for you.
+You can use it in *two* ways:
+
+- Use it to turn your already created commit into a base patch.
+- Use it to create a commit by passing in the `--message` and the optional `--description` CLI args.
+
 
 <details>
 <summary>Click to view the rebuild patches script</summary>
