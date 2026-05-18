@@ -1,7 +1,7 @@
 ---
 title: Commands
 description: Learn about Canvas' custom commands
-version: 1.21.11
+version: 26.1.2
 ---
 
 Canvas introduces a variety of quality of life commands for server administrators.
@@ -10,37 +10,51 @@ In this guide, we'll cover the various commands introduced by canvas and what th
 
 #### `/canvas reload`
 
-* Usage: `/canvas reload`
+Reloads Canvas' configuration files.
 
-Reloads Canvas' configuration located at `~/configs/canvas-server.json5`
+* Syntax: `/canvas reload`
 
 #### `/canvas help`
 
-* Usage: `/canvas help`
-
 Utility command for showing the other available commands provided by Canvas.
 
-#### `/canvas tpsbar` or `/tpsbar`
+* Syntax: `/canvas help`
 
-* Usage: `/tpsbar <player?> <action_bar|boss_bar?>`
-* Permission: `canvas.command.tpsbar`
+#### `/canvas tpsbar` or `/tpsbar`
 
 The TPS bar *(similar to the bossbar from [TabTPS](https://modrinth.com/plugin/tabtps))* shows constant, realtime information about the region **you are currently in**.
 The TPS bar can be shown via the player's action bar or boss bar.
 
+* Syntax: `/tpsbar [player] [action_bar|boss_bar]`
+* Permission: `canvas.command.tpsbar`
+
 
 #### `/canvas setmaxplayers` or /setmaxplayers`
 
-* Usage: `/setmaxplayers <count> <persist?>`
-* Permission: `canvas.command.setmaxplayers`
-
 Sets the maximum amount of players that can join the server at a given time.
+
+* Syntax: `/setmaxplayers <count> [persist]`
+* Permission: `canvas.command.setmaxplayers`
 
 
 #### `/canvas worlddistance` or `/worlddistance` 
 
-* Usage: `/worlddistance <simulation|view> <world> <distance>`
-* Permission: `canvas.command.worlddistance`
-
 Sets a **permanent** simulation or view distance for a specific world.
 These settings will only persist on Canvas servers and will override the defaults set in the `server.properties` file.
+Setting the `<distance>` argument to **-1** will disable Canvas' override and use the vanilla declarations.
+
+* Syntax: `/worlddistance <simulation|view> <world> <distance>`
+* Permission: `canvas.command.worlddistance`
+
+
+#### `/canvas tick` or `/tick`
+
+Canvas' re-implementation of Minecraft's [`/tick`](https://minecraft.wiki/w/Commands/tick) command.
+
+* Syntax:
+    * `/tick rate <rate>`: Sets the target ticking rate to the specified value. Modifying the target ticking rate changes the relative speed of the game as the game still expects a constant tick rate of 20.0, the default tick rate.
+    * `/tick pause <x,z|global|server>`: Freezes ticking. All gameplay elements are not ticked, except players and any entity a player is riding.
+    * `/tick play <x,z|global|server>`: Unfreezes ticking.
+    * `/tick sprint <ticks> <x,z|global|server>`: Makes the game run as fast as it can for the specified amount of ticks *plus one*, ignoring the target ticking rate. At the end of the sprint, the game will resume the previous ticking status and display performance information about the tick times from sprinting.
+    * `/tick walk`: Stops the current tick sprinting and resumes the previous ticking status.
+* Permission: `canvas.command.tick`
