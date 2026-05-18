@@ -78,8 +78,8 @@ files, but not completely. Here is an example:
 }
 ```
 
-- `provides` - This is a `String[]` option that defines additional IDs that this plugin provides. 
-  This allows a plugin to act as a drop-in replacement for another plugin API, making it 
+- `provides` - This is a `String[]` option that defines additional IDs that this plugin provides.
+  This allows a plugin to act as a drop-in replacement for another plugin API, making it
   interchangeable in dependency resolution.
 - `mixins` - This is a `String[]` option that defines the SpongePowered mixin configuration files in your plugin
   artifact. Like if it were `test.mixins.json`, the entry should be in the root of your resources, named
@@ -160,9 +160,9 @@ For a list of all available configurations for the `horizon` plugin along with J
 
 ```kotlin
 plugins {
-    id("io.canvasmc.weaver.userdev") version "2.4.3"
+    id("io.canvasmc.weaver.userdev") version "2.4.4"
     id("xyz.jpenilla.run-paper") version "3.0.2"
-    id("io.canvasmc.horizon") version "1.0.1"
+    id("io.canvasmc.horizon") version "1.0.2"
 }
 
 dependencies {
