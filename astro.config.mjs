@@ -24,6 +24,17 @@ export default defineConfig({
     starlight({
       title: "CanvasMC Docs",
 
+      head: [
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            type: "image/png",
+            href: "/logo.png",
+          },
+        },
+      ],
+
       customCss: [
         "@fontsource/jetbrains-mono/400.css",
         "@fontsource/jetbrains-mono/600.css",
@@ -37,7 +48,13 @@ export default defineConfig({
         { icon: "github", label: "GitHub", href: "https://github.com/CraftCanvasMC" },
         { icon: "discord", label: "Discord", href: "https://canvasmc.io/discord" },
       ],
+      lastUpdated: true,
+      editLink: {
+        baseUrl: "https://github.com/CraftCanvasMC/Docs/edit/main/",
+      },
       components: {
+        Footer: "./src/components/overrides/Footer.astro",
+        LastUpdated: "./src/components/overrides/LastUpdated.astro",
         TableOfContents: "./src/components/overrides/TableOfContents.astro",
         MobileTableOfContents: "./src/components/overrides/MobileTableOfContents.astro",
       },
