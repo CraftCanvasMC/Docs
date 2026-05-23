@@ -1,0 +1,105 @@
+---
+title: Canvas Commands
+version: 26.1.2
+description: Learn all the commands Canvas adds and provides
+---
+
+import CommandDescription from '@/components/CommandDescription.astro';
+import WikiCommandButton from '@/components/WikiCommandButton.astro';
+
+Canvas provides a lot of QOL commands for server administrators. In this guide we'll cover the various commands
+introduced by Canvas and what they do.
+
+:::note
+
+All permissions are auto-generated, with the format being `canvas.command.{command name}`
+
+:::
+
+#### Reload Command
+
+This completely reloads the global and world configurations. Some options will not be effected if reloaded during
+runtime, as some are only read at startup or are stored for the duration of the server runtime. Special cases are
+documented in the comments for the configurations, like the spawner configs.
+
+It is not recommended to reload at runtime in a production environment. Please restart your server instead.
+
+<CommandDescription
+  name="/canvas reload"
+  permission="canvas.command.reload"
+/>
+
+#### RegionBar Command
+
+The `regionbar` command introduces the toggling of Canvas' TPS bar and RAM bar, similar in concept to the bossbars
+from [TabTPS](https://modrinth.com/plugin/tabtps), which show a constant realtime information about the region you
+are currently in. For the RAM bar, this is server-wide though
+
+<CommandDescription
+  name="/regionbar"
+  permission="canvas.command.regionbar"
+  aliases={["/canvas regionbar"]}
+  syntax={["/regionbar <tps_bar|ram_bar> [player] [action_bar|boss_bar]"]}
+/>
+
+#### SetMaxPlayers Command
+
+This command allows modifying the maximum amount of players that can join the server currently. This also allows
+telling the server to save this to persist across restarts, or just persisting through the current runtime.
+
+<CommandDescription
+  name="/setmaxplayers"
+  permission="canvas.command.setmaxplayers"
+  aliases={["/canvas setmaxplayers"]}
+  syntax={["/setmaxplayers <count> [persist]"]}
+/>
+
+#### WorldDistance Command
+
+This allows setting a permanent simulation or view distance override for a specific world. These settings persist only
+with Canvas servers and forks, and override the defaults set in `server.properties`. When you set values with this
+command, these values are **always** clamped between 1 and the Moonrise `MAX_VIEW_DISTANCE` constant, minus 3.
+You can modify the `MAX_VIEW_DISTANCE` constant via setting the `Paper.MaxViewDistance` system property. If you wish
+to disable the override for the world, set the override value to -1 via the command.
+
+This persists as an override for the full world, not specific players or regions or the entire server. If you wish
+to set an override for the entire server, set the default in `server.properties`.
+
+<CommandDescription
+  name="/worlddistance"
+  permission="canvas.command.worlddistance"
+  aliases={["/canvas worlddistance"]}
+  syntax={["/worlddistance <simulation|view> <world> <distance>"]}
+/>
+
+#### Tick Command
+
+Folia removes the Vanilla <WikiCommandButton name="tick"/> command, which Canvas completely rewrites and reintroduces.
+Our reimplementation is functionally different in quite a few ways.
+
+Canvas' implementation also allows setting specific tick data for specific tick handles, like specific regions, the
+global tick, or even the entire server.
+
+The `rate` subcommand effects the entire server, and cannot be set per tick-handle. For the other subcommands, you need
+to specify the block X and Z of the region you want to change the data of, or `global` for the global tick, or `server`
+for the entire server.
+
+:::note
+
+When pausing the `global` handle, this will only affect the time and weather tick to match Vanilla, given certain
+aspects of the pausing mechanism were split between the global tick and the region tick.
+
+:::
+
+<CommandDescription
+  name="/tick"
+  permission="canvas.command.tick"
+  aliases={["/canvas tick"]}
+  syntax={[
+    "/tick pause <x,z|global|server>",
+    "/tick play <x,z|global|server>",
+    "/tick rate <rate>",
+    "/tick sprint <ticks> <x,z|global|server>",
+    "/tick walk <x,z|global|server>"
+  ]}
+/>

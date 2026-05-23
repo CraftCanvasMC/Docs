@@ -2,7 +2,7 @@
 title: Waypoints Rewrite
 description: Documentation about the rewrite CanvasMC did to the Vanilla waypoints system
 sidebar:
-  order: 2
+  order: 5
 ---
 
 import DistanceMarker from '@/components/DistanceMarker.astro';
@@ -23,7 +23,7 @@ Players can prevent their position from being shown by sneaking, wearing a mob h
 :::
 
 The waypoint icon changes based on the player distance to the camera location. The further the camera is from the waypoint, the smaller the icon visually
-is shown on the locator bar, using serveral different sprites. These sprites can be changed by setting the style of the waypoint via the `/waypoint` command,
+is shown on the locator bar, using several different sprites. These sprites can be changed by setting the style of the waypoint via the `/waypoint` command,
 and you can add your own waypoint styles via a resource pack. These sprites look like this:
 
 <DistanceMarker
@@ -76,8 +76,8 @@ with enough players and regions, this could create huge performance issues serve
 
 The Vanilla manager updates every connection every time the player moves. The model provided by Canvas adds a probabilistic throttle(rate limiting that uses randomness).
 Players within 332 blocks of eachother always get updates triggered, but farther players are updated with decreasing probability based on `1 / (1 + (distance/SCALE)^2)`.
-The `SCALE` value can be configured with the `/config/canvas-server.json5:waypointUpdateScale` option. The default value is set to `4000`, as the team found it
-as a good inbetween for optimization and quality. Canvas implements this optimization because of how Vanilla does updates to waypoints.
+The `SCALE` value can be configured with the `/config/canvas-worlds.yml:waypoint-update-scale` option. The default value is set to `4000`, as the team found it
+as a good in-between for optimization and quality. Canvas implements this optimization because of how Vanilla does updates to waypoints.
 It has 3 different "connection implementations":
 
 - `EntityBlockConnection`
@@ -90,7 +90,7 @@ optimization trigger. Canvas does this because if the distance is cross-region, 
 the other players move, since that's how Vanillas system works.
 
 By doing this, we reduce this in an optimized way that reduces the amount of schedules we do to the player. We **have** to schedule this, because the map
-implementation inside the player object is not thread-safe. With the optimization implemented by Canvas, if the `waypointUpdateScale` option is `1000` and
+implementation inside the player object is not thread-safe. With the optimization implemented by Canvas, if the `waypoint-update-scale` option is `1000` and
 the distance between two players is `10_000`, it would be a `0.9%` chance of even *attempting* to update the player when either of them moves. This, combined
 with the Azimuth connection, makes it so updates are very rare cross-region, optimizing both networking and scheduling operations with this implementation.
 You can interact with a modeled example below to help with trying to decide the scale you want.

@@ -1,0 +1,126 @@
+---
+interface Props {
+  name: string;
+  permission: string;
+  syntax?: string[];
+  aliases?: string[];
+}
+
+const { name, permission, syntax, aliases } = Astro.props;
+---
+
+<div class="command-card">
+  <div class="command-header">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+    <code class="command-name">{name}</code>
+  </div>
+
+  <div class="command-body">
+    <div class="command-row">
+      <span class="label">Permission</span>
+      <code class="pill">{permission}</code>
+    </div>
+
+    <div class="command-row">
+      <span class="label">Aliases</span>
+      {aliases && aliases.length > 0 ? (
+        <div class="aliases">
+          {aliases.map((a) => <code class="pill">{a}</code>)}
+        </div>
+      ) : (
+        <span class="no-aliases">No aliases</span>
+      )}
+    </div>
+
+    {syntax && syntax.length > 0 ? (
+      <div class="command-row">
+        <span class="label">Syntax</span>
+        <div class="syntax">
+          {syntax.map((a) => <code class="pill">{a}</code>)}
+        </div>
+      </div>
+    ) : null}
+
+  </div>
+</div>
+
+<style>
+  .command-card {
+    font-family: var(--sl-font);
+    background-color: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    max-width: 90%;
+  }
+
+  .command-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    color: var(--sl-color-gray-3);
+  }
+
+  .command-name {
+    font-family: var(--sl-font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .command-body {
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .command-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .label {
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-3);
+    flex-shrink: 0;
+  }
+
+  .pill {
+    font-family: var(--sl-font-mono);
+    font-size: 0.75rem;
+    background-color: var(--sl-color-gray-5);
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.4rem;
+    padding: 0.2rem 0.5rem;
+    color: var(--sl-color-accent-high);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .aliases {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex-direction: column;
+  }
+
+  .syntax {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex-direction: column;
+  }
+
+  .no-aliases {
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-3);
+    font-style: italic;
+  }
+</style>

@@ -1,73 +1,13 @@
 ---
-title: Fixes to Folia
-description: An overview of what Canvas fixes in Folia
+title: Behavior Fixes
+version: 26.1.2
+description: Learn how Canvas fixes Vanilla mechanics Folia disables
 sidebar:
-    order: 2
+  order: 2
 ---
 
-Folia breaks a **lot** of mechanics and systems. Canvas aims to try and fix as many as possible. This page contains information regarding what Canvas fixes, and how.
-These strictly document behavioral fixes and restorations of Vanilla systems, not crash and bug fixes in Folia itself.
-
-## Commands
-- Fixes the `/bossbar` command
-- Fixes the `/dialog` command
-- Fixes the `/loot` command
-- ~~Fixes the `/ride` command~~ - Changes merged into Folia 1.21.11
-- ~~Fixes the `/rotate` command~~ - Changes merged into Folia 1.21.11
-- Fixes the `/spectate` command
-- Fixes the `/spreadplayers` command
-  - This command was completely rewritten to function primarily asynchronously, scheduling to regions when needing to validate data
-  which assists in keeping this command as performant as possible, as it doesn't effect the region threads. This prevents thread ownership
-  issues and is much safer for region threading and performance purposes
-  - See `canvas-server/minecraft-patches/sources/net/minecraft/server/commands/SpreadPlayersCommand.java.patch` for the full patch implementation
-- Fixes the `/tag` commmand
-- Fixes the `/tick` command
-  - This is fixed with help from the rewrite-scheduler patch, which includes a system to change the tick-rate and such.
-- Fixes the `/waypoint` command
-  - More documented changes bellow
-- Fixes the `/save-all` command
-  - This command was redone to complete in an asynchronous fashion, marking all currently ticking regions in all worlds to be fully saved
-  on their next tick, saving all their chunks and players. This prevents thread ownership issues and is much safer for region threading
-- Fixes pitch/yaw in the `/tp` command being consistently 0 when ran, instead of keeping the teleporting entity X/Y rot
-- Fixes [Folia#443](https://github.com/PaperMC/Folia/issues/443)
-- Fixes [Folia#436](https://github.com/PaperMC/Folia/issues/436)
-- Fixes [Folia#421](https://github.com/PaperMC/Folia/issues/421)
-- Fixes max player count being offset by -1 in Folia
-- Fixes a few technical Vanilla mechanics
-- Fixes even more stupid amounts of issues
-
-## Vanilla Systems
-
-### POI Update Scheduling
-
-While POI update scheduling works fine on Folia, it has a major flaw with how it works. In the region threading base patch, Folia replaces the method call
-`BlockableEventLoop#execute` with `RegionizedTaskQueue#queueChunkTask`. While this works fine in general gameplay, it does cause all POI updates to be
-scheduled to the next tick, which technically breaks vanilla behavior and also breaks things like portal creation.
-
-The `BlockableEventLoop#execute` method is as such:
-```java
-    public void execute(Runnable task) {
-        R runnable = this.wrapRunnable(task);
-        if (this.scheduleExecutables()) {
-            this.schedule(runnable);
-        } else {
-            this.doRunTask(runnable);
-        }
-    }
-```
-
-Essentially, it checks if it is the "main thread" or not(which no longer exists in Folia, but for this case we will assume the "main thread" is the region owning
-the `BlockPos` we are updating at), and if it is the "main thread", it will run the task immediately, otherwise, it will schedule for the next tick.
-
-Folia breaks this logic, as it always schedules for the next tick. While in normal gameplay, this is fine, but in some occurrences this does cause issues. Canvas fixes
-this behavior, restoring the Vanilla logic and fixing the issues that were caused by this change in behavior.
-
-:::note
-
-This is in the process of being merged to Folia 1.21.11 in this PR:
-https://github.com/PaperMC/Folia/pull/419
-
-:::
+This page is a rough overview of what Canvas does to fix certain behavior mechanics in Vanilla, which can cause minor
+gameplay bugs and issues during runtime.
 
 ### Vanilla Ender Pearl Behavior
 
@@ -83,7 +23,7 @@ Introduced in [Canvas#167 "Rewrite Vanilla pearl save"](https://github.com/Craft
 :::
 
 The new system makes it so that ONLY on leave it will save the pearls to a server-wide concurrent map of UUID -> Pearls. This is then saved to `pearls.dat` in
-the root folder of the server. When the player leaves, all pearls are added to the map on their owning region before being discarded for UNLOADED_WITH_PLAYER.
+the root folder of the server. When the player leaves, all pearls are added to the map on their owning region before being discarded for `UNLOADED_WITH_PLAYER`.
 On the global tick, the server will attempt to write to disk for autosave(same time interval as maps for autosave), with the save-all command, and on
 shutdown it will write to disk. This is all done through the utility IO pool. On join, each pearl is decoded, and then using Canvas utilities, spawns
 the pearl in on join, and then clears the current list in the save data associated with the player UUID, since we just spawned all of them, none of them need
@@ -143,3 +83,9 @@ packet it needs to exit the credits and respawn. So we ensure we send this packe
 When the packet is received, we redirect the packet to the global region thread, because if we queue this packet as a task like
 normal, this packet will not be run because the player isn't owned by any region, and as a result isn't being ticked. Once the finalizer
 is run, the player is scheduled to respawn back at their respawn location.
+
+### Minor Issues
+
+- Fixes [Folia#421](https://github.com/PaperMC/Folia/issues/421)
+- Fixes max player count being offset by -1 in Folia
+- Fixes a few technical Vanilla mechanics

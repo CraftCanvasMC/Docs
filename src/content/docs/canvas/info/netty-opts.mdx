@@ -3,7 +3,7 @@ title: Netty Optimizations
 description: Learn what optimizations Canvas does to Netty, Minecrafts networking library
 version: 1.21.11
 sidebar:
-  order: 3
+  order: 1
 ---
 
 Canvas contains numerous optimizations to Netty, the networking library used in Minecraft, to help lower latency and optimize
@@ -26,13 +26,13 @@ because the Ender Eye velocity is in relation to the stronghold structure which 
 For all other entities, this packet doesn't need to be sent. Infact, with this packet being disabled, there is 0 visual
 difference from Vanilla in terms of tracking for entities other than the ones listed above.
 
-You can enable filtering of this packet with Canvas with the `/config/canvas-server.json5:networking.filterClientboundSetEntityMotionPacket`
+You can enable filtering of this packet with Canvas with the `/config/canvas-server.yml:networking.filter-velocity-packet`
 option. This option filters this packet except for the entity types listed above, optimizing a significant portion of entity
 tracking packets but cutting down on the useless ones without sacrificing the Vanilla visuals.
 
 ## Particle Filtering
 
-Canvas also introduces particle filtering options in the `/config/canvas-server.json5:particles` package of the Canvas
+Canvas also introduces particle filtering options in the `/config/canvas-worlds.yml:visuals.particles` package of the Canvas
 configuration. The options listed in that package disable certain particle packets from being sent to the client. Most
 of the particles listed in the package don't actually need to be sent, since the client renders them on their own, meaning
 the server doesn't actually need to be sending them. Any option in the package that *does* break Vanilla visuals is stated

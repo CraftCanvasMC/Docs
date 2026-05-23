@@ -1,0 +1,42 @@
+---
+title: Command Fixes
+version: 26.1.2
+description: Learn about Canvas' fixes to various commands Folia disables
+sidebar:
+  order: 3
+---
+
+import WikiCommandButton from '@/components/WikiCommandButton.astro';
+
+Folia disables a ***lot*** of commands when introducing region threading. This is simply because some commands need
+to be able to be scheduled or run on entities or in contexts that may not be in the current region. As such, some
+of these commands are not really safe for region threading fully. Canvas attempts to reintroduce as many as it can
+within reason, and even PRing some of its fixes to Folia itself
+
+The commands we fix are as follows:
+
+- The <WikiCommandButton name="bossbar"/> command
+- The <WikiCommandButton name="dialog"/> command
+- The <WikiCommandButton name="loot"/> command
+- The <WikiCommandButton name="spectate"/> command
+- The <WikiCommandButton name="spreadplayers"/> command
+- The <WikiCommandButton name="tag"/> command
+- The <WikiCommandButton name="tick"/> command
+  - Side-note, this was completely reimplemented, and is not Vanilla compatible. This command was fully rewritten
+    and reimplemented for region threading, not aiming to restore the Vanilla `tick` command
+  - More documentation on this can be found [here](/canvas/guides/canvas-commands#tick-command)
+- The <WikiCommandButton name="waypoint"/> command
+  - More documentation on this can be found [here](/canvas/fixes/waypoints)
+- The <WikiCommandButton name="save-all"/> command
+- The pitch and yaw in the <WikiCommandButton name="tp"/> command
+  - In Folia, the pitch/yaw would always be set to 0, breaking Vanilla compatibility
+- The <WikiCommandButton name="scoreboard"/> command
+- The <WikiCommandButton name="trigger"/> command
+- The <WikiCommandButton name="team"/> command
+- The <WikiCommandButton name="teammsg"/> command
+
+Commands which were merged in Folia from one of our PRs:
+- The <WikiCommandButton name="ride"/> command
+  - Merged in 1.21.11
+- The <WikiCommandButton name="rotate"/> command
+  - Merged in 1.21.11

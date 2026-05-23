@@ -1,0 +1,113 @@
+---
+title: Scoreboards Reimplementation
+version: 26.1.2
+description: Learn about what Canvas does to restore the scoreboards system for Minecraft
+sidebar:
+  order: 4
+---
+
+import WikiCommandButton from '@/components/WikiCommandButton.astro';
+
+The scoreboard system is a technical Minecraft global state that allows setting integer values to objectives with score
+holders. This system, while seemingly simple from the outside in concept, is actually quite complex internally to try
+and make this region-threading safe, since this is a global state that needs to interact with each region, and more,
+so SpottedLeaf disabled this.
+
+## Concept
+
+In [PR#230](https://github.com/CraftCanvasMC/Canvas/pull/230), Canvas reintroduces the scoreboard system through a SWMR
+format, meaning "single write, multiple read". This means that it is *only* safe to write from 1 thread at a time, but
+safe to read from multiple threads at a time. There are a few exceptions for this, detailed below. In our case, for the
+SWMR system, we pick the global tick as the "main thread" in this scenario, where we only permit writing certain data
+on the global tick context, enforced via a thread check. You are only allowed to do the following on the global tick:
+
+- Register and unregister teams
+- Modify any team-specific data, including:
+  - Display name
+  - Allow friendly fire flag
+  - See friendly invisibles flag
+  - Team color
+  - Team collision rule
+  - Player prefix
+  - Player suffix
+  - Death message visibility type
+  - Name tag visibility type
+- Register or unregister objectives
+- Pack and save data
+- Modify the displayed objectives set
+- Modify any objective-specific data, including:
+  - Display name
+  - Formatted display name
+  - Render type
+  - Display auto update flag
+  - Number format
+
+There are a few things that are modifiable from any thread, like adding/removing players from teams. While this is safe
+to do asynchronously from the score holder owning context, it is generally not a good idea to do so if the entity in
+question already exists in the world. If the entity already exists, whether it be a player or non-player-entity, it is
+recommended to always schedule the addition and removal from a teams player list on the entity that is being added or
+removed. If the entity does not exist in the world, being as it was retrieved and is being placed in a team set via
+their score holder name, it is recommended to schedule to the global tick, however this is less enforced.
+
+:::note
+
+The score holder name is determined by either the player game profile name, or the entity UUID if not a player
+
+:::
+
+It is also now enforced that reading from packed data is only run at startup, meaning any loading of packed objective,
+team, or scores data will throw via a thread check.
+
+When using the internal API, there are some parts of the scoreboard system that are thread checked if the score holder
+in question passed to the function is an `Entity` instance. There are ways around this, like getting the score holder
+via Bukkit via it's score holder name, not the actual entity reference, however it is not recommended to do this as
+bypassing thread checks is not safe, even though the places that are thread checked by the entity are safe to execute
+in parallel.
+
+It is safe to fetch any form of scoreboard data on any thread.
+
+## Locks
+
+There are a few new locks internally now in the scoreboard system. Most notably surrounding the team reference data,
+`teamsByName` and `teamsByHolder`. Teams by *name* is an `Object2ObjectMap` mapping the `String` name of a team to the
+`PlayerTeam` object, while teams by *holder* is an `Object2ObjectMap` mapping the `String` scoreboard name of a score
+holder to the `PlayerTeam` object they are associated with, or `null` if that score holder isn't associated with a team
+currently.
+
+This data is always in a "snapshot" state, where any accessors of this data will always be given a snapshot of the
+current data, and accessing this snapshot will not hold any locks. This means if something accesses this data, the data
+will not be modified as the snapshot is considered immutable at the time of accessing.
+
+When doing an operation involving the addition or removal of a team fully, or adding or removing a score holder from
+a team, the write lock will be taken and a new snapshot of the updated data will be created and set in the lock ref.
+
+:::note
+
+The `ScoreAccess` implementation is also fully synchronized for all methods
+
+:::
+
+## Autosave
+
+Given Folia disables this system, the scoreboard system is never saved except during shutdown. This has now been
+modified, so the global tick will autosave the scoreboard system by the configured autosave period, and if the current
+scoreboard system is marked "dirty", meaning it has changes needing to be saved.
+
+## Commands
+
+With this, Canvas restores the 4 commands related to the scoreboard system:
+
+- The <WikiCommandButton name="scoreboard"/> command
+- The <WikiCommandButton name="trigger"/> command
+- The <WikiCommandButton name="team"/> command
+- The <WikiCommandButton name="teammsg"/> command
+
+All of these are scheduled to their proper thread context on their own.
+
+When running the `scoreboard players operation...` subcommand, it is required that all target score holders and source
+score holders provided in the command are in the same region, or the command will fail.
+
+## API
+
+The Bukkit API was fixed and restored with proper context checks when applicable. No new API was provided with these
+changes, and no new API is expected to be added.

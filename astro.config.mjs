@@ -98,16 +98,23 @@ export default defineConfig({
                 {
                   label: "Info",
                   items: [
+                    "canvas/info/netty-opts",
                     {
-                      label: "Canvas",
+                      label: "Region Threading Fixes",
                       autogenerate: {
-                        directory: "canvas/info",
+                        directory: "canvas/fixes",
                       },
                     },
                     {
                       label: "Folia",
                       autogenerate: {
                         directory: "canvas/folia",
+                      },
+                    },
+                    {
+                      label: "Schedulers",
+                      autogenerate: {
+                        directory: "canvas/scheduler",
                       },
                     },
                   ],
@@ -142,12 +149,6 @@ export default defineConfig({
                     },
                     "canvas/developers/rest-api",
                   ],
-                },
-                {
-                  label: "Schedulers",
-                  autogenerate: {
-                    directory: "canvas/scheduler",
-                  },
                 },
               ],
             },
