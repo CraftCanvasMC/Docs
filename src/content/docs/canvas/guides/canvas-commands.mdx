@@ -1,6 +1,6 @@
 ---
 title: Canvas Commands
-version: 26.1.2
+version: 26.2
 description: Learn all the commands Canvas adds and provides
 ---
 
@@ -69,7 +69,10 @@ to set an override for the entire server, set the default in `server.properties`
   name="/worlddistance"
   permission="canvas.command.worlddistance"
   aliases={["/canvas worlddistance"]}
-  syntax={["/worlddistance <simulation|view> <world> <distance>"]}
+  syntax={[
+    "/worlddistance <simulation|view> <world> <get|unset>",
+    "/worlddistance <simulation|view> <world> <set> <distance>"
+  ]}
 />
 
 #### Tick Command
