@@ -8,12 +8,20 @@ sidebar:
 
 import WikiCommandButton from '@/components/WikiCommandButton.astro';
 
-Folia disables a ***lot*** of commands when introducing region threading. This is simply because some commands need
-to be able to be scheduled or run on entities or in contexts that may not be in the current region. As such, some
-of these commands are not really safe for region threading fully. Canvas attempts to reintroduce as many as it can
-within reason, and even PRing some of its fixes to Folia itself
+The way region threading works makes a lot of commands harder to implement, or breaks the implementation fully, and for
+those of which *can* be implemented, come with cutting corners. Folia's implementations for a lot of commands are safe,
+but come with cut corners like broken command feedback, returning said feedback before the command execution even completes,
+etc. Some commands aren't even properly made or work with region threading, and some commands aren't even finished being
+made safe(see `attribute` command for an example).
 
-The commands we fix are as follows:
+Canvas as of the merging of [this PR](https://github.com/CraftCanvasMC/Canvas/pull/264), authored by Dueris, the lead
+maintainer and developer of Canvas, fixes these issues and implements a system that makes commands work with region threading
+in a safer and more accurate manner to Vanilla. The fixes implemented in this PR resolve a lot of errors in Folia's
+implementations/restorations, and fix Canvas' and Folia's implementations to be more closely aligned with Vanilla.
+
+If you want to view the technical details of this PR and the new system, please read the PR description
+
+Canvas restores the following commands, of which are disabled in Folia:
 
 - The <WikiCommandButton name="bossbar"/> command
 - The <WikiCommandButton name="dialog"/> command
@@ -35,7 +43,7 @@ The commands we fix are as follows:
 - The <WikiCommandButton name="team"/> command
 - The <WikiCommandButton name="teammsg"/> command
 - The <WikiCommandButton name="data"/> command
-  - The `storage` data type is disabled in Canvas `26.1` for now. This may be fixed in a later version
+  - The `storage` data type is disabled in Canvas `26.1+` for now. This may be fixed in a later version
 - The <WikiCommandButton name="clone"/> command
 
 Commands which were merged in Folia from one of our PRs:
@@ -43,3 +51,47 @@ Commands which were merged in Folia from one of our PRs:
   - Merged in 1.21.11
 - The <WikiCommandButton name="rotate"/> command
   - Merged in 1.21.11
+
+Commands fixed due to the Canvas#[264](https://github.com/CraftCanvasMC/Canvas/pull/264) PR:
+- Fixes most commands sending feedback before all targets in the selection have been processed. While not guaranteed, if
+a target is out of the region calling the command, then this case can happen.
+  - The rest of this list does not note which commands do or don't have this bug, as this would make the list twice as long
+- The <WikiCommandButton name="swing"/> command being not properly regionized at all
+- The <WikiCommandButton name="clear"/> command always returning the X amount of items cleared equivalent to the amount
+of players in the target selection
+- The <WikiCommandButton name="attribute"/> command `reset` subcommand not being properly regionized at all
+- The <WikiCommandButton name="advancement"/> command having assumed return values, breaking the Vanilla feedback to be
+potentially incorrect
+- The <WikiCommandButton name="effect"/> command assuming success on all effect additions, breaking Vanilla feedback if
+one of the targets does not pass the effect addition
+- The <WikiCommandButton name="enchant"/> command always saying every entity passed in the feedback even if only 1 passes
+  - This is a Vanilla bug
+- The <WikiCommandButton name="xp"/> command `set` subcommand always assuming all targets in the selection passed the
+set operation
+- The <WikiCommandButton name="gamerule"/> command not being scheduled to the global tick
+- The <WikiCommandButton name="difficulty"/> command not being scheduled to the global tick
+- The <WikiCommandButton name="defaultgamemode"/> command not being scheduled to the global tick
+- The <WikiCommandButton name="kick"/> command not scheduling disconnects to the target players. This isn't required since
+Folia handles async disconnect requests already, but this is done to preserve the ordering of the command feedback to more
+accurate to the actual order of disconnection
+- The <WikiCommandButton name="list"/> command not being scheduled to the global tick
+- The <WikiCommandButton name="particle"/> command not being scheduled to the source position. This also changes it to
+skip players not in the same region as the source location, since if the player is out of region, they probably are unable
+to view the particles.
+- The <WikiCommandButton name="playsound"/> command not being scheduled to the source position. We also schedule the packet
+send to the player, to try and keep ordering with the <WikiCommandButton name="stopsound"/> command scheduling
+- The <WikiCommandButton name="recipe"/> command always assuming 1 recipe awarded/taken for each target in the selection,
+thus returning potentially inaccurate results in the feedback.
+- The <WikiCommandButton name="spawnpoint"/> command always adding the targets to the `actualTargets` list regardless of
+if they passed the event call or not, breaking command feedback if a plugin canceled the event.
+- The <WikiCommandButton name="setworldspawn"/> command not being scheduled to the global tick
+- The <WikiCommandButton name="stopsound"/> command not scheduling the packet send to the targets in the selection. While
+not necessarily required, this is nice to preserve ordering in line with the <WikiCommandButton name="playsound"/> command.
+- The <WikiCommandButton name="stopwatch"/> command being completely unsafe for region threading.
+  - The system accessed by the command wholesale is unsafe for region threading, added in `1.21.11`. Folia did no such
+    patch to fix these issues, and recklessly enabled it with no fixes applied, leaving it prone to race conditions and
+    exceptions throwing if the stopwatch system was accessed and/or modified at the same time from 2 different threads
+- The <WikiCommandButton name="tag"/> command always saying every entity passed in the feedback even if only 1 passes
+  - This is a Vanilla bug
+- The <WikiCommandButton name="title"/> command not scheduling to the targets in the selection. While not required, since
+this is just a packet send, this is still good practice.
