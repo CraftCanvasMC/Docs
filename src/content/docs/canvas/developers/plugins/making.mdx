@@ -1,0 +1,81 @@
+---
+title: Making a Folia Plugin
+description: Learn how to make sure your plugin is safe for region threading
+tableOfContents: true
+---
+
+Making plugins with Folia is... a pain... There are a lot of ways 1 *tiny* issue can screw over the entire server in so
+many ways that make errors completely undebuggable and then nobody has a clue what happened or why. There are a lot of
+common ways plugins mess up that cause exceptions and weird errors. This documentation page is more to tell you what you
+should and shouldn't do when creating a plugin that is compatible with region threading(e.g. softwares like Canvas and
+Folia or other forks).
+
+## Teleports
+
+When in region threading, you **must** use `Entity#teleportAsync`, **NOT** `Entity#teleport`. This API is not coming
+back, will not come back, ever, under any circumstances. However, just because this method is safe for region threading,
+does ***not*** mean that it's safe to use wherever and whenever you want! Just because "async" is in the name doesn't
+mean the method is suddenly safe in general for usage in every event or context or whatever. Here's why:
+
+To start, there are 2 types of teleports (technically 3 but whatever, that will be explained later). **`sync-region`**
+teleports, and **`cross-region`** teleports. It is worth noting **`cross-region`** teleports cover **`cross-dimension`**
+teleports. The *type* of teleport it isn't exposed, as that is determined inside the internal teleport logic.
+
+### Sync-Region Teleports
+
+**`sync-region`** teleports are actually significantly safer to use in comparison to **`cross-region`** teleports, since
+they just snap the entity and passengers to the new location. Before the snap though, it clears the passenger tree from
+the tracker and then adds it back after snapping. So a pretty generic and generally safe teleport to use.
+
+### Cross-Region Teleports
+
+This is where most bugs occur. This type of teleport removes the entity and its passengers **fully** from the region and
+the world, and then loads the chunks at the destination location, then placing them back into the destination region. If
+this kind of teleport happens in a spot that isn't quite safe for this, it can cause exceptions and errors **very** fast
+that often times don't even have anything to do with teleporting in the slightest. As such, plugins need to be
+**extremely** careful on when they execute teleports. In general, it's safe to assume that if you schedule the teleport
+to the entity scheduler, then it will always execute in a place where the entity is safe to teleport. So scheduling the
+teleport to the next tick is always safest.
+
+## Region Threading Rules
+
+There are a **ton** of events that aren't safe for teleporting in, of which can cause, again, more undiagnosable errors!
+Isn't that fun? To make a list of every single event that is unsafe to teleport in would be absolute hell and very hard
+to do as the API is constantly being expanded on and adjusted. So here are some rules you need to ensure you are
+following to ensure it's safe:
+
+1. If the event is *possible* to be called during the entity tick, you **must** schedule the teleport. This is because
+by teleporting the entity cross-region, the entity *POST* the event is now technically in a removed state, which can
+cause errors, trip thread checks, etc, crashing the server in undiagnosable manners. You **must** schedule the teleport
+call to the entity scheduler to ensure the teleport doesn't cause issues.
+2. It is generally safe to assume anything within `160` blocks of a position in the world(e.g. an entity, block, etc) is
+within the same region. Sometimes this number is higher depending on the grid exponent set by the server owner, but it's
+not recommended to try and predict how far out you own data. It is recommended 99% of the time to use the
+`isOwnedByCurrentRegion` checks, which allow you to check if certain data like entities, chunks, blocks, etc, are fully
+owned by the current region in context.
+3. Teleporting during login/logout is **completely** unsupported and ***broken***. As of Canvas 26.2, teleports will
+throw an exception when attempting to teleport during these stages, since a cross-region teleport **will** break the
+client, leaving them in a permanently broken state until the server reboots.
+4. Teleporting during move events is unsupported, use the `setTo` methods provided by the event.
+5. If you are trying to do an operation on an entity, you should **always** use the entity scheduler, **never** the
+location scheduler
+6. Players aren't thread checked. This does **NOT** mean that player-related operations are safe to execute async! They
+are left unchecked **intentionally** for internal purposes. Everything should still **always** be scheduled to the
+players entity scheduler. Plugins **constantly** are abusing the fact that players aren't thread checked, seriously,
+don't do this. This is unsafe and causes even more undiagnosable issues.
+7. Just because it doesn't throw an exception immediately, doesn't mean it's safe and ok. Opening/closing inventories as
+an example are not thread-safe at **all**, yet plugins still constantly schedule this to the global tick just so it
+"doesn't error", but yet it still can cause a race condition where it *does error*. And this applies to both large and
+small plugins, even very well-made plugins when they add Folia support make this mistake.
+8. If a method, field, class, constructor, etc, is annotated with `@Unsupported` in Canvas' API, don't use it, it will
+throw an `UnsupportedOperationException`. This includes but is not limited to the sync teleport API, some datapack API,
+reloading resources, restarting the server, and more.
+
+This list will be added to/updated over time to try and cover as many things as possible to help out plugins developing
+against Folia or Canvas.
+
+## Closing
+
+Developing plugins for Folia can be very complex, and cause a significant amount of issues **very** quickly. If you have
+questions, **PLEASE** ask them in the `#canvas-dev` channel in Canvas' [discord](https://canvasmc.io/discord). We have a
+large community of developers very willing to help you with whatever questions you may have.

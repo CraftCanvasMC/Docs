@@ -21,7 +21,8 @@ modifications. Before `1.21.11`, Folia required loading a certain area of chunks
 
 :::caution
 
-The world creation call must be run on the **global tick thread**. To schedule this to the global tick, use:
+The world creation call must be run on the **global tick thread** except during startup. To schedule this to the global
+tick, use:
 ```java
 Bukkit.getServer().getGlobalRegionScheduler().run(plugin, (task) -> {
     Bukkit.getServer().createWorld(WorldCreator.name("example"));
@@ -37,7 +38,8 @@ since the old API was not something we could entirely keep compatible with. The 
 
 :::caution
 
-The world unload call must be run on the **global tick thread**. To schedule this to the global tick, use:
+The world unload call must be run on the **global tick thread** except during startup. To schedule this to the global
+tick, use:
 ```java
 Server server = Bukkit.getServer();
 server.getGlobalRegionScheduler().run(plugin, (task) -> {
