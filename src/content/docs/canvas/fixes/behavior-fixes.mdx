@@ -84,6 +84,53 @@ When the packet is received, we redirect the packet to the global region thread,
 normal, this packet will not be run because the player isn't owned by any region, and as a result isn't being ticked. Once the finalizer
 is run, the player is scheduled to respawn back at their respawn location.
 
+### End Portal Gravity-Block Duplication
+
+Vanilla gravity block duplication works because when a falling block enters an End portal, the portal transfer and the rest of the
+falling block tick both complete. The portal transfer creates the falling block in the destination world, while the rest of the tick
+can run the landing logic in the source world and place the block there. Folia's rewrite of entity teleportation makes continuing to
+tick the original falling block unsafe, since the entity has already been removed from its region and is in the process of being added
+to another world. Canvas normally stops the tick here to keep this region-threading safe, which breaks sand duplication machines.
+
+:::note
+
+Introduced in [Canvas#307 "Restore safe End portal falling-block duplication"](https://github.com/CraftCanvasMC/Canvas/pull/307),
+authored by [BaconCat1](https://github.com/BaconCat1)
+
+:::
+
+Canvas fixes this by splitting the falling block tick into the initial tick logic and the landing logic. The initial logic increments
+the entity time, applies gravity, moves the entity, applies effects from blocks, and handles the End portal. The landing logic contains
+the existing checks for placing the block or dropping it as an item. We need the landing logic to run in the source world, however, we
+cannot run it on the original entity because that entity is already in the portal transfer.
+
+Before the transfer finishes, Canvas creates a new `FallingBlockEntity` in the source world to continue the tick. We copy the state
+from the original entity without moving its Bukkit wrapper, give it a new UUID, clear the portal state, and add it to the source world
+on the same region. The field `canvas$finishTickOnly` tells the continuation to skip the initial logic that the original entity already
+ran, and then the normal landing and block placement logic is called. Once this finishes, the continuation is immediately discarded so
+it cannot tick or enter the portal again.
+
+This keeps the original falling block owned by the portal transfer while the separate continuation is owned by the source region,
+making the Vanilla behavior work without ticking an entity on the wrong region.
+
+To enable this behavior, set the following option in `config/paper-global.yml`:
+
+```yaml
+unsupported-settings:
+  allow-unsafe-end-portal-teleportation: true
+```
+
+This option is disabled by default. If the option is disabled, Canvas does not create the continuation and the current safe behavior is
+unchanged.
+
+:::caution
+
+This is an unsupported Paper setting that intentionally enables an exploit. Enable it only if you want End portal gravity-block
+duplication on your server. See [Paper's duplication bug documentation](https://docs.papermc.io/paper/misc/paper-bug-fixes/#duplication-bugs)
+for the upstream warning and configuration details.
+
+:::
+
 ### Minor Issues
 
 - Fixes [Folia#421](https://github.com/PaperMC/Folia/issues/421)
